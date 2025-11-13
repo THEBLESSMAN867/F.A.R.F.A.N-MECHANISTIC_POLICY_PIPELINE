@@ -30,16 +30,32 @@ SPCAdapterError = CPPAdapterError
 
 def adapt_spc_to_orchestrator(*args, **kwargs):
     """
-    Convenience function to adapt SPC to PreprocessedDocument.
-    
-    This is an alias for adapt_cpp_to_orchestrator for terminology consistency.
-    SPC (Smart Policy Chunks) is the new name for CPP (Canon Policy Package).
-    
+    Convert Smart Policy Chunks (SPC) documents to orchestrator format.
+
+    This is an alias for adapt_cpp_to_orchestrator, provided for terminology
+    consistency as SPC (Smart Policy Chunks) is the new name for CPP (Canon
+    Policy Package).
+
+    The adapter performs the following transformations:
+    - Converts SPC/CPP document structure to PreprocessedDocument format
+    - Preserves complete provenance information for traceability
+    - Orders chunks by text_span.start for deterministic ordering
+    - Computes provenance_completeness metric
+    - Supports micro, meso, and macro chunk resolutions
+
     Args:
-        Same as adapt_cpp_to_orchestrator
-        
+        *args: Positional arguments passed to adapt_cpp_to_orchestrator
+        **kwargs: Keyword arguments passed to adapt_cpp_to_orchestrator
+
     Returns:
-        PreprocessedDocument for orchestrator
+        PreprocessedDocument: Document formatted for orchestrator consumption
+
+    Raises:
+        SPCAdapterError: If document conversion fails
+
+    See Also:
+        adapt_cpp_to_orchestrator: The underlying implementation function
+        CPPAdapter: The adapter class for more control over the conversion process
     """
     return adapt_cpp_to_orchestrator(*args, **kwargs)
 

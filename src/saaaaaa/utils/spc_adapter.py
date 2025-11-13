@@ -68,6 +68,24 @@ class SPCAdapter:
 
         Raises:
             SPCAdapterError: If conversion fails or data is invalid
+
+        CanonPolicyPackage Expected Attributes:
+            Required:
+                - chunk_graph: ChunkGraph with .chunks dict
+                - chunk_graph.chunks: dict of chunk objects with .text and .text_span
+
+            Optional (handled with hasattr checks):
+                - schema_version: str (default: 'SPC-2025.1')
+                - quality_metrics: object with metrics like provenance_completeness,
+                  structural_consistency, boundary_f1, kpi_linkage_rate,
+                  budget_consistency_score, temporal_robustness, chunk_context_coverage
+                - policy_manifest: object with axes, programs, projects, years, territories
+                - metadata: dict with optional 'spc_rich_data' key
+
+            Chunk Optional Attributes (handled with hasattr checks):
+                - entities: list of entity objects with .text attribute
+                - time_facets: object with .years list
+                - budget: object with amount, currency, year, use, source attributes
         """
         self.logger.info(f"Converting CanonPolicyPackage to PreprocessedDocument: {document_id}")
 

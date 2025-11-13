@@ -44,7 +44,7 @@ class CanonicalCatalogManager:
         # Buscar la pregunta en el catálogo
         question = self._find_question(question_id)
         if not question:
-            raise ValueError(f"Pregunta {question_id} no encontfact en el catálogo")
+            raise ValueError(f"Pregunta {question_id} no encontrada en el catálogo")
 
         execution_plan = {
             "question_id": question_id,

@@ -28,7 +28,7 @@ Información general del catálogo:
 - **PP**: policy_processor.py (3 clases)
 - **CD**: contradiction_detection.py (3 clases)
 - **FV**: financiero_viabilidad_tablas.py (2 clases)
-- **DB**: dereck_beach.py (7 clases)
+- **DB**: derek_beach.py (7 clases)
 - **RA**: report_assembly.py (1 clase)
 - **EP**: embedding_policy.py (2 clases)
 - **A1**: Analyzer_one.py (4 clases)

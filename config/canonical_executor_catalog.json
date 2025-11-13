@@ -19,8 +19,8 @@
         ]
       },
       "CD": {
-        "name": "contradiction_deteccion.py",
-        "path": "src/saaaaaa/analysis/contradiction_deteccion.py",
+        "name": "contradiction_detection.py",
+        "path": "src/saaaaaa/analysis/contradiction_detection.py",
         "classes": [
           "PolicyContradictionDetector",
           "BayesianConfidenceCalculator",

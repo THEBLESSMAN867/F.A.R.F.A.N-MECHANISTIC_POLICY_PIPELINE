@@ -81,8 +81,30 @@ class ImportAnalyzer:
                 for alias in node.names:
                     imports.add(alias.name)
             elif isinstance(node, ast.ImportFrom):
+                # Resolve relative imports using the file path so we capture local package dependencies.
+                # node.level == 0 => absolute import; node.level > 0 => relative import with that many leading dots.
+                current_module = self._path_to_module(file_path)
+                package_parts = current_module.split('.')[:-1]  # module's package parts
+                # Compute parent package parts based on relative level
+                if getattr(node, "level", 0) and node.level > 0:
+                    cut = node.level - 1
+                    if cut <= 0:
+                        parent_parts = package_parts
+                    else:
+                        parent_parts = package_parts[:-cut] if cut <= len(package_parts) else []
+                else:
+                    parent_parts = package_parts
+                # Build resolved module name
                 if node.module:
-                    imports.add(node.module)
+                    if parent_parts:
+                        resolved = '.'.join(parent_parts + [node.module]) if node.level and node.level > 0 else node.module
+                    else:
+                        resolved = node.module
+                else:
+                    # from . import name  -> resolved to parent package
+                    resolved = '.'.join(parent_parts) if parent_parts else ''
+                if resolved:
+                    imports.add(resolved)
 
         return imports
 

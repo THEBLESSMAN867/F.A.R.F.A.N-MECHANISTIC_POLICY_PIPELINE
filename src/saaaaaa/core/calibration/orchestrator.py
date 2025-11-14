@@ -245,35 +245,41 @@ class CalibrationOrchestrator:
 
         if needs_q or needs_d or needs_p:
             if self.contextual_evaluator:
-                contextual_scores = self.contextual_evaluator.evaluate_all_contextual(
-                    method_id=method_id,
-                    question_id=context.question_id,
-                    dimension=context.dimension,
-                    policy_area=context.policy_area
-                )
-
+                # Only evaluate the required contextual layers
                 if needs_q:
+                    q_score = self.contextual_evaluator.evaluate_question(
+                        method_id=method_id,
+                        question_id=context.question_id
+                    )
                     layer_scores[LayerID.QUESTION] = LayerScore(
                         layer=LayerID.QUESTION,
-                        score=contextual_scores['q'],
+                        score=q_score,
                         rationale=f"Question compatibility for {context.question_id}"
                     )
                 else:
                     logger.debug("layer_skipped", extra={"method": method_id, "layer": "q"})
 
                 if needs_d:
+                    d_score = self.contextual_evaluator.evaluate_dimension(
+                        method_id=method_id,
+                        dimension=context.dimension
+                    )
                     layer_scores[LayerID.DIMENSION] = LayerScore(
                         layer=LayerID.DIMENSION,
-                        score=contextual_scores['d'],
+                        score=d_score,
                         rationale=f"Dimension compatibility for {context.dimension}"
                     )
                 else:
                     logger.debug("layer_skipped", extra={"method": method_id, "layer": "d"})
 
                 if needs_p:
+                    p_score = self.contextual_evaluator.evaluate_policy(
+                        method_id=method_id,
+                        policy_area=context.policy_area
+                    )
                     layer_scores[LayerID.POLICY] = LayerScore(
                         layer=LayerID.POLICY,
-                        score=contextual_scores['p'],
+                        score=p_score,
                         rationale=f"Policy compatibility for {context.policy_area}"
                     )
                 else:

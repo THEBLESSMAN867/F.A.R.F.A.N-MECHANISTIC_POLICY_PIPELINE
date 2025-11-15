@@ -41,12 +41,12 @@ class TestExecutorArchitecture:
     """
 
     @pytest.fixture(scope="class")
-    def repo_root(cls) -> Path:
+    def repo_root() -> Path:
         """Get repository root."""
         return Path(__file__).parent.parent.parent
 
     @pytest.fixture(scope="class")
-    def audit_system(cls, repo_root: Path) -> AuditSystem:
+    def audit_system(repo_root: Path) -> AuditSystem:
         """Create audit system."""
         return AuditSystem(repo_root)
 
@@ -338,7 +338,7 @@ class TestExecutorIntegrationWithRealData:
         }
 
     @pytest.fixture(scope="class")
-    def questionnaire_data(cls, repo_root: Path) -> Dict[str, Any]:
+    def questionnaire_data(repo_root: Path) -> Dict[str, Any]:
         """Load questionnaire data if available."""
         questionnaire_path = repo_root / "data" / "questionnaire_monolith.json"
 

@@ -88,7 +88,7 @@ class VerificationManifest:
 class VerifiedPipelineRunner:
     """Executes pipeline with cryptographic verification and claim logging."""
 
-    def __init__(self, plan_pdf_path: Path, artifacts_dir: Path, questionnaire_path: Path | None = None):
+    def __init__(self, plan_pdf_path: Path, artifacts_dir: Path, questionnaire_path: Optional[Path] = None):
         """
         Initialize verified runner.
 

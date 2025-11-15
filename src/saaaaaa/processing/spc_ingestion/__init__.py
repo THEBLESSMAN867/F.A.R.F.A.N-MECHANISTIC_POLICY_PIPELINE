@@ -22,6 +22,7 @@ from pathlib import Path
 import importlib.util
 import logging
 
+from saaaaaa.config.paths import QUESTIONNAIRE_FILE
 from saaaaaa.processing.cpp_ingestion.models import CanonPolicyPackage
 from saaaaaa.processing.spc_ingestion.converter import SmartChunkConverter
 
@@ -74,7 +75,6 @@ class CPPIngestionPipeline:
 
         # Store questionnaire path for manifest traceability
         if questionnaire_path is None:
-            from saaaaaa.config.paths import QUESTIONNAIRE_FILE
             questionnaire_path = QUESTIONNAIRE_FILE
 
         self.questionnaire_path = questionnaire_path

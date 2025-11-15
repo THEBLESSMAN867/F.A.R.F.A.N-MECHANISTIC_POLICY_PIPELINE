@@ -109,8 +109,6 @@ class VerifiedPipelineRunner:
 
         # Set questionnaire path (explicit input, SIN_CARRETA compliance)
         if questionnaire_path is None:
-            # Import here to avoid circular imports
-            sys.path.insert(0, str(REPO_ROOT / 'src'))
             from saaaaaa.config.paths import QUESTIONNAIRE_FILE
             questionnaire_path = QUESTIONNAIRE_FILE
 
@@ -164,10 +162,10 @@ class VerifiedPipelineRunner:
     def compute_sha256(self, file_path: Path) -> str:
         """
         Compute SHA256 hash of a file.
-        
+
         Args:
             file_path: Path to file
-            
+
         Returns:
             Hex-encoded SHA256 hash
         """
@@ -176,7 +174,40 @@ class VerifiedPipelineRunner:
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
-    
+
+    def _verify_and_hash_file(self, file_path: Path, file_type: str, attr_name: str) -> bool:
+        """
+        Verify file exists and compute its SHA256 hash.
+
+        Args:
+            file_path: Path to file to verify and hash
+            file_type: Human-readable file type (e.g., "Input PDF", "Questionnaire")
+            attr_name: Attribute name to store hash (e.g., "input_pdf_sha256")
+
+        Returns:
+            True if verification successful, False otherwise
+        """
+        # Verify file exists
+        if not file_path.exists():
+            error_msg = f"{file_type} not found: {file_path}"
+            self.log_claim("error", "input_verification", error_msg)
+            self.errors.append(error_msg)
+            return False
+
+        # Compute hash
+        try:
+            file_hash = self.compute_sha256(file_path)
+            setattr(self, attr_name, file_hash)
+            self.log_claim("hash", "input_verification",
+                          f"{file_type} SHA256: {file_hash}",
+                          {"file": str(file_path), "hash": file_hash})
+            return True
+        except Exception as e:
+            error_msg = f"Failed to hash {file_type}: {str(e)}"
+            self.log_claim("error", "input_verification", error_msg)
+            self.errors.append(error_msg)
+            return False
+
     def verify_input(self) -> bool:
         """
         Verify input PDF and questionnaire exist and compute hashes.
@@ -186,44 +217,12 @@ class VerifiedPipelineRunner:
         """
         self.log_claim("start", "input_verification", "Verifying input files (PDF + questionnaire)")
 
-        # Verify PDF
-        if not self.plan_pdf_path.exists():
-            error_msg = f"Input PDF not found: {self.plan_pdf_path}"
-            self.log_claim("error", "input_verification", error_msg)
-            self.errors.append(error_msg)
+        # Verify and hash PDF
+        if not self._verify_and_hash_file(self.plan_pdf_path, "Input PDF", "input_pdf_sha256"):
             return False
 
-        # Verify questionnaire (CRITICAL for SIN_CARRETA compliance)
-        if not self.questionnaire_path.exists():
-            error_msg = f"Questionnaire file not found: {self.questionnaire_path}"
-            self.log_claim("error", "input_verification", error_msg)
-            self.errors.append(error_msg)
-            return False
-
-        # Compute PDF hash
-        try:
-            pdf_hash = self.compute_sha256(self.plan_pdf_path)
-            self.input_pdf_sha256 = pdf_hash
-            self.log_claim("hash", "input_verification",
-                          f"Input PDF SHA256: {pdf_hash}",
-                          {"file": str(self.plan_pdf_path), "hash": pdf_hash})
-        except Exception as e:
-            error_msg = f"Failed to hash input PDF: {str(e)}"
-            self.log_claim("error", "input_verification", error_msg)
-            self.errors.append(error_msg)
-            return False
-
-        # Compute questionnaire hash (CRITICAL for determinism)
-        try:
-            questionnaire_hash = self.compute_sha256(self.questionnaire_path)
-            self.questionnaire_sha256 = questionnaire_hash
-            self.log_claim("hash", "input_verification",
-                          f"Questionnaire SHA256: {questionnaire_hash}",
-                          {"file": str(self.questionnaire_path), "hash": questionnaire_hash})
-        except Exception as e:
-            error_msg = f"Failed to hash questionnaire: {str(e)}"
-            self.log_claim("error", "input_verification", error_msg)
-            self.errors.append(error_msg)
+        # Verify and hash questionnaire (CRITICAL for SIN_CARRETA compliance)
+        if not self._verify_and_hash_file(self.questionnaire_path, "Questionnaire", "questionnaire_sha256"):
             return False
 
         self.log_claim("complete", "input_verification",

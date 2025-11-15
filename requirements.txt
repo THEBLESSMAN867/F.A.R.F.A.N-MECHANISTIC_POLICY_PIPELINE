@@ -157,9 +157,23 @@ opencv-python==4.10.0.84
 opencv-python-headless==4.10.0.84
 Pillow==11.0.0
 
-# ============================================================================
-# DATA VALIDATION & SCHEMAS
-# ============================================================================
+# NLP Additional Dependencies
+nltk==3.9.1
+sentencepiece==0.2.0
+tiktoken==0.8.0
+fuzzywuzzy==0.18.0
+python-Levenshtein==0.26.1
+langdetect==1.0.9
+regex==2024.11.6
+
+# Hugging Face Ecosystem
+# huggingface-hub>=0.30.0 required by transformers 4.53.0
+huggingface-hub>=0.30.0
+safetensors==0.5.2
+tokenizers==0.21.0
+filelock==3.16.1
+
+# Data Validation
 jsonschema==4.23.0
 pydantic==2.10.6
 pydantic-settings==2.7.0

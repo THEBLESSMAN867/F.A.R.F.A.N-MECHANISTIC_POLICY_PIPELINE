@@ -87,14 +87,16 @@ class VerificationManifest:
 
 class VerifiedPipelineRunner:
     """Executes pipeline with cryptographic verification and claim logging."""
-    
-    def __init__(self, plan_pdf_path: Path, artifacts_dir: Path):
+
+    def __init__(self, plan_pdf_path: Path, artifacts_dir: Path, questionnaire_path: Path | None = None):
         """
         Initialize verified runner.
-        
+
         Args:
             plan_pdf_path: Path to input PDF
             artifacts_dir: Directory for output artifacts
+            questionnaire_path: Optional path to questionnaire file.
+                               If None, uses canonical path from saaaaaa.config.paths.QUESTIONNAIRE_FILE
         """
         self.plan_pdf_path = plan_pdf_path
         self.artifacts_dir = artifacts_dir
@@ -104,7 +106,16 @@ class VerifiedPipelineRunner:
         self.phases_completed = 0
         self.phases_failed = 0
         self.errors: List[str] = []
-        
+
+        # Set questionnaire path (explicit input, SIN_CARRETA compliance)
+        if questionnaire_path is None:
+            # Import here to avoid circular imports
+            sys.path.insert(0, str(REPO_ROOT / 'src'))
+            from saaaaaa.config.paths import QUESTIONNAIRE_FILE
+            questionnaire_path = QUESTIONNAIRE_FILE
+
+        self.questionnaire_path = questionnaire_path
+
         # Initialize seed registry for deterministic execution
         self.seed_registry = get_global_seed_registry()
         self.seed_registry = get_global_seed_registry()
@@ -118,11 +129,11 @@ class VerifiedPipelineRunner:
         else:
             setattr(self.seed_registry, "correlation_id", self.execution_id)
         self.seed_registry.set_correlation_id(self.execution_id)
-        
+
         # Initialize verification manifest builder
         self.manifest_builder = VerificationManifestBuilder()
         self.manifest_builder.set_versions(get_all_versions())
-        
+
         # Ensure artifacts directory exists
         self.artifacts_dir.mkdir(parents=True, exist_ok=True)
         
@@ -168,56 +179,86 @@ class VerifiedPipelineRunner:
     
     def verify_input(self) -> bool:
         """
-        Verify input PDF exists and compute hash.
-        
+        Verify input PDF and questionnaire exist and compute hashes.
+
         Returns:
-            True if input is valid
+            True if all inputs are valid
         """
-        self.log_claim("start", "input_verification", "Verifying input PDF")
-        
+        self.log_claim("start", "input_verification", "Verifying input files (PDF + questionnaire)")
+
+        # Verify PDF
         if not self.plan_pdf_path.exists():
             error_msg = f"Input PDF not found: {self.plan_pdf_path}"
             self.log_claim("error", "input_verification", error_msg)
             self.errors.append(error_msg)
             return False
-        
-        # Compute hash
+
+        # Verify questionnaire (CRITICAL for SIN_CARRETA compliance)
+        if not self.questionnaire_path.exists():
+            error_msg = f"Questionnaire file not found: {self.questionnaire_path}"
+            self.log_claim("error", "input_verification", error_msg)
+            self.errors.append(error_msg)
+            return False
+
+        # Compute PDF hash
         try:
             pdf_hash = self.compute_sha256(self.plan_pdf_path)
             self.input_pdf_sha256 = pdf_hash
-            self.log_claim("hash", "input_verification", 
+            self.log_claim("hash", "input_verification",
                           f"Input PDF SHA256: {pdf_hash}",
                           {"file": str(self.plan_pdf_path), "hash": pdf_hash})
-            self.log_claim("complete", "input_verification", 
-                          "Input verification successful")
-            return True
         except Exception as e:
             error_msg = f"Failed to hash input PDF: {str(e)}"
             self.log_claim("error", "input_verification", error_msg)
             self.errors.append(error_msg)
             return False
+
+        # Compute questionnaire hash (CRITICAL for determinism)
+        try:
+            questionnaire_hash = self.compute_sha256(self.questionnaire_path)
+            self.questionnaire_sha256 = questionnaire_hash
+            self.log_claim("hash", "input_verification",
+                          f"Questionnaire SHA256: {questionnaire_hash}",
+                          {"file": str(self.questionnaire_path), "hash": questionnaire_hash})
+        except Exception as e:
+            error_msg = f"Failed to hash questionnaire: {str(e)}"
+            self.log_claim("error", "input_verification", error_msg)
+            self.errors.append(error_msg)
+            return False
+
+        self.log_claim("complete", "input_verification",
+                      "Input verification successful (PDF + questionnaire)",
+                      {"pdf_path": str(self.plan_pdf_path),
+                       "questionnaire_path": str(self.questionnaire_path)})
+        return True
     
     async def run_spc_ingestion(self) -> Optional[Any]:
         """
         Run SPC (Smart Policy Chunks) ingestion phase - canonical phase-one.
-        
+
+        Passes explicit questionnaire_path to SPC pipeline for SIN_CARRETA compliance.
+
         Returns:
             SPC object if successful, None otherwise
         """
-        self.log_claim("start", "spc_ingestion", "Starting SPC ingestion (phase-one)")
-        
+        self.log_claim("start", "spc_ingestion",
+                      "Starting SPC ingestion (phase-one) with questionnaire",
+                      {"questionnaire_path": str(self.questionnaire_path)})
+
         try:
             from saaaaaa.processing.spc_ingestion import CPPIngestionPipeline
-            
-            pipeline = CPPIngestionPipeline()
+
+            # Pass questionnaire_path explicitly (SIN_CARRETA: no hidden inputs)
+            pipeline = CPPIngestionPipeline(questionnaire_path=self.questionnaire_path)
             cpp = await pipeline.process(self.plan_pdf_path)
-            
+
             self.phases_completed += 1
-            self.log_claim("complete", "spc_ingestion", 
+            self.log_claim("complete", "spc_ingestion",
                           "SPC ingestion (phase-one) completed successfully",
-                          {"phases_completed": self.phases_completed})
+                          {"phases_completed": self.phases_completed,
+                           "questionnaire_path": str(self.questionnaire_path)})
             return cpp
-            
+
         except Exception as e:
             self.phases_failed += 1
             error_msg = f"SPC ingestion failed: {str(e)}"
@@ -623,10 +664,21 @@ class VerifiedPipelineRunner:
             "duration_seconds": (datetime.fromisoformat(end_time) - datetime.fromisoformat(self.start_time)).total_seconds()
         })
         
-        # Add artifacts
+        # Add artifacts (including questionnaire as first-class artifact)
         for artifact_path, artifact_hash in artifact_hashes.items():
             self.manifest_builder.add_artifact(artifact_path, artifact_hash)
-        
+
+        # Add questionnaire as explicit artifact (SIN_CARRETA compliance)
+        if hasattr(self, 'questionnaire_sha256'):
+            self.manifest_builder.add_artifact(
+                str(self.questionnaire_path),
+                self.questionnaire_sha256
+            )
+            self.log_claim("artifact", "questionnaire",
+                          "Questionnaire added to manifest",
+                          {"path": str(self.questionnaire_path),
+                           "hash": self.questionnaire_sha256})
+
         # Add SPC utilization metrics
         if chunk_metrics:
             self.manifest_builder.manifest_data["spc_utilization"] = chunk_metrics
@@ -641,20 +693,20 @@ class VerifiedPipelineRunner:
             "errors": self.errors
         })
         
+        # Add signal metrics to builder BEFORE building (fix use-before-define bug)
+        signal_metrics = self._calculate_signal_metrics(results)
+        if signal_metrics:
+            self.manifest_builder.manifest_data["signals"] = signal_metrics
+
         # Build and save manifest with HMAC integrity
         manifest_path = self.artifacts_dir / "verification_manifest.json"
         manifest_json = self.manifest_builder.build(
             secret_key=os.environ.get("MANIFEST_SECRET_KEY", "default-dev-key-change-in-production")
         )
-        
-        # Add signal metrics
-        signal_metrics = self._calculate_signal_metrics(results)
-        if signal_metrics:
-            manifest_dict["signals"] = signal_metrics
-        
+
         with open(manifest_path, 'w') as f:
             f.write(manifest_json)
-        
+
         # Verify manifest integrity immediately
         manifest_dict = json.loads(manifest_json)
         is_valid, message = verify_manifest_integrity(

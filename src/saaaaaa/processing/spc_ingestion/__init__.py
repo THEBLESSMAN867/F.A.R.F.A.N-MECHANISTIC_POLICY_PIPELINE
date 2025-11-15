@@ -54,11 +54,32 @@ class CPPIngestionPipeline:
 
     The pipeline ensures 100% alignment between SPC phase-one output and
     what the orchestrator expects to receive.
+
+    Questionnaire Input Contract (SIN_CARRETA compliance):
+    -------------------------------------------------------
+    - questionnaire_path is an EXPLICIT input (defaults to canonical path)
+    - Must be deterministic, auditable, and manifest-tracked
+    - No hidden filesystem dependencies
     """
 
-    def __init__(self):
-        """Initialize the SPC ingestion pipeline with converter."""
+    def __init__(self, questionnaire_path: Path | None = None):
+        """
+        Initialize the SPC ingestion pipeline with converter.
+
+        Args:
+            questionnaire_path: Optional path to questionnaire file.
+                               If None, uses canonical path from saaaaaa.config.paths.QUESTIONNAIRE_FILE
+        """
         logger.info("Initializing CPPIngestionPipeline with StrategicChunkingSystem")
+
+        # Store questionnaire path for manifest traceability
+        if questionnaire_path is None:
+            from saaaaaa.config.paths import QUESTIONNAIRE_FILE
+            questionnaire_path = QUESTIONNAIRE_FILE
+
+        self.questionnaire_path = questionnaire_path
+        logger.info(f"Questionnaire path: {self.questionnaire_path}")
+
         self.chunking_system = StrategicChunkingSystem()
         self.converter = SmartChunkConverter()
         logger.info("Pipeline initialized successfully")

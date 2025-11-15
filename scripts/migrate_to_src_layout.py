@@ -166,7 +166,7 @@ class SrcLayoutMigrator:
             for old_pattern, new_pattern in self.import_replacements.items():
                 # Handle different import styles
 
-                # 1. from orchestrator.module import X
+                # 1. from saaaaaa.core.orchestrator.module import X
                 old_from = f"from {old_pattern}"
                 new_from = f"from {new_pattern}"
                 content = content.replace(old_from, new_from)

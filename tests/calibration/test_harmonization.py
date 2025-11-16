@@ -175,7 +175,7 @@ class TestDataStructureImmutability:
         )
 
         # Attempting to modify should raise
-        with pytest.raises(Exception):  # FrozenInstanceError or AttributeError
+        with pytest.raises(FrozenInstanceError):
             score.score = 0.9
 
     def test_context_tuple_validates_canonical_notation(self):

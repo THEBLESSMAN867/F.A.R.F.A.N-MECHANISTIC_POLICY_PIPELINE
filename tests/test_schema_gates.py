@@ -346,13 +346,9 @@ class TestCanonicalQuestionnaireIntegration:
         canonical = load_questionnaire()
         dict_monolith = dict(canonical.data)
 
-        # Cannot provide both - should prefer one or the other
-        # The implementation currently accepts both but questionnaire takes precedence
-        # This test documents the behavior
-        orchestrator = Orchestrator(
-            monolith=dict_monolith,
-            questionnaire=canonical  # This takes precedence
-        )
-
-        # Should use questionnaire, not monolith
-        assert orchestrator is not None
+        # Cannot provide both - should raise ValueError
+        with pytest.raises(ValueError, match="Cannot specify both 'questionnaire' and 'monolith'"):
+            Orchestrator(
+                monolith=dict_monolith,
+                questionnaire=canonical
+            )

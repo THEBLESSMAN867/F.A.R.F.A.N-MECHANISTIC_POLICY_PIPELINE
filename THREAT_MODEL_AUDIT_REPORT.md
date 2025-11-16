@@ -153,7 +153,7 @@ verified_runner.py
 
 #### ⚠️ ISSUE FOUND: Non-Canonical Path Construction
 
-**Location:** `src/saaaaaa/api/signals_service.py:152`
+**Location (before fix):** `src/saaaaaa/api/signals_service.py:152`  
 
 **Current Code:**
 ```python

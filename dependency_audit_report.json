@@ -184,7 +184,7 @@
   "package_usage": {
     "PyMuPDF": [
       "src/saaaaaa/analysis/factory.py",
-      "src/saaaaaa/analysis/dereck_beach.py"
+      "src/saaaaaa/analysis/derek_beach.py"
     ],
     "PyPDF2": [
       "src/saaaaaa/processing/document_ingestion.py",
@@ -201,7 +201,8 @@
       "src/saaaaaa/audit/__init__.py"
     ],
     "blake3": [
-      "src/saaaaaa/flux/phases.py",
+      "src/saaaaaa/core/orchestrator/signal_loader.py",
+      "src/saaaaaa/core/orchestrator/executor_config.py",
       "src/saaaaaa/core/orchestrator/signals.py",
       "src/saaaaaa/core/orchestrator/signal_loader.py",
       "src/saaaaaa/core/orchestrator/executor_config.py",
@@ -219,7 +220,8 @@
       "src/saaaaaa/core/orchestrator/executors.py"
     ],
     "camelot-py": [
-      "src/saaaaaa/analysis/financiero_viabilidad_tablas.py"
+      "src/saaaaaa/analysis/financiero_viabilidad_tablas.py",
+      "verify_dependencies.py"
     ],
     "chain_layer": [
       "src/saaaaaa/core/calibration/orchestrator.py",
@@ -284,6 +286,7 @@
       "src/saaaaaa/core/wiring/bootstrap.py"
     ],
     "flask": [
+      "src/saaaaaa/api/auth_admin.py",
       "src/saaaaaa/api/api_server.py"
     ],
     "flask-cors": [
@@ -293,7 +296,7 @@
       "src/saaaaaa/api/api_server.py"
     ],
     "fuzzywuzzy": [
-      "src/saaaaaa/analysis/dereck_beach.py"
+      "src/saaaaaa/analysis/derek_beach.py"
     ],
     "httpx": [
       "src/saaaaaa/core/orchestrator/signals.py",
@@ -313,12 +316,17 @@
       "src/saaaaaa/core/calibration/orchestrator.py",
       "src/saaaaaa/core/calibration/layer_requirements.py"
     ],
+    "importlib_metadata": [
+      "src/saaaaaa/compat/safe_imports.py"
+    ],
     "jsonschema": [
       "src/saaaaaa/analysis/teoria_cambio.py",
       "src/saaaaaa/analysis/recommendation_engine.py",
       "src/saaaaaa/utils/metadata_loader.py",
       "src/saaaaaa/utils/validation/schema_validator.py",
       "src/saaaaaa/core/orchestrator/core.py",
+      "src/saaaaaa/analysis/recommendation_engine.py",
+      "src/saaaaaa/analysis/teoria_cambio.py",
       "scripts/validate_questionnaire_monolith_schema.py"
     ],
     "langdetect": [
@@ -450,7 +458,8 @@
       "src/saaaaaa/utils/contract_adapters.py",
       "src/saaaaaa/utils/validation/schema_validator.py",
       "src/saaaaaa/utils/validation/aggregation_models.py",
-      "src/saaaaaa/core/orchestrator/signals.py",
+      "src/saaaaaa/utils/validation/schema_validator.py",
+      "src/saaaaaa/core/orchestrator/advanced_module_config.py",
       "src/saaaaaa/core/orchestrator/executor_config.py",
       "src/saaaaaa/core/orchestrator/advanced_module_config.py",
       "src/saaaaaa/core/wiring/validation.py",
@@ -463,13 +472,17 @@
       "scripts/verify_weights.py"
     ],
     "pydot": [
-      "src/saaaaaa/analysis/dereck_beach.py"
+      "src/saaaaaa/analysis/derek_beach.py"
     ],
     "pyjwt": [
       "src/saaaaaa/api/api_server.py"
     ],
     "pymc": [
-      "src/saaaaaa/analysis/financiero_viabilidad_tablas.py"
+      "src/saaaaaa/analysis/financiero_viabilidad_tablas.py",
+      "verify_dependencies.py"
+    ],
+    "pytensor": [
+      "verify_dependencies.py"
     ],
     "pytest": [
       "tests/test_dependency_management.py",
@@ -673,8 +686,8 @@
       "src/saaaaaa/analysis/financiero_viabilidad_tablas.py"
     ],
     "tenacity": [
-      "src/saaaaaa/flux/phases.py",
-      "src/saaaaaa/core/orchestrator/signals.py"
+      "src/saaaaaa/core/orchestrator/signals.py",
+      "src/saaaaaa/flux/phases.py"
     ],
     "torch": [
       "src/saaaaaa/processing/semantic_chunking_policy.py",
@@ -687,6 +700,7 @@
       "src/saaaaaa/analysis/financiero_viabilidad_tablas.py"
     ],
     "typer": [
+      "src/saaaaaa/core/orchestrator/executor_config.py",
       "src/saaaaaa/flux/cli.py",
       "src/saaaaaa/core/orchestrator/executor_config.py",
       "tests/test_flux_integration.py"
@@ -694,7 +708,8 @@
     "typing_extensions": [
       "src/saaaaaa/compat/__init__.py",
       "src/saaaaaa/utils/core_contracts.py",
-      "src/saaaaaa/utils/validation/aggregation_models.py"
+      "src/saaaaaa/utils/validation/aggregation_models.py",
+      "src/saaaaaa/compat/__init__.py"
     ],
     "unit_layer": [
       "src/saaaaaa/core/calibration/orchestrator.py",

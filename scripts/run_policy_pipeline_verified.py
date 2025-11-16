@@ -44,8 +44,9 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 
 # DIAGNOSTIC: Check module shadowing (verify we're importing from repo, not site-packages)
 import saaaaaa
-print(f"DEBUG: saaaaaa loaded from {saaaaaa.__file__}", flush=True)
-print(f"DEBUG: sys.path = {sys.path}", flush=True)
+if os.environ.get("PIPELINE_DEBUG"):
+    print(f"DEBUG: saaaaaa loaded from {saaaaaa.__file__}", flush=True)
+    print(f"DEBUG: sys.path = {sys.path}", flush=True)
 
 # Assert no shadowing: saaaaaa must come from this repo's src/
 _expected_saaaaaa_prefix = str(REPO_ROOT / "src" / "saaaaaa")

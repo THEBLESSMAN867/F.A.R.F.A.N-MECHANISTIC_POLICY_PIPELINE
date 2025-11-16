@@ -83,7 +83,7 @@ class ConfigConsistencyValidator:
         if not param_path.exists():
             raise FileNotFoundError(f"Parametrization file not found: {param_path}")
 
-        with open(param_path, 'r') as f:
+        with open(param_path, 'r', encoding='utf-8') as f:
             return json.load(f)
 
     def _load_config(self) -> Any:

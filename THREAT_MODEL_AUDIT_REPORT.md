@@ -256,7 +256,7 @@ OUTPUT_DIR = "data/reports"
 
 ### ✅ Implemented
 
-1. **Module shadowing assertion** in verified runner (lines 44-58)
+1. **Module shadowing assertion** in verified runner (lines 50-59)
 2. **Diagnostic logging** for module load verification
 3. **Comprehensive path audit** completed
 

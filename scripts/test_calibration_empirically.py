@@ -83,23 +83,20 @@ class CalibrationTester:
     
     def __init__(self, plan_path: Path):
         """Initialize tester with plan PDF.
-        
+
         Args:
             plan_path: Path to policy plan PDF
         """
         self.plan_path = plan_path
         self.cpp_pipeline = None
         self.spc_adapter = SPCAdapter()
-    
-    async def run_with_base_calibration(self) -> Dict[str, Any]:
-        """Run pipeline with base calibration (no context).
+
+    async def _setup_orchestrator(self) -> tuple[Orchestrator, Any]:
+        """Setup orchestrator with canonical questionnaire (common setup logic).
 
         Returns:
-            Pipeline results and metrics
+            Tuple of (orchestrator, preprocessed_document)
         """
-        print("Running pipeline with BASE calibration (no context)...")
-        start_time = time.time()
-
         # Ingest document
         spc = await self._ingest_document()
 
@@ -115,6 +112,20 @@ class CalibrationTester:
             questionnaire=canonical_questionnaire,
             catalog=processor.factory.catalog
         )
+
+        return orchestrator, doc
+
+    async def run_with_base_calibration(self) -> Dict[str, Any]:
+        """Run pipeline with base calibration (no context).
+
+        Returns:
+            Pipeline results and metrics
+        """
+        print("Running pipeline with BASE calibration (no context)...")
+        start_time = time.time()
+
+        # Setup orchestrator and document
+        orchestrator, doc = await self._setup_orchestrator()
         
         # Monkey-patch to use base calibration only
         import saaaaaa.core.orchestrator.calibration_registry as _calib_reg
@@ -154,21 +165,8 @@ class CalibrationTester:
         print("Running pipeline with CONTEXTUAL calibration...")
         start_time = time.time()
 
-        # Ingest document
-        spc = await self._ingest_document()
-
-        # Convert to orchestrator format
-        doc = self.spc_adapter.to_preprocessed_document(spc)
-
-        # Build processor and load questionnaire
-        processor = build_processor()
-        canonical_questionnaire = load_questionnaire()
-
-        # Create orchestrator with canonical questionnaire
-        orchestrator = Orchestrator(
-            questionnaire=canonical_questionnaire,
-            catalog=processor.factory.catalog
-        )
+        # Setup orchestrator and document
+        orchestrator, doc = await self._setup_orchestrator()
         
         # Monkey-patch to use contextual calibration with tracking
         import saaaaaa.core.orchestrator.calibration_registry as _calib_reg

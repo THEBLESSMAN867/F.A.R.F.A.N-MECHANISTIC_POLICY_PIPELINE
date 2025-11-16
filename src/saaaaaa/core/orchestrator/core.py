@@ -1238,45 +1238,38 @@ class Orchestrator:
         # DEPRECATION WARNINGS for path parameters
         # Path parameters trigger I/O and are deprecated in favor of pre-loaded data
         # ========================================================================
-        if catalog_path is not None:
-            import warnings
-            warnings.warn(
-                "Orchestrator 'catalog_path' parameter is DEPRECATED. "
+        import warnings
+
+        path_params = {
+            "catalog_path": (
+                catalog_path,
                 "Use 'catalog' parameter with pre-loaded data instead. "
                 "Load via: from saaaaaa.core.orchestrator.factory import build_processor",
-                DeprecationWarning,
-                stacklevel=2
-            )
-
-        if monolith_path is not None:
-            import warnings
-            warnings.warn(
-                "Orchestrator 'monolith_path' parameter is DEPRECATED. "
+            ),
+            "monolith_path": (
+                monolith_path,
                 "Use 'questionnaire' parameter with CanonicalQuestionnaire instead. "
                 "Load via: from saaaaaa.core.orchestrator.questionnaire import load_questionnaire",
-                DeprecationWarning,
-                stacklevel=2
-            )
-
-        if method_map_path is not None:
-            import warnings
-            warnings.warn(
-                "Orchestrator 'method_map_path' parameter is DEPRECATED. "
+            ),
+            "method_map_path": (
+                method_map_path,
                 "Use 'method_map' parameter with pre-loaded data instead. "
                 "Load via: from saaaaaa.core.orchestrator.factory import build_processor",
-                DeprecationWarning,
-                stacklevel=2
-            )
-
-        if schema_path is not None:
-            import warnings
-            warnings.warn(
-                "Orchestrator 'schema_path' parameter is DEPRECATED. "
+            ),
+            "schema_path": (
+                schema_path,
                 "Use 'schema' parameter with pre-loaded data instead. "
                 "Load via: from saaaaaa.core.orchestrator.factory import build_processor",
-                DeprecationWarning,
-                stacklevel=2
-            )
+            ),
+        }
+
+        for param_name, (param_value, message) in path_params.items():
+            if param_value is not None:
+                warnings.warn(
+                    f"Orchestrator '{param_name}' parameter is DEPRECATED. {message}",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
 
         # Store paths for backward compatibility (but deprecated)
         self.catalog_path = self._resolve_path(catalog_path) if catalog_path else None

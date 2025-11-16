@@ -40,6 +40,24 @@ from typing import Any, Dict, List, Optional
 
 # Ensure src/ is in Python path
 REPO_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(REPO_ROOT / "src"))
+
+# DIAGNOSTIC: Check module shadowing (verify we're importing from repo, not site-packages)
+import saaaaaa
+if os.environ.get("PIPELINE_DEBUG"):
+    print(f"DEBUG: saaaaaa loaded from {saaaaaa.__file__}", flush=True)
+    print(f"DEBUG: sys.path = {sys.path}", flush=True)
+
+# Assert no shadowing: saaaaaa must come from this repo's src/
+_expected_saaaaaa_prefix = (REPO_ROOT / "src" / "saaaaaa").resolve()
+if not Path(saaaaaa.__file__).resolve().is_relative_to(_expected_saaaaaa_prefix):
+    raise RuntimeError(
+        f"MODULE SHADOWING DETECTED!\n"
+        f"  Expected saaaaaa from: {_expected_saaaaaa_prefix}\n"
+        f"  Actually loaded from:  {saaaaaa.__file__}\n"
+        f"This means an old installed package is shadowing the repo code.\n"
+        f"Fix: uninstall old package or adjust PYTHONPATH/sys.path"
+    )
 
 # Import contract enforcement infrastructure
 from saaaaaa.core.orchestrator.seed_registry import get_global_seed_registry

@@ -692,8 +692,8 @@ def build_processor(
     signal_registry = None
     if enable_signals:
         try:
-            from .core_module_factory import CoreModuleFactory as SignalFactory
-            
+            from .bayesian_module_factory import BayesianModuleFactory as SignalFactory
+
             # Create signal-enabled factory
             signal_factory = SignalFactory(
                 questionnaire_data=questionnaire_data,

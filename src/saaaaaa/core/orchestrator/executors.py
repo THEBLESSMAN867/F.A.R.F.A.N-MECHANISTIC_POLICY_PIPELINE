@@ -4500,9 +4500,15 @@ class D6Q5_Executor(AdvancedDataFlowExecutor):
 # ============================================================================
 
 class FrontierExecutorOrchestrator:
-    """Orchestrator managing frontier-enhanced executors"""
+    """Orchestrator managing frontier-enhanced executors with signal support"""
 
-    def __init__(self) -> None:
+    # Canonical policy areas from questionnaire_monolith.json
+    CANONICAL_POLICY_AREAS = [
+        "PA01", "PA02", "PA03", "PA04", "PA05",
+        "PA06", "PA07", "PA08", "PA09", "PA10"
+    ]
+
+    def __init__(self, signal_registry=None) -> None:
         self.executors = {
             'D1Q1': D1Q1_Executor,
             'D1Q2': D1Q2_Executor,
@@ -4538,6 +4544,12 @@ class FrontierExecutorOrchestrator:
 
         self.global_causal_graph = CausalGraph(num_variables=30)
         self.global_meta_learner = MetaLearningStrategy(num_strategies=10)
+
+        # NEW: Signal support for policy area processing
+        from .signals import SignalRegistry
+        from .chunk_router import ChunkRouter
+        self.signal_registry = signal_registry or SignalRegistry()
+        self.chunk_router = ChunkRouter()
 
     def execute_question(self, question_id: str, doc, method_executor) -> dict[str, Any]:
         """Execute specific question with frontier optimizations"""
@@ -4595,6 +4607,118 @@ class FrontierExecutorOrchestrator:
 
         # Map indices to question IDs
         return [question_ids[i] for i in indices if i < len(question_ids)]
+
+    def load_policy_signals(self, signals_dir: str) -> None:
+        """
+        Load signal packs from directory for PA01-PA10.
+
+        Args:
+            signals_dir: Directory containing PA01.json, PA02.json, ..., PA10.json
+        """
+        import json
+        from pathlib import Path
+
+        signals_path = Path(signals_dir)
+        if not signals_path.exists():
+            raise ValueError(f"Signals directory not found: {signals_path}")
+
+        loaded_count = 0
+        for pa in self.CANONICAL_POLICY_AREAS:
+            signal_file = signals_path / f"{pa}.json"
+            if signal_file.exists():
+                with open(signal_file, 'r', encoding='utf-8') as f:
+                    signal_data = json.load(f)
+
+                from .signals import SignalPack
+                signal_pack = SignalPack(**signal_data)
+                self.signal_registry.put(pa, signal_pack)
+                loaded_count += 1
+                logger.info(f"Loaded signal pack for {pa} v{signal_pack.version}")
+
+        logger.info(f"Loaded {loaded_count}/{len(self.CANONICAL_POLICY_AREAS)} signal packs")
+
+    def process_policy_area_chunks(
+        self,
+        chunks: list[dict[str, Any]],
+        policy_area: str,
+        method_executor
+    ) -> dict[str, Any]:
+        """
+        Process chunks for a policy area with signals.
+
+        Args:
+            chunks: List of 10 chunk dictionaries
+            policy_area: Policy area ID (PA01-PA10)
+            method_executor: Method executor for running analysis
+
+        Returns:
+            Dictionary with processing results
+
+        Raises:
+            ValueError: If chunk count != 10 or invalid policy area
+        """
+        if policy_area not in self.CANONICAL_POLICY_AREAS:
+            raise ValueError(
+                f"Invalid policy area: {policy_area}. "
+                f"Must be one of {self.CANONICAL_POLICY_AREAS}"
+            )
+
+        if len(chunks) != 10:
+            raise ValueError(
+                f"Expected exactly 10 chunks for {policy_area}, got {len(chunks)}"
+            )
+
+        logger.info(f"Processing {len(chunks)} chunks for {policy_area}")
+
+        # Get signal pack for this policy area
+        signal_pack = self.signal_registry.get(policy_area)
+        if signal_pack:
+            logger.info(f"Using signals v{signal_pack.version} for {policy_area}")
+
+        # Process each chunk
+        executor_results = []
+        for i, chunk_dict in enumerate(chunks):
+            # Convert dict to ChunkData for chunk_router
+            from .core import ChunkData
+            chunk = ChunkData(
+                id=chunk_dict.get('id', f'{policy_area}_chunk_{i}'),
+                chunk_type=chunk_dict.get('chunk_type', 'diagnostic'),
+                text=chunk_dict.get('text', ''),
+                metadata=chunk_dict.get('metadata', {})
+            )
+
+            # Route to executor
+            route = self.chunk_router.route_chunk(chunk)
+
+            if route.skip_reason:
+                logger.warning(f"Chunk {i} skipped: {route.skip_reason}")
+                continue
+
+            # Get executor and execute
+            executor_key = route.executor_class
+            executor_class = self.executors.get(executor_key)
+
+            if executor_class:
+                executor = executor_class(method_executor, signal_registry=self.signal_registry)
+
+                # Execute chunk
+                if hasattr(executor, 'execute_chunk'):
+                    result = executor.execute_chunk(chunk_dict, i)
+                else:
+                    result = {'chunk_id': i, 'note': 'execute_chunk not available'}
+
+                executor_results.append({
+                    'chunk_id': i,
+                    'executor': executor_key,
+                    'result': result
+                })
+
+        return {
+            'policy_area': policy_area,
+            'chunks_processed': len(executor_results),
+            'results': executor_results,
+            'signals_version': signal_pack.version if signal_pack else None
+        }
 
 # Backwards compatibility alias
 DataFlowExecutor = AdvancedDataFlowExecutor

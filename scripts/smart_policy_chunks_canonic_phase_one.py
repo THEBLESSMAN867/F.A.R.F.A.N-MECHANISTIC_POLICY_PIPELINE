@@ -1380,9 +1380,13 @@ class PolicyAreaChunkCalibrator:
 
         for iteration in range(self.MAX_ITERATIONS):
             # Use SemanticChunkingProducer to generate chunks
-            # Note: This is a simplified approach - actual integration would use
-            # the full SemanticChunkingProducer API
-            chunks = self._generate_chunks_simple(text, params, policy_area, metadata)
+            try:
+                # FIXED: Actually use the SemanticChunkingProducer
+                chunks = self._generate_chunks_with_producer(text, params, policy_area, metadata)
+            except Exception as e:
+                # Fallback to simple chunking if producer fails
+                self.logger.warning(f"SemanticChunkingProducer failed: {e}, using fallback")
+                chunks = self._generate_chunks_simple(text, params, policy_area, metadata)
 
             chunk_count = len(chunks)
             delta = chunk_count - self.TARGET_CHUNKS_PER_PA
@@ -1408,6 +1412,50 @@ class PolicyAreaChunkCalibrator:
             params['chunk_size'] = max(400, min(2500, params['chunk_size']))
 
         # Return best attempt after max iterations
+        return chunks
+
+    def _generate_chunks_with_producer(
+        self,
+        text: str,
+        params: Dict[str, Any],
+        policy_area: str,
+        metadata: Optional[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Generate chunks using the SemanticChunkingProducer.
+
+        Args:
+            text: Document text
+            params: Chunking parameters (chunk_size, overlap, etc.)
+            policy_area: Policy area ID
+            metadata: Optional metadata
+
+        Returns:
+            List of chunk dictionaries
+        """
+        # Use the actual SemanticChunkingProducer
+        from saaaaaa.processing.semantic_chunking_policy import chunk_document
+
+        result = chunk_document(
+            text=text,
+            chunk_size=params.get('chunk_size', 1000),
+            overlap=params.get('overlap', 150),
+            min_chunk_size=params.get('min_chunk_size', 300)
+        )
+
+        # Convert to our format
+        chunks = []
+        for i, chunk_result in enumerate(result.get('chunks', [])):
+            chunks.append({
+                'id': f"{policy_area}_chunk_{i+1}",
+                'text': chunk_result.get('text', ''),
+                'policy_area': policy_area,
+                'chunk_index': i,
+                'length': len(chunk_result.get('text', '')),
+                'metadata': metadata or {},
+                'semantic_metadata': chunk_result.get('metadata', {})
+            })
+
         return chunks
 
     def _generate_chunks_simple(

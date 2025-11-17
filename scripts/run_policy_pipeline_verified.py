@@ -297,11 +297,18 @@ class VerifiedPipelineRunner:
         
         try:
             from saaaaaa.utils.spc_adapter import SPCAdapter
-            
+
+            # Derive document_id from CPP metadata or fallback to plan filename
+            document_id = None
+            if hasattr(cpp, "metadata") and isinstance(cpp.metadata, dict):
+                document_id = cpp.metadata.get("document_id")
+            if not document_id:
+                document_id = self.plan_pdf_path.stem
+
             adapter = SPCAdapter()
-            # Use the correct method name from SPCAdapter API
-            preprocessed = adapter.to_preprocessed_document(cpp)
-            
+            # Pass document_id as required by SPCAdapter API
+            preprocessed = adapter.to_preprocessed_document(cpp, document_id=document_id)
+
             self.phases_completed += 1
             self.log_claim("complete", "spc_adapter", 
                           "SPC adaptation completed successfully",

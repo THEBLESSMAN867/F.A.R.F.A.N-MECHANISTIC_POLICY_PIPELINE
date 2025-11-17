@@ -102,16 +102,16 @@ setup(
             "tf-keras>=2.16.0",  # Required for transformers compatibility with TensorFlow 2.16+
         ],
         "bayesian": [
-            "pytensor>=2.34.0,<2.35",
-            "pymc>=5.16.0",
+            "pytensor>=2.25.1,<2.26",
+            "pymc==5.16.2",
             "arviz>=0.20.0",
         ],
         "all": [
             "torch>=2.0.0",
             "tensorflow>=2.16.0",
             "tf-keras>=2.16.0",  # Required for transformers compatibility with TensorFlow 2.16+
-            "pytensor>=2.34.0,<2.35",
-            "pymc>=5.16.2",
+            "pytensor>=2.25.1,<2.26",
+            "pymc==5.16.2",
             "arviz>=0.20.0",
         ],
     },

@@ -21,6 +21,7 @@ The pipeline performs:
 from pathlib import Path
 import importlib.util
 import logging
+import unicodedata  # For NFC normalization
 
 from saaaaaa.config.paths import QUESTIONNAIRE_FILE
 from saaaaaa.processing.cpp_ingestion.models import CanonPolicyPackage
@@ -112,6 +113,10 @@ class CPPIngestionPipeline:
                     text_parts.append(page.get_text())
                 doc.close()
                 text = '\n'.join(text_parts)
+
+                # Normalize to NFC for deterministic hashing and span calculation
+                text = unicodedata.normalize('NFC', text)
+
                 logger.info(f"Extracted {len(text)} characters from PDF ({len(text_parts)} pages)")
                 return text
             except ImportError:
@@ -129,6 +134,10 @@ class CPPIngestionPipeline:
             try:
                 with open(document_path, 'r', encoding='utf-8') as f:
                     text = f.read()
+
+                # Normalize to NFC for deterministic hashing and span calculation
+                text = unicodedata.normalize('NFC', text)
+
                 logger.info(f"Loaded {len(text)} characters from {suffix} file")
                 return text
             except IOError as e:

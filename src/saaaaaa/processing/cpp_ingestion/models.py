@@ -172,8 +172,11 @@ class QualityMetrics:
 class IntegrityIndex:
     """
     Cryptographic integrity verification data.
+
+    Uses BLAKE2b (not BLAKE3) for aggregate hash computation.
+    Implementation uses hashlib.blake2b over JSON-serialized chunk hashes.
     """
-    blake3_root: str
+    blake2b_root: str  # Aggregate hash (BLAKE2b-256) of all chunk hashes
     chunk_hashes: dict[str, str] = field(default_factory=dict)
 
 

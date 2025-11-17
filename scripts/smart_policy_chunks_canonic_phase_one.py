@@ -1607,23 +1607,32 @@ class PolicyAreaChunkCalibrator:
 # =============================================================================
 
 class StrategicChunkingSystem:
-    def __init__(self):
+    def __init__(self, random_seed: int = 42):
         """
         Initialize the Strategic Chunking System with canonical components.
-        
+
         Integrates production-grade canonical modules:
         - PolicyAnalysisEmbedder for semantic embeddings
         - SemanticProcessor for chunking with PDM structure awareness
         - IndustrialPolicyProcessor for causal evidence extraction
         - BayesianEvidenceScorer for probabilistic confidence scoring
-        
+
+        Args:
+            random_seed: Seed for deterministic RNG (default: 42)
+
         Inputs:
             None
         Outputs:
             None - initializes system state
         """
-        self.config = SmartChunkConfig()
+        # Fix seeds for deterministic execution (HOSTILE AUDIT REQUIREMENT)
+        import random
+        np.random.seed(random_seed)
+        random.seed(random_seed)
         self.logger = logging.getLogger("SPC")  # Unified logger name
+        self.logger.info(f"Initialized with deterministic seed: {random_seed}")
+
+        self.config = SmartChunkConfig()
         
         # =====================================================================
         # CANONICAL SOTA PRODUCERS - Frontier approach components

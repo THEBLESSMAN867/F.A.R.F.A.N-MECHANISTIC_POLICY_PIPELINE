@@ -547,13 +547,18 @@ class SmartChunkConverter:
         chunk_hashes: Dict[str, str],
         document_metadata: Dict[str, Any]
     ) -> IntegrityIndex:
-        """Generate cryptographic integrity index."""
-        # Generate root hash from all chunk hashes
+        """
+        Generate cryptographic integrity index.
+
+        Uses BLAKE2b-256 to compute aggregate hash of all chunk hashes.
+        NOT a true Merkle tree - simply hashes sorted JSON representation.
+        """
+        # Generate root hash from all chunk hashes (sorted for determinism)
         combined = json.dumps(chunk_hashes, sort_keys=True).encode('utf-8')
-        blake3_root = hashlib.blake2b(combined, digest_size=32).hexdigest()
+        blake2b_root = hashlib.blake2b(combined, digest_size=32).hexdigest()
 
         return IntegrityIndex(
-            blake3_root=blake3_root,
+            blake2b_root=blake2b_root,
             chunk_hashes=chunk_hashes
         )
 

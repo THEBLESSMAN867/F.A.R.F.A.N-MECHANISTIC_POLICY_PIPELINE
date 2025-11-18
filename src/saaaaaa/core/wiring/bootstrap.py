@@ -21,6 +21,7 @@ from typing import Any
 
 import structlog
 
+from saaaaaa.config.paths import CONFIG_DIR, DATA_DIR
 from saaaaaa.core.orchestrator.arg_router import ExtendedArgRouter
 from saaaaaa.core.orchestrator.class_registry import build_class_registry
 from saaaaaa.core.orchestrator.executor_config import ExecutorConfig
@@ -546,13 +547,8 @@ class WiringBootstrap:
             logger.info("calibration_system_unavailable")
             return None
 
-        try:
-            project_root = Path(__file__).resolve().parents[4]
-        except IndexError:  # pragma: no cover - unlikely
-            project_root = Path.cwd()
-
-        data_dir = project_root / "data"
-        config_dir = project_root / "config"
+        data_dir = DATA_DIR
+        config_dir = CONFIG_DIR
 
         kwargs: dict[str, Any] = {"config": _DEFAULT_CALIBRATION_CONFIG}
 

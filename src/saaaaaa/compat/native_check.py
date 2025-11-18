@@ -116,8 +116,8 @@ def check_system_library(libname: str) -> NativeCheckResult:
     elif system == "Windows":
         # Windows - check PATH and common locations
         for path_dir in os.environ.get("PATH", "").split(os.pathsep):
-            dll_path = os.path.join(path_dir, f"{libname}.dll")
-            if os.path.exists(dll_path):
+            dll_path = Path(path_dir) / f"{libname}.dll"
+            if dll_path.exists():
                 return NativeCheckResult(
                     available=True,
                     message=f"Library {libname}.dll found at {dll_path}",

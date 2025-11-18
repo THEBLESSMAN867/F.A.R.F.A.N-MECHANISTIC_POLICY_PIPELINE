@@ -13,6 +13,11 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
+try:
+    from saaaaaa.config.paths import PROJECT_ROOT
+except Exception:  # pragma: no cover - bootstrap fallback
+    PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
 # Directories that must maintain purity
 CORE_PATHS = [
     "src/saaaaaa/core",
@@ -90,7 +95,7 @@ def check_file_purity(filepath: Path) -> List[Tuple[int, str]]:
 
 def main() -> int:
     """Scan all core modules for purity violations."""
-    repo_root = Path(__file__).parent.parent
+    repo_root = PROJECT_ROOT
     violations_found = False
 
     for core_path_str in CORE_PATHS:

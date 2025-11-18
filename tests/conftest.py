@@ -9,7 +9,9 @@ from pathlib import Path
 
 import pytest
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+from saaaaaa.config.paths import PROJECT_ROOT as CONFIG_PROJECT_ROOT
+
+PROJECT_ROOT = CONFIG_PROJECT_ROOT
 SRC_DIR = PROJECT_ROOT / "src"
 
 # Verify package is properly installed (not via sys.path hacks)

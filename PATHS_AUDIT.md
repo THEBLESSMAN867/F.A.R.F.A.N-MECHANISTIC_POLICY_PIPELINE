@@ -6,162 +6,138 @@
 ## Executive Summary
 
 - **Files Scanned:** 422
-- **Total Findings:** 210
+- **Total Findings:** 108
 - **Critical:** 0
 - **High:** 0
-- **Medium:** 210
+- **Medium:** 108
 - **Low:** 0
 
 ## Findings by Severity
 
-### MEDIUM (210)
+### MEDIUM (108)
 
-#### cwd_usage (3 occurrences)
+#### cwd_usage (1 occurrences)
 
-- **scripts/audit_paths.py:215**
+- **scripts/audit_paths.py:222**
   - Current working directory usage - fragile in different execution contexts
   - Code: `# os.getcwd() or Path.cwd()`
   - Fix: Use proj_root() or explicit paths from saaaaaa.utils.paths
 
-- **src/saaaaaa/audit/audit_system.py:926**
-  - Current working directory usage - fragile in different execution contexts
-  - Code: `default=Path.cwd(),`
-  - Fix: Use proj_root() or explicit paths from saaaaaa.utils.paths
+#### file_usage (52 occurrences)
 
-- **src/saaaaaa/core/wiring/bootstrap.py:552**
-  - Current working directory usage - fragile in different execution contexts
-  - Code: `project_root = Path.cwd()`
-  - Fix: Use proj_root() or explicit paths from saaaaaa.utils.paths
-
-#### file_usage (61 occurrences)
-
-- **setup.py:27**
+- **setup.py:29**
   - __file__ usage detected - may break in packaged distributions
-  - Code: `readme_file = Path(__file__).parent / "README.md"`
+  - Code: `PROJECT_ROOT = Path(__file__).resolve().parent`
   - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
 
-- **tools/scan_core_purity.py:93**
-  - __file__ usage detected - may break in packaged distributions
-  - Code: `repo_root = Path(__file__).parent.parent`
-  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
-
-- **tools/grep_boundary_checks.py:13**
-  - __file__ usage detected - may break in packaged distributions
-  - Code: `REPO_ROOT = Path(__file__).resolve().parent.parent`
-  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
-
-- **tests/test_dependency_management.py:21**
-  - __file__ usage detected - may break in packaged distributions
-  - Code: `return Path(__file__).parent.parent`
-  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
-
-- **tests/test_dependency_management.py:275**
-  - __file__ usage detected - may break in packaged distributions
-  - Code: `script_path = Path(__file__).parent.parent / "scripts" / "generate_dependency_files.py"`
-  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
-
-- **tests/test_dependency_management.py:287**
-  - __file__ usage detected - may break in packaged distributions
-  - Code: `script = Path(__file__).parent.parent / "scripts" / "compare_freeze_lock.py"`
-  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
-
-- **tests/test_dependency_management.py:309**
-  - __file__ usage detected - may break in packaged distributions
-  - Code: `script = Path(__file__).parent.parent / "scripts" / "compare_freeze_lock.py"`
-  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
-
-- **tests/test_structure_verification.py:16**
-  - __file__ usage detected - may break in packaged distributions
-  - Code: `repo_root = Path(__file__).parent.parent`
-  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
-
-- **tests/conftest.py:12**
+- **tools/scan_core_purity.py:19**
   - __file__ usage detected - may break in packaged distributions
   - Code: `PROJECT_ROOT = Path(__file__).resolve().parents[1]`
   - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
 
-- **tests/test_proof_generator.py:72**
+- **tools/grep_boundary_checks.py:13**
   - __file__ usage detected - may break in packaged distributions
-  - Code: `src_root = Path(__file__).parent.parent / "src" / "saaaaaa"`
+  - Code: `PROJECT_ROOT = Path(__file__).resolve().parents[1]`
   - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
 
-  ... and 51 more occurrences
+- **tests/test_dependency_management.py:277**
+  - __file__ usage detected - may break in packaged distributions
+  - Code: `script_path = Path(__file__).parent.parent / "scripts" / "generate_dependency_files.py"`
+  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
 
-#### hardcoded_separator (144 occurrences)
+- **tests/test_dependency_management.py:289**
+  - __file__ usage detected - may break in packaged distributions
+  - Code: `script = Path(__file__).parent.parent / "scripts" / "compare_freeze_lock.py"`
+  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
 
-- **determine_parameter_values_OLD.py:94**
+- **tests/test_dependency_management.py:311**
+  - __file__ usage detected - may break in packaged distributions
+  - Code: `script = Path(__file__).parent.parent / "scripts" / "compare_freeze_lock.py"`
+  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
+
+- **tests/validate_spc_implementation.py:13**
+  - __file__ usage detected - may break in packaged distributions
+  - Code: `REPO_ROOT = Path(__file__).parent.parent`
+  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
+
+- **tests/test_strategic_wiring.py:41**
+  - __file__ usage detected - may break in packaged distributions
+  - Code: `root_dir = Path(__file__).parent.parent`
+  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
+
+- **tests/test_strategic_wiring.py:71**
+  - __file__ usage detected - may break in packaged distributions
+  - Code: `root = Path(__file__).parent.parent`
+  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
+
+- **tests/test_strategic_wiring.py:81**
+  - __file__ usage detected - may break in packaged distributions
+  - Code: `root = Path(__file__).parent.parent`
+  - Fix: Use resources() for packaged data or proj_root() for workspace-relative paths
+
+  ... and 42 more occurrences
+
+#### hardcoded_separator (55 occurrences)
+
+- **tests/test_wiring_core.py:372**
   - Potential hardcoded path separator detected
-  - Code: `"url": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.ht`
+  - Code: `client = SignalClient(base_url="memory://")`
   - Fix: Use Path.joinpath() or / operator
 
-- **determine_parameter_values_OLD.py:123**
+- **tests/test_questionnaire_validation_edge_cases.py:290**
   - Potential hardcoded path separator detected
-  - Code: `"url": "https://huggingface.co/transformers/model_doc/bert.html",`
+  - Code: `'base_slot': f'D{i//5 + 1}-Q{i%5 + 1}'`
   - Fix: Use Path.joinpath() or / operator
 
-- **determine_parameter_values.py:94**
+- **tests/test_signals.py:336**
   - Potential hardcoded path separator detected
-  - Code: `"url": "https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.ht`
+  - Code: `client = SignalClient(base_url="memory://")`
   - Fix: Use Path.joinpath() or / operator
 
-- **determine_parameter_values.py:123**
+- **tests/test_signals.py:350**
   - Potential hardcoded path separator detected
-  - Code: `"url": "https://huggingface.co/transformers/model_doc/bert.html",`
+  - Code: `client = SignalClient(base_url="memory://")`
   - Fix: Use Path.joinpath() or / operator
 
-- **comprehensive_knowledge_base.py:49**
+- **tests/test_signals.py:358**
   - Potential hardcoded path separator detected
-  - Code: `"url": "https://www.jmlr.org/papers/v13/bergstra12a.html",`
+  - Code: `client = SignalClient(base_url="memory://")`
   - Fix: Use Path.joinpath() or / operator
 
-- **comprehensive_knowledge_base.py:63**
+- **tests/test_signals.py:746**
   - Potential hardcoded path separator detected
-  - Code: `"url": "https://www.jmlr.org/papers/v12/pedregosa11a.html",`
+  - Code: `client = SignalClient(base_url="memory://")`
   - Fix: Use Path.joinpath() or / operator
 
-- **comprehensive_knowledge_base.py:155**
+- **tests/test_signals.py:766**
   - Potential hardcoded path separator detected
-  - Code: `"url": "https://numpy.org/doc/stable/",`
+  - Code: `"""Test that HTTP URL without enable_http_signals flag falls back to memory://."""`
   - Fix: Use Path.joinpath() or / operator
 
-- **comprehensive_knowledge_base.py:162**
+- **tests/test_signals.py:779**
   - Potential hardcoded path separator detected
-  - Code: `"url": "https://docs.scipy.org/doc/scipy/",`
+  - Code: `SignalClient(base_url="ftp://localhost")`
   - Fix: Use Path.joinpath() or / operator
 
-- **comprehensive_knowledge_base.py:169**
+- **tests/test_flux_contracts.py:66**
   - Potential hardcoded path separator detected
-  - Code: `"url": "https://scikit-learn.org/stable/documentation.html",`
+  - Code: `manifest = DocManifest(document_id="test-doc", source_uri="test://uri")`
   - Fix: Use Path.joinpath() or / operator
 
-- **comprehensive_knowledge_base.py:176**
+- **tests/test_policy_orchestration_e2e.py:27**
   - Potential hardcoded path separator detected
-  - Code: `"url": "https://pandas.pydata.org/docs/",`
+  - Code: `regex=["\\bmujeres?\\b", "\\bgénero\\b"],`
   - Fix: Use Path.joinpath() or / operator
 
-  ... and 134 more occurrences
-
-#### os_path_usage (2 occurrences)
-
-- **scripts/smart_policy_chunks_canonic_phase_one.py:3462**
-  - os.path usage detected
-  - Code: `output_dir = os.path.dirname(args.output) or '.'`
-  - Fix: Use pathlib.Path instead of os.path
-
-- **src/saaaaaa/compat/native_check.py:119**
-  - os.path usage detected
-  - Code: `dll_path = os.path.join(path_dir, f"{libname}.dll")`
-  - Fix: Use pathlib.Path instead of os.path
+  ... and 45 more occurrences
 
 ## Findings by Category
 
-### hardcoded_separator: 144 occurrences
+### hardcoded_separator: 55 occurrences
 
-### file_usage: 61 occurrences
+### file_usage: 52 occurrences
 
-### cwd_usage: 3 occurrences
-
-### os_path_usage: 2 occurrences
+### cwd_usage: 1 occurrences
 
 
 ## Recommendations

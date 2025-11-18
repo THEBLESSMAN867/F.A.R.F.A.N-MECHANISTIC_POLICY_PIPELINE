@@ -31,11 +31,10 @@ class BaseLayerEvaluator:
         score = evaluator.evaluate("pattern_extractor_v2")
     """
 
-    # Aggregation weights for base layer components
-    # These define how b_theory, b_impl, b_deploy combine into final @b score
-    THEORY_WEIGHT = 0.4   # Theoretical foundation importance
-    IMPL_WEIGHT = 0.4     # Implementation quality importance
-    DEPLOY_WEIGHT = 0.2   # Deployment maturity importance
+    # Default weights (used if not in JSON)
+    DEFAULT_THEORY_WEIGHT = 0.4
+    DEFAULT_IMPL_WEIGHT = 0.35
+    DEFAULT_DEPLOY_WEIGHT = 0.25
 
     # Penalty score for methods without calibration data
     UNCALIBRATED_PENALTY = 0.1
@@ -53,17 +52,23 @@ class BaseLayerEvaluator:
         """
         self.calibration_path = Path(intrinsic_calibration_path)
         self.calibrations: Dict[str, Dict[str, Any]] = {}
+
+        # These will be loaded from JSON (or use defaults)
+        self.theory_weight: float = self.DEFAULT_THEORY_WEIGHT
+        self.impl_weight: float = self.DEFAULT_IMPL_WEIGHT
+        self.deploy_weight: float = self.DEFAULT_DEPLOY_WEIGHT
+
         self._load()
 
         # Verify aggregation weights sum to 1.0
-        total_weight = self.THEORY_WEIGHT + self.IMPL_WEIGHT + self.DEPLOY_WEIGHT
+        total_weight = self.theory_weight + self.impl_weight + self.deploy_weight
         if abs(total_weight - 1.0) > 1e-6:
             raise ValueError(
                 f"Base layer component weights must sum to 1.0, got {total_weight}"
             )
 
     def _load(self):
-        """Load intrinsic calibration scores from JSON."""
+        """Load intrinsic calibration scores and weights from JSON."""
         if not self.calibration_path.exists():
             raise FileNotFoundError(
                 f"Intrinsic calibration file not found: {self.calibration_path}\n"
@@ -77,6 +82,32 @@ class BaseLayerEvaluator:
         if "methods" not in data:
             raise ValueError(
                 "Intrinsic calibration file must have 'methods' key at top level"
+            )
+
+        # Load weights from JSON if available
+        if "_base_weights" in data:
+            base_weights = data["_base_weights"]
+            self.theory_weight = float(base_weights.get("w_th", self.DEFAULT_THEORY_WEIGHT))
+            self.impl_weight = float(base_weights.get("w_imp", self.DEFAULT_IMPL_WEIGHT))
+            self.deploy_weight = float(base_weights.get("w_dep", self.DEFAULT_DEPLOY_WEIGHT))
+
+            logger.info(
+                "base_layer_weights_loaded",
+                extra={
+                    "theory_weight": self.theory_weight,
+                    "impl_weight": self.impl_weight,
+                    "deploy_weight": self.deploy_weight,
+                    "source": "intrinsic_calibration.json"
+                }
+            )
+        else:
+            logger.info(
+                "base_layer_weights_using_defaults",
+                extra={
+                    "theory_weight": self.theory_weight,
+                    "impl_weight": self.impl_weight,
+                    "deploy_weight": self.deploy_weight
+                }
             )
 
         # Load each method's calibration
@@ -173,9 +204,9 @@ class BaseLayerEvaluator:
 
         # Aggregate components using weights
         base_score = (
-            self.THEORY_WEIGHT * b_theory +
-            self.IMPL_WEIGHT * b_impl +
-            self.DEPLOY_WEIGHT * b_deploy
+            self.theory_weight * b_theory +
+            self.impl_weight * b_impl +
+            self.deploy_weight * b_deploy
         )
 
         # Determine quality level
@@ -208,9 +239,9 @@ class BaseLayerEvaluator:
                 "b_theory": b_theory,
                 "b_impl": b_impl,
                 "b_deploy": b_deploy,
-                "theory_weight": self.THEORY_WEIGHT,
-                "impl_weight": self.IMPL_WEIGHT,
-                "deploy_weight": self.DEPLOY_WEIGHT,
+                "theory_weight": self.theory_weight,
+                "impl_weight": self.impl_weight,
+                "deploy_weight": self.deploy_weight,
             },
             rationale=f"Intrinsic quality: {quality} "
                      f"(theory={b_theory:.2f}, impl={b_impl:.2f}, deploy={b_deploy:.2f})",
@@ -218,7 +249,7 @@ class BaseLayerEvaluator:
                 "calibration_status": "loaded",
                 "layer": cal["layer"],
                 "last_updated": cal["last_updated"],
-                "formula": f"{self.THEORY_WEIGHT}*theory + {self.IMPL_WEIGHT}*impl + {self.DEPLOY_WEIGHT}*deploy",
+                "formula": f"{self.theory_weight}*theory + {self.impl_weight}*impl + {self.deploy_weight}*deploy",
                 "quality_level": quality,
             }
         )

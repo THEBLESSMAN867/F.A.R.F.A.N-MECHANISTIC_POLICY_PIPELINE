@@ -1,6 +1,6 @@
 # F.A.R.F.A.N Operational Runbook
 
-**Framework for Advanced Retrieval of Administrativa Narratives**
+**Framework for Advanced Retrieval of Administrative Narratives**
 
 **Version**: 1.0.0
 **Date**: 2025-11-18

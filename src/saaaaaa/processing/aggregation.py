@@ -882,7 +882,8 @@ class AreaPolicyAggregator:
         Returns:
             A list of AreaScore objects.
         """
-        key_func = lambda d: tuple(getattr(d, key) for key in group_by_keys)
+        def key_func(d):
+            return tuple(getattr(d, key) for key in group_by_keys)
         grouped_scores = group_by(dimension_scores, key_func)
 
         area_scores = []

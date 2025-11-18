@@ -565,7 +565,9 @@ class DimensionAggregator:
         Returns:
             A list of DimensionScore objects.
         """
-        key_func = lambda r: tuple(getattr(r, key) for key in group_by_keys)
+        def make_key(r):
+            return tuple(getattr(r, key) for key in group_by_keys)
+        key_func = make_key
         grouped_results = group_by(scored_results, key_func)
 
         dimension_scores = []

@@ -219,7 +219,7 @@ class PathAuditor:
                 fix_suggestion="Use Path.joinpath() or / operator"
             ))
         
-        # os.getcwd / Path.cwd usage
+        # os.getcwd / current path usage
         if self.patterns["cwd_usage"].search(line):
             self.report.add_finding(PathFinding(
                 file=rel_path,

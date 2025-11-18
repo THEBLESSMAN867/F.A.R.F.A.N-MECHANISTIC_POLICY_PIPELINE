@@ -37,7 +37,7 @@ dependencies = [
     "numpy>=1.26.0,<2.0",
     "pandas>=2.2.0",
     "scipy>=1.14.0",
-    "scikit-learn>=1.6.0",
+    "scikit-learn>=1.5.0,<1.6.0",  # econml 0.15.1 requires <1.6
     "transformers>=4.48.0",
     "sentence-transformers>=3.0.0",
     "spacy>=3.8.0",
@@ -47,7 +47,7 @@ dependencies = [
     "PyPDF2>=3.0.0",
     "PyMuPDF>=1.25.0",
     "flask>=3.0.0",
-    "fastapi>=0.115.0",
+    "fastapi>=0.121.0",  # 0.121+ required for starlette 0.41.3 compatibility
     "httpx>=0.28.0",
     "pydantic>=2.10.0",
     "pyyaml>=6.0.2",
@@ -59,7 +59,7 @@ dependencies = [
     "structlog>=24.4.0",
     "opentelemetry-api>=1.29.0",
     "opentelemetry-sdk>=1.29.0",
-    "huggingface-hub>=0.27.0",
+    "huggingface-hub>=0.30.0,<0.32.0",
 ]
 
 [project.optional-dependencies]
@@ -82,7 +82,7 @@ ml = [
 
 # Bayesian analysis (requires NumPy <2.0 for binary compatibility)
 bayesian = [
-    "pytensor>=2.34.0,<2.35",
+    "pytensor>=2.25.1,<2.26",  # PyMC 5.16.2 requires pytensor<2.26
     "pymc>=5.16.0",
     "arviz>=0.20.0",
 ]
@@ -92,7 +92,7 @@ all = [
     "torch>=2.0.0",
     "tensorflow>=2.16.0",
     "tf-keras>=2.16.0",  # Required for transformers compatibility with TensorFlow 2.16+
-    "pytensor>=2.34.0,<2.35",
+    "pytensor>=2.25.1,<2.26",  # PyMC 5.16.2 requires pytensor<2.26
     "pymc>=5.16.0",
     "arviz>=0.20.0",
 ]

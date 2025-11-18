@@ -42,7 +42,8 @@ flask-socketio==5.4.1
 werkzeug==3.0.6
 
 # FastAPI stack for modern async APIs
-fastapi==0.115.6
+# Updated to 0.121+ for starlette 0.41.3 compatibility (required by sse-starlette 2.2.1)
+fastapi>=0.121.0
 uvicorn[standard]==0.34.0
 sse-starlette==2.2.1
 httpx==0.28.1
@@ -107,8 +108,8 @@ langdetect==1.0.9
 regex==2024.11.6
 
 # Hugging Face Ecosystem
-# huggingface-hub>=0.30.0 required by transformers 4.53.0 (see line 171)
-# Duplicate removed - using >=0.30.0 to satisfy transformers 4.53.0 requirements
+# huggingface-hub>=0.30.0 required by transformers 4.53.0
+huggingface-hub>=0.30.0,<0.32.0
 safetensors==0.5.2
 tokenizers==0.21.0
 filelock==3.16.1
@@ -164,23 +165,9 @@ opencv-python==4.10.0.84
 opencv-python-headless==4.10.0.84
 Pillow==11.0.0
 
-# NLP Additional Dependencies
-nltk==3.9.1
-sentencepiece==0.2.0
-tiktoken==0.8.0
-fuzzywuzzy==0.18.0
-python-Levenshtein==0.26.1
-langdetect==1.0.9
-regex==2024.11.6
-
-# Hugging Face Ecosystem
-# huggingface-hub>=0.30.0 required by transformers 4.53.0
-huggingface-hub>=0.30.0,<0.32.0
-safetensors==0.5.2
-tokenizers==0.21.0
-filelock==3.16.1
-
-# Data Validation
+# ============================================================================
+# DATA VALIDATION
+# ============================================================================
 jsonschema==4.23.0
 pydantic==2.10.6
 pydantic-settings==2.7.0
@@ -221,7 +208,7 @@ tenacity==9.0.0
 # ============================================================================
 # TYPE CHECKING & BUILD TOOLS
 # ============================================================================
-typing-extensions==4.12.2
+typing-extensions>=4.14.1  # pydantic 2.12+ requires >=4.14.1
 setuptools==78.1.1
 wheel==0.45.1
 

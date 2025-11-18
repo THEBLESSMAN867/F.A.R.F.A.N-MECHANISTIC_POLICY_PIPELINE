@@ -1,6 +1,6 @@
 # F.A.R.F.A.N Test Plan (Plan de Prueba)
 
-**Framework for Advanced Retrieval of Administrativa Narratives**
+**Framework for Advanced Retrieval of Administrative Narratives**
 
 ## Document Information
 

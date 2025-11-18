@@ -290,3 +290,13 @@ exclude_lines = [
     "raise NotImplementedError",
     "@abstractmethod",
 ]
+
+[tool.deptry]
+requirements_files = [
+    "requirements.txt",
+    "requirements-dev.txt",
+    "requirements-docs.txt",
+    "requirements-optional.txt"
+]
+known_first_party = ["saaaaaa", "src", "schemas", "methods", "retry_handler"]
+exclude = ["src", "tests", "examples", ".venv", "minipdm"]

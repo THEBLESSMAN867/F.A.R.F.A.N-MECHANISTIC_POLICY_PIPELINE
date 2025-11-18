@@ -12,7 +12,6 @@ This test suite verifies:
 import sys
 from pathlib import Path
 import threading
-import time
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))

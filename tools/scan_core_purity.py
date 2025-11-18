@@ -14,7 +14,7 @@ Exit codes:
 import ast
 import sys
 from pathlib import Path
-from typing import List, Set, Tuple
+from typing import List, Tuple
 
 # I/O operations to detect
 IO_OPERATIONS = {

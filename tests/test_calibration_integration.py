@@ -18,7 +18,7 @@ from src.saaaaaa.core.calibration.intrinsic_loader import IntrinsicScoreLoader
 from src.saaaaaa.core.calibration.parameter_loader import MethodParameterLoader
 from src.saaaaaa.core.calibration.layer_requirements import LayerRequirementsResolver
 from src.saaaaaa.core.calibration.orchestrator import CalibrationOrchestrator
-from src.saaaaaa.core.calibration.validator import CalibrationValidator, ValidationDecision
+from src.saaaaaa.core.calibration.validator import CalibrationValidator
 from src.saaaaaa.core.calibration.data_structures import LayerID
 from src.saaaaaa.core.calibration.pdt_structure import PDTStructure
 

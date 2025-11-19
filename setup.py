@@ -23,12 +23,16 @@ from pathlib import Path
 
 from setuptools import find_packages, setup
 
+try:
+    from saaaaaa.config.paths import PROJECT_ROOT
+except Exception:  # pragma: no cover - setup bootstrap
+    PROJECT_ROOT = Path(__file__).resolve().parent
+
 # Read long description from README
-readme_file = Path(__file__).parent / "README.md"
+readme_file = PROJECT_ROOT / "README.md"
 long_description = ""
 if readme_file.exists():
-    with open(readme_file, encoding="utf-8") as f:
-        long_description = f.read()
+    long_description = readme_file.read_text(encoding="utf-8")
 
 # Use flexible dependency ranges instead of strict pins from requirements.txt
 # requirements.txt is for development/production pinning, not for package metadata

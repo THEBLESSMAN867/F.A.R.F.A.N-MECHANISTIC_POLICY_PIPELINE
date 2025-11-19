@@ -98,6 +98,21 @@ class VerificationManifest:
         self.manifest_data["environment"] = env_data
         return self
 
+    def add_environment_info(self, environment: dict[str, Any] | None = None):
+        """
+        Merge extra environment attributes into the manifest.
+
+        Args:
+            environment: Optional mapping of additional environment data.
+        """
+        if environment:
+            current = self.manifest_data.get("environment", {})
+            current.update(environment)
+            self.manifest_data["environment"] = current
+        elif "environment" not in self.manifest_data:
+            self.set_environment()
+        return self
+
     def set_determinism(
         self,
         seed_version: str,
@@ -132,6 +147,12 @@ class VerificationManifest:
         self.manifest_data["determinism"] = determinism_data
         return self
 
+    def set_determinism_info(self, determinism_info: dict[str, Any]):
+        """Alias for setting determinism metadata directly."""
+        if determinism_info:
+            self.manifest_data["determinism"] = determinism_info
+        return self
+
     def set_calibrations(
         self,
         version: str,
@@ -154,6 +175,12 @@ class VerificationManifest:
             "methods_calibrated": methods_calibrated,
             "methods_missing": methods_missing
         }
+        return self
+
+    def set_calibration_info(self, calibration_info: dict[str, Any]):
+        """Set calibration metadata using a snapshot dictionary."""
+        if calibration_info:
+            self.manifest_data["calibration"] = calibration_info
         return self
 
     def set_ingestion(
@@ -189,6 +216,12 @@ class VerificationManifest:
             ingestion_data["chunk_overlap"] = chunk_overlap
 
         self.manifest_data["ingestion"] = ingestion_data
+        return self
+
+    def set_parametrization(self, parametrization: dict[str, Any]):
+        """Record executor/config parameterization data."""
+        if parametrization:
+            self.manifest_data["parametrization"] = parametrization
         return self
 
     def add_phase(

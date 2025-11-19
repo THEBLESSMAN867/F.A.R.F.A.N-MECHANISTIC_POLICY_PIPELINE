@@ -29,6 +29,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from saaaaaa.config.paths import PROJECT_ROOT
 from saaaaaa.core.canonical_notation import CanonicalDimension
 
 logger = logging.getLogger(__name__)
@@ -923,7 +924,7 @@ def main() -> None:
     parser.add_argument(
         "--repo-root",
         type=Path,
-        default=Path.cwd(),
+        default=PROJECT_ROOT,
         help="Repository root directory"
     )
     parser.add_argument(

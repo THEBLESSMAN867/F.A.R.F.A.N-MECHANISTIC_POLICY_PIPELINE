@@ -44,6 +44,7 @@ from ..contracts import (
 )
 from . import get_questionnaire_provider
 from .core import MethodExecutor
+from .executor_config import ExecutorConfig
 from .questionnaire import (
     EXPECTED_HASH,
     EXPECTED_MACRO_QUESTION_COUNT,
@@ -76,11 +77,16 @@ class ProcessorBundle:
             Consumers must treat this mapping as immutable.
         factory: The :class:`CoreModuleFactory` used to construct ancillary
             input contracts for downstream processors.
+        signal_registry: Optional signal registry populated during factory wiring.
+        executor_config: Canonical :class:`ExecutorConfig` used for all question
+            executors (fully parameterized, no fallbacks).
     """
 
     method_executor: MethodExecutor
     questionnaire: Mapping[str, Any]
     factory: "CoreModuleFactory"
+    signal_registry: Any | None
+    executor_config: ExecutorConfig
 
 # ============================================================================
 # FILE I/O OPERATIONS
@@ -623,6 +629,7 @@ def build_processor(
     data_dir: Path | None = None,
     factory: Optional["CoreModuleFactory"] = None,
     enable_signals: bool = True,
+    executor_config: ExecutorConfig | None = None,
 ) -> ProcessorBundle:
     """Create a processor bundle with orchestrator dependencies wired together.
 
@@ -635,6 +642,7 @@ def build_processor(
         factory: Pre-existing :class:`CoreModuleFactory` instance. When omitted
             the function creates a new factory configured with ``data_dir``.
         enable_signals: Enable signal infrastructure (default: True)
+        executor_config: Optional ExecutorConfig to inject (default: deterministic conservative config)
 
     Returns:
         A :class:`ProcessorBundle` containing a ready-to-use method executor,
@@ -669,7 +677,13 @@ def build_processor(
             f"enable_signals must be bool, got {type(enable_signals).__name__}"
         )
 
+    if executor_config is not None and not isinstance(executor_config, ExecutorConfig):
+        raise TypeError(
+            f"executor_config must be ExecutorConfig or None, got {type(executor_config).__name__}"
+        )
+
     core_factory = factory or CoreModuleFactory(data_dir=data_dir)
+    effective_config = executor_config or ExecutorConfig()
 
     if questionnaire_path is not None:
         # Use canonical loader for hash verification
@@ -721,6 +735,8 @@ def build_processor(
         method_executor=executor,
         questionnaire=questionnaire_snapshot,
         factory=core_factory,
+        signal_registry=signal_registry,
+        executor_config=effective_config,
     )
 
 # ============================================================================

@@ -19,6 +19,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from ..calibration.intrinsic_loader import IntrinsicScoreLoader
+
 logger = logging.getLogger(__name__)
 
 # Canonical repository root
@@ -225,8 +227,27 @@ def resolve_calibration_with_context(
         return base_calibration
 
 
+def get_calibration_manifest_data(
+    calibration_path: str | Path = "config/intrinsic_calibration.json",
+    method_ids: list[str] | None = None,
+) -> dict[str, Any]:
+    """
+    Return canonical calibration manifest data for verification.
+
+    Args:
+        calibration_path: Path to intrinsic calibration JSON.
+        method_ids: Optional method identifiers to include in detail.
+
+    Returns:
+        Dictionary with version, hash, statistics, and optional per-method data.
+    """
+    loader = IntrinsicScoreLoader(calibration_path)
+    return loader.get_manifest_snapshot(method_ids)
+
+
 __all__ = [
     "MethodCalibration",
     "resolve_calibration",
     "resolve_calibration_with_context",
+    "get_calibration_manifest_data",
 ]

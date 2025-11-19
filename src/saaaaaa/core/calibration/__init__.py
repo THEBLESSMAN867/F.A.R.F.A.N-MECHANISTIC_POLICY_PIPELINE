@@ -39,6 +39,13 @@ from .data_structures import (
 from .meta_layer import MetaLayerEvaluator
 from .orchestrator import CalibrationOrchestrator
 from .pdt_structure import PDTStructure
+from .validator import (
+    CalibrationValidator,
+    ValidationDecision,
+    ValidationResult,
+    ValidationReport,
+    FailureReason,
+)
 
 # Import protocols for type checking
 from .protocols import (
@@ -80,6 +87,12 @@ __all__ = [
     # Aggregation & Orchestration
     "ChoquetAggregator",
     "CalibrationOrchestrator",
+    # Validation
+    "CalibrationValidator",
+    "ValidationDecision",
+    "ValidationResult",
+    "ValidationReport",
+    "FailureReason",
     # Protocols
     "LayerEvaluator",
     "BaseLayerEvaluatorProtocol",

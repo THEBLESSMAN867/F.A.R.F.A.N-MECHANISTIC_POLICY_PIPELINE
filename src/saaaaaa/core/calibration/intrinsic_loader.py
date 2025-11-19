@@ -11,6 +11,7 @@ Design:
 - Filters by calibration_status to distinguish computed vs excluded methods
 - Computes intrinsic_score from b_theory, b_impl, b_deploy components
 """
+import hashlib
 import json
 import logging
 import threading
@@ -400,3 +401,55 @@ class IntrinsicScoreLoader:
         """
         self._ensure_loaded()
         return self._compute_statistics()
+
+    def get_manifest_snapshot(
+        self,
+        method_ids: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """
+        Build a manifest snapshot for verification purposes.
+
+        Args:
+            method_ids: Optional list of method identifiers to include in detail.
+
+        Returns:
+            Dictionary with metadata, statistics, weights, and optional per-method data.
+        """
+        self._ensure_loaded()
+        metadata = self._data.get("_metadata", {}) if self._data else {}
+        methods = self._methods or {}
+
+        computed = sum(1 for data in methods.values() if data.get("calibration_status") == "computed")
+        excluded = sum(1 for data in methods.values() if data.get("calibration_status") == "excluded")
+        hash_input = json.dumps(methods, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        calibration_hash = hashlib.sha256(hash_input).hexdigest()
+
+        snapshot: dict[str, Any] = {
+            "version": metadata.get("version", "unknown"),
+            "generated_at": metadata.get("generated_at"),
+            "hash": calibration_hash,
+            "total_methods": len(methods),
+            "computed": computed,
+            "excluded": excluded,
+            "weights": {
+                "b_theory": self.w_theory,
+                "b_impl": self.w_impl,
+                "b_deploy": self.w_deploy,
+            },
+            "rubric_reference": metadata.get("rubric_reference"),
+        }
+
+        if method_ids:
+            selected: dict[str, Any] = {}
+            for method_id in method_ids:
+                method_data = methods.get(method_id)
+                if not method_data:
+                    continue
+                selected[method_id] = {
+                    key: method_data.get(key)
+                    for key in ("b_theory", "b_impl", "b_deploy", "calibration_status")
+                }
+            if selected:
+                snapshot["methods"] = selected
+
+        return snapshot

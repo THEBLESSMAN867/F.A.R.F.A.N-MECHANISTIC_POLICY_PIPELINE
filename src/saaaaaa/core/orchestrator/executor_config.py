@@ -14,8 +14,10 @@ Design Principles:
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Literal
 
 # Optional dependency - blake3
@@ -205,6 +207,31 @@ class ExecutorConfig(BaseModel):
             kwargs["thresholds"] = json.loads(val)
 
         return cls(**kwargs)
+
+    @classmethod
+    def from_json_file(cls, path: str | Path) -> ExecutorConfig:
+        """
+        Create configuration from a JSON file (system/config/environments/*).
+
+        Args:
+            path: Path to JSON file describing ExecutorConfig fields.
+
+        Returns:
+            ExecutorConfig populated with file contents.
+        """
+        config_path = Path(path)
+        if not config_path.exists():
+            raise FileNotFoundError(f"ExecutorConfig JSON not found: {config_path}")
+
+        with open(config_path, encoding="utf-8") as handle:
+            payload = json.load(handle)
+
+        if not isinstance(payload, dict):
+            raise ValueError(
+                f"ExecutorConfig JSON must be an object with key/value pairs. Got: {type(payload).__name__}"
+            )
+
+        return cls(**payload)
 
     @classmethod
     def from_cli_args(

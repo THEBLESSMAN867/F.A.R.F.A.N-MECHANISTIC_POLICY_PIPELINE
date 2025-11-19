@@ -86,11 +86,9 @@ import numpy as np
 # Contract infrastructure - ACTUAL INTEGRATION
 from ...utils.determinism_helpers import deterministic
 from .advanced_module_config import (
-    CONSERVATIVE_ADVANCED_CONFIG,
     AdvancedModuleConfig,
 )
-from .calibration_registry import resolve_calibration
-from .executor_config import CONSERVATIVE_CONFIG, ExecutorConfig
+from .executor_config import ExecutorConfig
 from .signal_consumption import SignalConsumptionProof
 from .versions import CALIBRATION_VERSION
 from .versions import MIN_CALIBRATION_VERSION as MINIMUM_SUPPORTED_VERSION
@@ -1215,54 +1213,17 @@ class ExecutorBase(ABC):
         )
 
     def _check_calibration(self) -> ValidationResult:
-        """Check that all methods have proper calibration entries.
-
-        Returns:
-            ValidationResult indicating if calibrations are available
-        """
-        seq = self._get_method_sequence()
-        missing_calibrations = []
-        default_calibrations = []
-
-        for class_name, method_name in seq:
-            calib = resolve_calibration(class_name, method_name, strict=False)
-            if calib is None:
-                missing_calibrations.append(f"{class_name}.{method_name}")
-            elif calib.is_default_like():
-                default_calibrations.append(f"{class_name}.{method_name}")
-
-        if missing_calibrations:
-            return ValidationResult(
-                is_valid=False,
-                severity="ERROR",
-                message=f"Missing calibrations for {len(missing_calibrations)} methods",
-                context={
-                    "check": "calibration",
-                    "missing_calibrations": missing_calibrations[:5],  # First 5 for brevity
-                    "total_missing": len(missing_calibrations)
-                }
-            )
-
-        if default_calibrations:
+        """Check that the new calibration orchestrator is available."""
+        if hasattr(self, 'calibration') and self.calibration is not None:
             return ValidationResult(
                 is_valid=True,
-                severity="WARNING",
-                message=f"Using default calibrations for {len(default_calibrations)} methods",
-                context={
-                    "check": "calibration",
-                    "default_calibrations": default_calibrations[:5],
-                    "total_defaults": len(default_calibrations)
-                }
+                severity="INFO",
+                message="CalibrationOrchestrator is available."
             )
-
         return ValidationResult(
-            is_valid=True,
-            severity="INFO",
-            message=f"All {len(seq)} methods have explicit calibrations",
-            context={
-                "check": "calibration",
-                "methods_checked": len(seq)
-            }
+            is_valid=False,
+            severity="ERROR",
+            message="CalibrationOrchestrator is not available in the executor."
         )
 
     def _check_resources(self) -> ValidationResult:
@@ -1387,7 +1348,7 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
         self.executor = method_executor
         self.signal_registry = signal_registry
         self.questionnaire_provider = questionnaire_provider
-        self.config = config or CONSERVATIVE_CONFIG
+        self.config = config
 
         # NEW: Calibration orchestrator
         self.calibration = calibration_orchestrator
@@ -1399,9 +1360,7 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
 
         # Get advanced module configuration from config or use default
         # Pydantic ensures type safety, so if advanced_modules is set, it's AdvancedModuleConfig
-        self.adv_config: AdvancedModuleConfig = (
-            self.config.advanced_modules or CONSERVATIVE_ADVANCED_CONFIG
-        )
+        self.adv_config: AdvancedModuleConfig = self.config.advanced_modules
 
     def _validate_executor_config(self) -> None:
         """Section 3.2: Validate config at construction time.
@@ -1671,13 +1630,16 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
 
     def _validate_calibrations(self) -> None:
         """
-        Ensure every (class, method) pair in this executor's method sequence
-        has an explicit, non-default calibration entry appropriate for
-        policy-document analysis.
-
-        Also validates calibration version compatibility.
+        Ensures the new layer-based calibration system is correctly set up and
+        that all methods in the sequence have a base calibration entry.
         """
-        # Check calibration version compatibility first
+        if self.calibration is None:
+            raise RuntimeError(
+                f"CalibrationOrchestrator not provided to {self.__class__.__name__}. "
+                "The new calibration system is mandatory."
+            )
+
+        # Check calibration version compatibility
         from .versions import check_version_compatibility
         try:
             check_version_compatibility(
@@ -1690,20 +1652,21 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
                 f"Calibration version incompatibility in {self.__class__.__name__}: {e}"
             ) from e
 
-        # Validate each method has calibration
+        # Validate that each method has at least a base intrinsic calibration
         seq = getattr(self, "_get_method_sequence", lambda: [])()
+        missing_base_calibrations = []
         for class_name, method_name in seq:
-            calib = resolve_calibration(class_name, method_name)
-            if calib is None:
-                raise RuntimeError(
-                    f"Missing calibration for {class_name}.{method_name} "
-                    f"in {self.__class__.__name__}"
-                )
-            if calib.is_default_like():
-                raise RuntimeError(
-                    f"Default/placeholder calibration not allowed for "
-                    f"{class_name}.{method_name} in {self.__class__.__name__}"
-                )
+            method_id = f"{class_name}.{method_name}"
+            # Use the orchestrator's loader to check for the raw score
+            raw_score_data = self.calibration.intrinsic_loader.get_raw_score(method_id)
+            if raw_score_data is None:
+                missing_base_calibrations.append(method_id)
+
+        if missing_base_calibrations:
+            raise RuntimeError(
+                f"Missing base intrinsic calibration for the following methods in {self.__class__.__name__}: "
+                f"{', '.join(missing_base_calibrations)}"
+            )
 
     def get_calibration_manifest_data(self) -> dict[str, Any]:
         """

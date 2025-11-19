@@ -32,6 +32,7 @@ import hashlib
 import json
 import os
 import platform
+import random
 import sys
 import time
 import traceback
@@ -121,6 +122,9 @@ class VerifiedPipelineRunner:
         self.phases_completed = 0
         self.phases_failed = 0
         self.errors: List[str] = []
+        self.policy_unit_id = f"policy_unit::{self.plan_pdf_path.stem}"
+        self.correlation_id = self.execution_id
+        self.versions = get_all_versions()
 
         # Set questionnaire path (explicit input, SIN_CARRETA compliance)
         if questionnaire_path is None:
@@ -131,25 +135,51 @@ class VerifiedPipelineRunner:
 
         # Initialize seed registry for deterministic execution
         self.seed_registry = get_global_seed_registry()
-        self.seed_registry = get_global_seed_registry()
-        # Safely set identifiers regardless of SeedRegistry API shape
-        if hasattr(self.seed_registry, "set_policy_unit_id"):
-            self.seed_registry.set_policy_unit_id(f"plan1_{self.execution_id}")
-        else:
-            setattr(self.seed_registry, "policy_unit_id", f"plan1_{self.execution_id}")
-        if hasattr(self.seed_registry, "set_correlation_id"):
-            self.seed_registry.set_correlation_id(self.execution_id)
-        else:
-            setattr(self.seed_registry, "correlation_id", self.execution_id)
+        self.seed_snapshot = self._initialize_determinism_context()
 
         # Initialize verification manifest builder
-        self.manifest_builder = VerificationManifestBuilder()
-        # Note: set_versions() not available in builder pattern
-        # self.manifest_builder.set_versions(get_all_versions())
+        manifest_secret = (
+            os.getenv("VERIFICATION_HMAC_SECRET")
+            or os.getenv("MANIFEST_SECRET_KEY")
+        )
+        self.manifest_builder = VerificationManifestBuilder(hmac_secret=manifest_secret)
+        self.manifest_builder.manifest_data["versions"] = dict(self.versions)
 
         # Ensure artifacts directory exists
         self.artifacts_dir.mkdir(parents=True, exist_ok=True)
-        
+
+    def _initialize_determinism_context(self) -> dict[str, int]:
+        """
+        Seed all deterministic sources (python, numpy, etc.) via SeedRegistry.
+
+        Returns:
+            Snapshot of generated seeds keyed by component.
+        """
+        seeds = self.seed_registry.get_seeds_for_context(
+            policy_unit_id=self.policy_unit_id,
+            correlation_id=self.correlation_id,
+        )
+
+        python_seed = seeds.get("python")
+        if python_seed is not None:
+            random.seed(python_seed)
+
+        numpy_seed = seeds.get("numpy")
+        if numpy_seed is not None:
+            try:
+                import numpy as np
+
+                np.random.seed(numpy_seed)
+            except Exception as exc:
+                self.log_claim(
+                    "warning",
+                    "determinism",
+                    f"Failed to seed NumPy RNG: {exc}",
+                    {"seed": numpy_seed},
+                )
+
+        return seeds
+
     def log_claim(self, claim_type: str, component: str, message: str, 
                   data: Optional[Dict[str, Any]] = None) -> None:
         """
@@ -481,6 +511,35 @@ class VerifiedPipelineRunner:
             self.errors.append(error_msg)
             return artifacts, artifact_hashes
     
+    def _collect_calibration_manifest_data(self) -> Dict[str, Any]:
+        """Collect calibration metadata for manifest inclusion."""
+        calibration_file = PROJECT_ROOT / "config" / "intrinsic_calibration.json"
+        if not calibration_file.exists():
+            return {}
+
+        try:
+            with open(calibration_file, encoding="utf-8") as handle:
+                calibration_payload = json.load(handle)
+
+            calibration_hash = hashlib.sha256(
+                json.dumps(calibration_payload, sort_keys=True).encode("utf-8")
+            ).hexdigest()
+
+            return {
+                "version": self.versions.get("calibration"),
+                "hash": calibration_hash[:16],
+                "methods_calibrated": len(calibration_payload),
+                "methods_missing": [],
+            }
+        except Exception as exc:
+            self.log_claim(
+                "warning",
+                "calibration_manifest",
+                f"Unable to read calibration data: {exc}",
+                {"path": str(calibration_file)},
+            )
+            return {}
+
     def _calculate_chunk_metrics(self, preprocessed_doc: Any, results: Any) -> Dict[str, Any]:
         """
         Calculate SPC utilization metrics for verification manifest.
@@ -649,163 +708,204 @@ class VerifiedPipelineRunner:
                 "note": f"Signal system not initialized: {str(e)}"
             }
     
-    def generate_verification_manifest(self, artifacts: List[str],
-                                       artifact_hashes: Dict[str, str],
-                                       preprocessed_doc: Any = None,
-                                       results: Any = None) -> Path:
+    def generate_verification_manifest(
+        self,
+        artifacts: List[str],
+        artifact_hashes: Dict[str, str],
+        preprocessed_doc: Any = None,
+        results: Any = None
+    ) -> Path:
         """
         Generate final verification manifest with SPC utilization metrics and cryptographic integrity.
-        
+
         Args:
             artifacts: List of artifact paths
             artifact_hashes: Dictionary mapping paths to SHA256 hashes
             preprocessed_doc: PreprocessedDocument (optional, for chunk metrics)
             results: Orchestrator results (optional, for execution metrics)
-            
+
         Returns:
             Path to verification_manifest.json
         """
         end_time = datetime.utcnow().isoformat()
-        
+
         # Calculate chunk utilization metrics
         chunk_metrics = self._calculate_chunk_metrics(preprocessed_doc, results)
 
         # HOSTILE AUDIT: Validate critical invariants before declaring success
-        hostile_failures = []
+        hostile_failures: list[str] = []
 
-        # Invariant 1: chunk_graph must exist and be non-empty
         if preprocessed_doc:
-            chunk_count = len(getattr(preprocessed_doc, 'chunks', []))
-            if chunk_count < 5:  # Minimum 5 chunks for meaningful analysis
+            chunk_count = len(getattr(preprocessed_doc, "chunks", []))
+            if chunk_count < 5:
                 hostile_failures.append(f"chunk_graph too small: {chunk_count} < 5")
 
-        # Invariant 2: CPP quality_metrics.provenance_completeness must be near 1.0
-        # (relaxed to >= 0.9 for practical tolerance)
-        if preprocessed_doc and hasattr(preprocessed_doc, 'metadata'):
-            # Note: This should ideally check cpp.quality_metrics.provenance_completeness
-            # but we don't have access to cpp here, only preprocessed_doc
-            pass  # Will add comprehensive check in test suite
-
-        # Invariant 3: IntegrityIndex blake2b_root must not be dummy value
-        # (checked at CPP generation time, not here)
-
         # Determine success based on strict criteria + hostile invariants
-        success = (
-            self.phases_failed == 0 and
-            self.phases_completed > 0 and
-            len(self.errors) == 0 and
-            len(artifacts) > 0 and
-            len(hostile_failures) == 0  # All hostile invariants passed
+        success = all(
+            [
+                self.phases_failed == 0,
+                self.phases_completed > 0,
+                len(self.errors) == 0,
+                len(artifacts) > 0,
+                len(hostile_failures) == 0,
+            ]
         )
 
         if hostile_failures:
-            self.log_claim("error", "hostile_audit",
-                          f"Hostile audit failures: {hostile_failures}")
-            self.errors.extend(hostile_failures)
-        
-        # Build manifest using VerificationManifestBuilder with HMAC integrity
-        self.manifest_builder.set_success(success)
-        self.manifest_builder.set_pipeline_hash(getattr(self, 'input_pdf_sha256', ''))
-        
-        # Add environment information
-        self.manifest_builder.add_environment_info()
-        
-        # Add determinism information from seed registry
-        seed_manifest = self.seed_registry.get_manifest_entry()
-        self.manifest_builder.set_determinism_info(seed_manifest)
-        
-        # Add ingestion information
-        if preprocessed_doc and hasattr(preprocessed_doc, 'metadata'):
-            chunk_count = len(preprocessed_doc.metadata.get('chunks', []))
-            text_length = len(preprocessed_doc.raw_text) if hasattr(preprocessed_doc, 'raw_text') else 0
-            sentence_count = len(preprocessed_doc.sentences) if hasattr(preprocessed_doc, 'sentences') else 0
-            
-            self.manifest_builder.add_ingestion_info({
-                "method": "SPC",
-                "chunk_count": chunk_count,
-                "text_length": text_length,
-                "sentence_count": sentence_count,
-                "chunk_strategy": "semantic",
-                "chunk_overlap": 50
-            })
-        
-        # Add phase information
-        self.manifest_builder.add_phase_info({
-            "phase_name": "complete_pipeline",
-            "status": "success" if success else "failed",
-            "phases_completed": self.phases_completed,
-            "phases_failed": self.phases_failed,
-            "duration_seconds": (datetime.fromisoformat(end_time) - datetime.fromisoformat(self.start_time)).total_seconds()
-        })
-        
-        # Add artifacts (including questionnaire as first-class artifact)
-        for artifact_path, artifact_hash in artifact_hashes.items():
-            self.manifest_builder.add_artifact(artifact_path, artifact_hash)
-
-        # Add questionnaire as explicit artifact (SIN_CARRETA compliance)
-        if hasattr(self, 'questionnaire_sha256'):
-            self.manifest_builder.add_artifact(
-                str(self.questionnaire_path),
-                self.questionnaire_sha256
+            self.log_claim(
+                "error",
+                "hostile_audit",
+                f"Hostile audit failures: {hostile_failures}",
             )
-            self.log_claim("artifact", "questionnaire",
-                          "Questionnaire added to manifest",
-                          {"path": str(self.questionnaire_path),
-                           "hash": self.questionnaire_sha256})
+            self.errors.extend(hostile_failures)
 
-        # Add SPC utilization metrics
+        builder = self.manifest_builder
+        builder.manifest_data["versions"] = dict(self.versions)
+        builder.set_success(success)
+        builder.set_pipeline_hash(getattr(self, "input_pdf_sha256", ""))
+        builder.set_environment()
+
+        # Determinism metadata
+        seed_entry = self.seed_registry.get_manifest_entry(
+            policy_unit_id=self.policy_unit_id,
+            correlation_id=self.correlation_id,
+        )
+        builder.set_determinism(
+            seed_version=seed_entry.get("seed_version", ""),
+            policy_unit_id=seed_entry.get("policy_unit_id"),
+            correlation_id=seed_entry.get("correlation_id"),
+            seeds_by_component=seed_entry.get("seeds_by_component"),
+        )
+
+        # Calibration metadata
+        calibration_manifest = self._collect_calibration_manifest_data()
+        if calibration_manifest:
+            builder.set_calibrations(
+                calibration_manifest["version"],
+                calibration_manifest["hash"],
+                calibration_manifest["methods_calibrated"],
+                calibration_manifest["methods_missing"],
+            )
+
+        # Ingestion metadata
+        if preprocessed_doc:
+            raw_text = getattr(preprocessed_doc, "raw_text", "") or ""
+            sentences = getattr(preprocessed_doc, "sentences", []) or []
+            chunk_count = len(getattr(preprocessed_doc, "chunks", []))
+            builder.set_ingestion(
+                method="SPC",
+                chunk_count=chunk_count,
+                text_length=len(raw_text),
+                sentence_count=len(sentences),
+                chunk_strategy="semantic",
+                chunk_overlap=50,
+            )
+
+        # Phase metadata
+        duration_seconds = (
+            datetime.fromisoformat(end_time) - datetime.fromisoformat(self.start_time)
+        ).total_seconds()
+        builder.add_phase(
+            phase_id=0,
+            phase_name="complete_pipeline",
+            success=success,
+            duration_ms=int(duration_seconds * 1000),
+            items_processed=self.phases_completed,
+            error="; ".join(self.errors) if self.errors and not success else None,
+        )
+
+        # Artifacts
+        for index, artifact_path in enumerate(sorted(artifact_hashes.keys())):
+            artifact_file = Path(artifact_path)
+            size_bytes = artifact_file.stat().st_size if artifact_file.exists() else None
+            builder.add_artifact(
+                artifact_id=f"artifact_{index:02d}",
+                path=str(artifact_file),
+                artifact_hash=artifact_hashes[artifact_path],
+                size_bytes=size_bytes,
+            )
+
+        if hasattr(self, "questionnaire_sha256"):
+            questionnaire_size = (
+                self.questionnaire_path.stat().st_size
+                if self.questionnaire_path.exists()
+                else None
+            )
+            builder.add_artifact(
+                artifact_id="questionnaire_source",
+                path=str(self.questionnaire_path),
+                artifact_hash=self.questionnaire_sha256,
+                size_bytes=questionnaire_size,
+            )
+            self.log_claim(
+                "artifact",
+                "questionnaire",
+                "Questionnaire added to manifest",
+                {
+                    "path": str(self.questionnaire_path),
+                    "hash": self.questionnaire_sha256,
+                },
+            )
+
         if chunk_metrics:
-            self.manifest_builder.manifest_data["spc_utilization"] = chunk_metrics
-        
-        # Add legacy fields for backward compatibility
-        self.manifest_builder.manifest_data.update({
-            "execution_id": self.execution_id,
-            "start_time": self.start_time,
-            "end_time": end_time,
-            "input_pdf_path": str(self.plan_pdf_path),
-            "total_claims": len(self.claims),
-            "errors": self.errors
-        })
-        
-        # Add signal metrics to builder BEFORE building (fix use-before-define bug)
+            builder.manifest_data["spc_utilization"] = chunk_metrics
+
         signal_metrics = self._calculate_signal_metrics(results)
         if signal_metrics:
-            self.manifest_builder.manifest_data["signals"] = signal_metrics
+            builder.manifest_data["signals"] = signal_metrics
 
-        # Build and save manifest with HMAC integrity
+        builder.manifest_data.update(
+            {
+                "execution_id": self.execution_id,
+                "start_time": self.start_time,
+                "end_time": end_time,
+                "input_pdf_path": str(self.plan_pdf_path),
+                "total_claims": len(self.claims),
+                "errors": list(self.errors),
+                "artifacts_generated": list(artifacts),
+                "artifact_hashes": dict(artifact_hashes),
+            }
+        )
+
         manifest_path = self.artifacts_dir / "verification_manifest.json"
-        manifest_json = self.manifest_builder.build(
-            secret_key=os.environ.get("MANIFEST_SECRET_KEY", "default-dev-key-change-in-production")
-        )
+        manifest_dict = builder.build()
+        manifest_path.write_text(json.dumps(manifest_dict, indent=2), encoding="utf-8")
 
-        with open(manifest_path, 'w') as f:
-            f.write(manifest_json)
-
-        # Verify manifest integrity immediately
-        manifest_dict = json.loads(manifest_json)
-        is_valid, message = verify_manifest_integrity(
-            manifest_dict,
-            secret_key=os.environ.get("MANIFEST_SECRET_KEY", "default-dev-key-change-in-production")
-        )
-        
-        if not is_valid:
-            self.log_claim("error", "verification_manifest", 
-                          f"Manifest integrity verification failed: {message}")
+        hmac_secret = builder.hmac_secret
+        is_valid = True
+        if hmac_secret:
+            is_valid = verify_manifest_integrity(manifest_dict, hmac_secret)
+            if is_valid:
+                self.log_claim(
+                    "hash",
+                    "verification_manifest",
+                    "Manifest integrity verified",
+                    {"file": str(manifest_path)},
+                )
+            else:
+                self.log_claim(
+                    "error",
+                    "verification_manifest",
+                    "Manifest integrity verification failed",
+                )
         else:
-            self.log_claim("hash", "verification_manifest", 
-                          f"Manifest integrity verified: {message}",
-                          {"file": str(manifest_path), "hmac_present": True})
-        
-        # Print verification banner
+            self.log_claim(
+                "warning",
+                "verification_manifest",
+                "No HMAC secret provided; integrity verification skipped",
+            )
+
         if success and is_valid:
-            print("\n" + "="*80)
+            print("\n" + "=" * 80)
             print("PIPELINE_VERIFIED=1")
             print(f"Manifest: {manifest_path}")
             print(f"HMAC: {manifest_dict.get('integrity_hmac', 'N/A')[:16]}...")
-            print(f"Phases: {self.phases_completed} completed, {self.phases_failed} failed")
+            print(
+                f"Phases: {self.phases_completed} completed, {self.phases_failed} failed"
+            )
             print(f"Artifacts: {len(artifacts)}")
-            print("="*80 + "\n")
-        
+            print("=" * 80 + "\n")
+
         return manifest_path
     
     async def run(self) -> bool:

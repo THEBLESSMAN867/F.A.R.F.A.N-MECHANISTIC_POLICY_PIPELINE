@@ -50,7 +50,6 @@ from ...processing.aggregation import (
 )
 from ..dependency_lockdown import get_dependency_lockdown
 from .arg_router import ArgRouterError, ArgumentValidationError, ExtendedArgRouter
-from .calibration_registry import resolve_calibration
 from .class_registry import ClassRegistryError, build_class_registry
 from .versions import CALIBRATION_VERSION
 from ...utils.paths import safe_join
@@ -854,7 +853,6 @@ class MethodExecutor:
     def __init__(
         self,
         dispatcher: Any | None = None,
-        calibrations: dict[str, Any] | None = None,
         signal_registry: Any | None = None,
     ) -> None:
         # Build the class registry
@@ -870,23 +868,6 @@ class MethodExecutor:
             self.degraded_reasons.append(reason)
             logger.warning("DEGRADED MODE: %s", reason)
             registry = {}
-
-        if calibrations is None:
-            # DEPRECATION: No longer loading from YAML
-            # Calibrations are now internal in calibration_registry.py
-            # Leaving this logic in place only for backward compatibility during transition
-            logger.info(
-                "Calibration loading from YAML is deprecated. "
-                "Using internal calibration_registry.CALIBRATIONS instead."
-            )
-            calibrations = {}  # Empty dict - YAML calibrations no longer supported
-
-        self.raw_calibrations = calibrations  # Will be empty dict after migration
-        self.calibrations = self._map_calibrations_to_classes(calibrations)  # Will be empty dict
-
-        # Add calibration metadata for traceability
-        self.calibration_version = CALIBRATION_VERSION
-        self.calibration_hash = "n/a"  # Placeholder - hash function removed
 
         # Instantiate all classes
         self.instances: dict[str, Any] = {}
@@ -910,20 +891,12 @@ class MethodExecutor:
                 elif class_name == "PolicyTextProcessor":
                     try:
                         from policy_processor import ProcessorConfig
-                        calibration_payload = self.calibrations.get(class_name)
-                        if calibration_payload is not None and self._supports_parameter(cls, "calibration"):
-                            self.instances[class_name] = cls(ProcessorConfig(), calibration=calibration_payload)
-                        else:
-                            self.instances[class_name] = cls(ProcessorConfig())
+                        self.instances[class_name] = cls(ProcessorConfig())
                     except ImportError:
                         logger.warning("Cannot instantiate PolicyTextProcessor: ProcessorConfig unavailable")
                 else:
                     # Standard instantiation
-                    calibration_payload = self.calibrations.get(class_name)
-                    if calibration_payload is not None and self._supports_parameter(cls, "calibration"):
-                        self.instances[class_name] = cls(calibration=calibration_payload)
-                    else:
-                        self.instances[class_name] = cls()
+                    self.instances[class_name] = cls()
             except Exception as exc:
                 logger.error("Failed to instantiate %s: %s", class_name, exc)
 
@@ -936,17 +909,6 @@ class MethodExecutor:
             reason = "All class instantiations failed"
             self.degraded_reasons.append(reason)
             logger.error("CRITICAL DEGRADATION: %s", reason)
-
-    def _map_calibrations_to_classes(self, calibrations: dict[str, Any]) -> dict[str, dict[str, Any]]:
-        """Map legacy YAML calibrations to classes.
-
-        NOTE: This method is deprecated and will always return an empty dict
-        since calibrations parameter is always {} (YAML loading disabled).
-        Kept for backward compatibility during transition period.
-        """
-        # Legacy YAML calibration mapping - no longer used
-        # calibrations is always {} since YAML loading was deprecated
-        return {}
 
     @staticmethod
     def _supports_parameter(callable_obj: Any, parameter_name: str) -> bool:
@@ -972,13 +934,6 @@ class MethodExecutor:
             AttributeError: If method doesn't exist
             RuntimeError: If calibration is missing or placeholder
         """
-        # Fail-fast calibration enforcement
-        calib = resolve_calibration(class_name, method_name)
-        if calib is None:
-            raise RuntimeError(f"No calibration registered for {class_name}.{method_name}")
-        if calib.is_default_like():
-            raise RuntimeError(f"Placeholder calibration detected for {class_name}.{method_name}")
-
         instance = self.instances.get(class_name)
         if not instance:
             logger.warning("No instance available for class %s", class_name)
@@ -1168,233 +1123,70 @@ class Orchestrator:
 
     def __init__(
         self,
-        catalog: dict[str, Any] | None = None,
-        monolith: dict[str, Any] | None = None,
-        questionnaire: CanonicalQuestionnaire | None = None,
-        method_map: dict[str, Any] | None = None,
-        schema: dict[str, Any] | None = None,
-        catalog_path: str | None = None,
-        monolith_path: str | None = None,
-        method_map_path: str | None = None,
-        schema_path: str | None = None,
+        method_executor: MethodExecutor,
+        questionnaire: CanonicalQuestionnaire,
+        executor_config: "ExecutorConfig",
+        calibration_orchestrator: Optional["CalibrationOrchestrator"] = None,
         resource_limits: ResourceLimits | None = None,
         resource_snapshot_interval: int = 10,
     ) -> None:
-        """Initialize the orchestrator.
+        """Initialize the orchestrator with all dependencies injected.
 
         Args:
-            catalog: Pre-loaded method catalog data (preferred, I/O-free)
-            monolith: DEPRECATED - Use questionnaire parameter instead
-            questionnaire: Pre-loaded CanonicalQuestionnaire (PREFERRED, I/O-free, type-safe)
-            method_map: Pre-loaded method-class mapping data (preferred, I/O-free)
-            schema: Pre-loaded questionnaire schema data (preferred, I/O-free)
-            catalog_path: Legacy path to method catalog JSON (deprecated, triggers I/O)
-            monolith_path: Legacy path to questionnaire monolith JSON (deprecated, triggers I/O)
-            method_map_path: Legacy path to method-class mapping JSON (deprecated, triggers I/O)
-            schema_path: Legacy path to questionnaire schema (deprecated, triggers I/O)
-            resource_limits: Resource limit configuration
-            resource_snapshot_interval: Interval for resource snapshots
-
-        Note:
-            QUESTIONNAIRE INTEGRITY ENFORCEMENT:
-            - Prefer 'questionnaire' parameter (CanonicalQuestionnaire) for type safety
-            - The 'monolith' parameter is deprecated (accepts dict for backward compatibility)
-            - For I/O-free initialization, use factory.py to load data
-            - Passing path parameters triggers I/O and is deprecated
+            method_executor: A configured MethodExecutor instance.
+            questionnaire: A loaded and validated CanonicalQuestionnaire instance.
+            executor_config: The executor configuration object.
+            calibration_orchestrator: The calibration orchestrator instance.
+            resource_limits: Resource limit configuration.
+            resource_snapshot_interval: Interval for resource snapshots.
         """
-        # ========================================================================
-        # QUESTIONNAIRE INTEGRITY ENFORCEMENT
-        # ========================================================================
-        # Import CanonicalQuestionnaire for type checking
-        from .questionnaire import CanonicalQuestionnaire
+        from .questionnaire import _validate_questionnaire_structure
 
-        # Handle questionnaire parameter (preferred) vs monolith (deprecated)
-        if questionnaire is not None and monolith is not None:
-            raise ValueError(
-                "Cannot specify both 'questionnaire' and 'monolith' parameters. "
-                "Use 'questionnaire' (CanonicalQuestionnaire) for type safety."
-            )
-
-        if questionnaire is not None:
-            # Type-safe path: CanonicalQuestionnaire already validated
-            if not isinstance(questionnaire, CanonicalQuestionnaire):
-                raise TypeError(
-                    f"questionnaire must be CanonicalQuestionnaire, got {type(questionnaire).__name__}"
-                )
-            self._canonical_questionnaire = questionnaire
-            self._monolith_data = dict(questionnaire.data)  # Extract mutable dict for internal use
-            logger.info(
-                "orchestrator_initialized_with_canonical_questionnaire",
-                sha256=questionnaire.sha256[:16] + "...",
-                question_count=questionnaire.total_question_count,
-                version=questionnaire.version,
-            )
-        elif monolith is not None:
-            # Legacy path: dict provided (deprecated)
-            import warnings
-            warnings.warn(
-                "Orchestrator 'monolith' parameter is deprecated. "
-                "Use 'questionnaire' parameter with CanonicalQuestionnaire instead. "
-                "Load via: from saaaaaa.core.orchestrator.questionnaire import load_questionnaire",
-                DeprecationWarning,
-                stacklevel=2
-            )
-            self._canonical_questionnaire = None
-            self._monolith_data = monolith
-            logger.warning(
-                "orchestrator_initialized_with_legacy_dict",
-                version=monolith.get("version", "unknown"),
-            )
-            # Validate structure of legacy dict
-            from .questionnaire import _validate_questionnaire_structure
-            try:
-                _validate_questionnaire_structure(monolith)
-            except (ValueError, TypeError) as e:
-                raise RuntimeError(
-                    f"Questionnaire structure validation failed: {e}. "
-                    "Cannot start orchestrator with corrupt questionnaire."
-                ) from e
-        else:
-            # Neither provided - will need to load later
-            self._canonical_questionnaire = None
-            self._monolith_data = None
-
-        # Store other pre-loaded data
-        self._catalog_data = catalog
-        self._method_map_data = method_map
-        self._schema_data = schema
-
-        # ========================================================================
-        # PROMPT_SCHEMA_GATES_ENFORCER: Validate phase definitions at startup
-        # No limited mode allowed - if schema is broken, orchestrator cannot start
-        # ========================================================================
         validate_phase_definitions(self.FASES, self.__class__)
 
-        # ========================================================================
-        # DEPRECATION WARNINGS for path parameters
-        # Path parameters trigger I/O and are deprecated in favor of pre-loaded data
-        # ========================================================================
-        import warnings
-
-        path_params = {
-            "catalog_path": (
-                catalog_path,
-                "Use 'catalog' parameter with pre-loaded data instead. "
-                "Load via: from saaaaaa.core.orchestrator.factory import build_processor",
-            ),
-            "monolith_path": (
-                monolith_path,
-                "Use 'questionnaire' parameter with CanonicalQuestionnaire instead. "
-                "Load via: from saaaaaa.core.orchestrator.questionnaire import load_questionnaire",
-            ),
-            "method_map_path": (
-                method_map_path,
-                "Use 'method_map' parameter with pre-loaded data instead. "
-                "Load via: from saaaaaa.core.orchestrator.factory import build_processor",
-            ),
-            "schema_path": (
-                schema_path,
-                "Use 'schema' parameter with pre-loaded data instead. "
-                "Load via: from saaaaaa.core.orchestrator.factory import build_processor",
-            ),
-        }
-
-        for param_name, (param_value, message) in path_params.items():
-            if param_value is not None:
-                warnings.warn(
-                    f"Orchestrator '{param_name}' parameter is DEPRECATED. {message}",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-
-        # Store paths for backward compatibility (but deprecated)
-        self.catalog_path = self._resolve_path(catalog_path) if catalog_path else None
-        self.monolith_path = self._resolve_path(monolith_path) if monolith_path else None
-        self.method_map_path = self._resolve_path(method_map_path) if method_map_path else None
-        self.schema_path = self._resolve_path(schema_path) if schema_path else None
+        self.executor = method_executor
+        self._canonical_questionnaire = questionnaire
+        self._monolith_data = dict(questionnaire.data)
+        self.executor_config = executor_config
+        self.calibration_orchestrator = calibration_orchestrator
         self.resource_limits = resource_limits or ResourceLimits()
         self.resource_snapshot_interval = max(1, resource_snapshot_interval)
+        self.questionnaire_provider = get_questionnaire_provider()
+        if not self.questionnaire_provider.has_data():
+            self.questionnaire_provider.set_data(self._monolith_data)
 
-        # Load catalog from pre-loaded data (I/O-free path)
-        if self._catalog_data is not None:
-            self.catalog = self._catalog_data
-        else:
-            # No data provided - will need to load later or fail
-            # This allows construction without I/O but requires data to be set before use
-            self.catalog = None
+        # Validate questionnaire structure
+        try:
+            _validate_questionnaire_structure(self._monolith_data)
+        except (ValueError, TypeError) as e:
+            raise RuntimeError(
+                f"Questionnaire structure validation failed: {e}. "
+                "Cannot start orchestrator with corrupt questionnaire."
+            ) from e
 
-        # ========================================================================
-        # PROMPT_NONEMPTY_EXECUTION_GRAPH_ENFORCER: Validate catalog is non-empty
-        # Cannot proceed with empty catalog
-        # ========================================================================
-        if self.catalog is not None:
-            if not self.catalog:
-                raise RuntimeError(
-                    "Method catalog is empty - cannot run pipeline. "
-                    "A non-empty catalog is required for orchestration."
-                )
-            # Check if catalog has methods attribute/key
-            catalog_methods = None
-            if isinstance(self.catalog, dict):
-                catalog_methods = self.catalog.get("methods")
-            elif hasattr(self.catalog, "methods"):
-                catalog_methods = getattr(self.catalog, "methods", None)
-
-            if catalog_methods is not None and not catalog_methods:
-                raise RuntimeError(
-                    "Method catalog.methods is empty - cannot run pipeline. "
-                    "At least one method must be registered in the catalog."
-                )
-
-        self.executor = MethodExecutor()
-
-        # ========================================================================
-        # PROMPT_NONEMPTY_EXECUTION_GRAPH_ENFORCER: Validate MethodExecutor.instances is non-empty
-        # No "limited mode" when instances registry is empty
-        # ========================================================================
         if not self.executor.instances:
             raise RuntimeError(
-                "MethodExecutor.instances is empty - no executable methods registered. "
-                "Cannot start orchestration without method instances. "
-                "Check that class registry is properly configured."
+                "MethodExecutor.instances is empty - no executable methods registered."
             )
 
-        self.calibrations: dict[str, Any] = getattr(self.executor, "raw_calibrations", {})
-
-        # Import executors from the executors module
-        from . import executors
-
+from . import executors
+from .executor_config import ExecutorConfig
         self.executors = {
-            "D1-Q1": executors.D1Q1_Executor,
-            "D1-Q2": executors.D1Q2_Executor,
-            "D1-Q3": executors.D1Q3_Executor,
-            "D1-Q4": executors.D1Q4_Executor,
-            "D1-Q5": executors.D1Q5_Executor,
-            "D2-Q1": executors.D2Q1_Executor,
-            "D2-Q2": executors.D2Q2_Executor,
-            "D2-Q3": executors.D2Q3_Executor,
-            "D2-Q4": executors.D2Q4_Executor,
-            "D2-Q5": executors.D2Q5_Executor,
-            "D3-Q1": executors.D3Q1_Executor,
-            "D3-Q2": executors.D3Q2_Executor,
-            "D3-Q3": executors.D3Q3_Executor,
-            "D3-Q4": executors.D3Q4_Executor,
-            "D3-Q5": executors.D3Q5_Executor,
-            "D4-Q1": executors.D4Q1_Executor,
-            "D4-Q2": executors.D4Q2_Executor,
-            "D4-Q3": executors.D4Q3_Executor,
-            "D4-Q4": executors.D4Q4_Executor,
-            "D4-Q5": executors.D4Q5_Executor,
-            "D5-Q1": executors.D5Q1_Executor,
-            "D5-Q2": executors.D5Q2_Executor,
-            "D5-Q3": executors.D5Q3_Executor,
-            "D5-Q4": executors.D5Q4_Executor,
-            "D5-Q5": executors.D5Q5_Executor,
-            "D6-Q1": executors.D6Q1_Executor,
-            "D6-Q2": executors.D6Q2_Executor,
-            "D6-Q3": executors.D6Q3_Executor,
-            "D6-Q4": executors.D6Q4_Executor,
-            "D6-Q5": executors.D6Q5_Executor,
+            "D1-Q1": executors.D1Q1_Executor, "D1-Q2": executors.D1Q2_Executor,
+            "D1-Q3": executors.D1Q3_Executor, "D1-Q4": executors.D1Q4_Executor,
+            "D1-Q5": executors.D1Q5_Executor, "D2-Q1": executors.D2Q1_Executor,
+            "D2-Q2": executors.D2Q2_Executor, "D2-Q3": executors.D2Q3_Executor,
+            "D2-Q4": executors.D2Q4_Executor, "D2-Q5": executors.D2Q5_Executor,
+            "D3-Q1": executors.D3Q1_Executor, "D3-Q2": executors.D3Q2_Executor,
+            "D3-Q3": executors.D3Q3_Executor, "D3-Q4": executors.D3Q4_Executor,
+            "D3-Q5": executors.D3Q5_Executor, "D4-Q1": executors.D4Q1_Executor,
+            "D4-Q2": executors.D4Q2_Executor, "D4-Q3": executors.D4Q3_Executor,
+            "D4-Q4": executors.D4Q4_Executor, "D4-Q5": executors.D4Q5_Executor,
+            "D5-Q1": executors.D5Q1_Executor, "D5-Q2": executors.D5Q2_Executor,
+            "D5-Q3": executors.D5Q3_Executor, "D5-Q4": executors.D5Q4_Executor,
+            "D5-Q5": executors.D5Q5_Executor, "D6-Q1": executors.D6Q1_Executor,
+            "D6-Q2": executors.D6Q2_Executor, "D6-Q3": executors.D6Q3_Executor,
+            "D6-Q4": executors.D6Q4_Executor, "D6-Q5": executors.D6Q5_Executor,
         }
 
         self.abort_signal = AbortSignal()
@@ -1407,44 +1199,19 @@ class Orchestrator:
         self._context: dict[str, Any] = {}
         self._start_time: float | None = None
 
-        # Initialize dependency lockdown enforcement
         self.dependency_lockdown = get_dependency_lockdown()
         logger.info(
             f"Orchestrator dependency mode: {self.dependency_lockdown.get_mode_description()}"
         )
 
-        # Initialize RecommendationEngine for 3-level recommendations
-        # Get questionnaire provider for dependency injection (shared by all init paths)
         try:
-            from . import get_questionnaire_provider
-            questionnaire_provider = get_questionnaire_provider()
-        except Exception as e:
-            logger.warning(f"Failed to get questionnaire provider: {e}")
-            questionnaire_provider = None
-
-        # Note: Passing orchestrator=self is safe here because RecommendationEngine
-        # only stores the reference in __init__ and doesn't access orchestrator
-        # attributes during initialization. The orchestrator is fully set up at
-        # this point (all required attributes initialized above).
-        try:
-            # Try to load enhanced rules first (v2.0), fallback to v1.0
-            try:
-                self.recommendation_engine = RecommendationEngine(
-                    rules_path="config/recommendation_rules_enhanced.json",
-                    schema_path="rules/recommendation_rules_enhanced.schema.json",
-                    questionnaire_provider=questionnaire_provider,
-                    orchestrator=self
-                )
-                logger.info("RecommendationEngine initialized with enhanced v2.0 rules")
-            except Exception as e_enhanced:
-                logger.info(f"Enhanced rules not available ({e_enhanced}), falling back to v1.0")
-                self.recommendation_engine = RecommendationEngine(
-                    rules_path="config/recommendation_rules.json",
-                    schema_path="rules/recommendation_rules.schema.json",
-                    questionnaire_provider=questionnaire_provider,
-                    orchestrator=self
-                )
-                logger.info("RecommendationEngine initialized with v1.0 rules")
+            self.recommendation_engine = RecommendationEngine(
+                rules_path=CONFIG_DIR / "recommendation_rules_enhanced.json",
+                schema_path=RULES_DIR / "recommendation_rules_enhanced.schema.json",
+                questionnaire_provider=self.questionnaire_provider,
+                orchestrator=self
+            )
+            logger.info("RecommendationEngine initialized with enhanced v2.0 rules")
         except Exception as e:
             logger.warning(f"Failed to initialize RecommendationEngine: {e}")
             self.recommendation_engine = None
@@ -2451,68 +2218,18 @@ class Orchestrator:
                     instrumentation.record_error("executor", error_message, base_slot=base_slot)
                 else:
                     try:
-                        executor_instance = executor_class(self.executor)
+                        executor_instance = executor_class(
+                            self.executor,
+                            signal_registry=self.executor.signal_registry,
+                            config=self.executor_config,
+                            questionnaire_provider=self.questionnaire_provider,
+                            calibration_orchestrator=self.calibration_orchestrator
+                        )
 
-                        # NEW: Chunk-aware execution
-                        if chunk_routes and document.processing_mode == "chunked":
-                            # Find chunks relevant to this base_slot
-                            relevant_chunk_ids = [
-                                chunk_id for chunk_id, route in chunk_routes.items()
-                                if base_slot in route.executor_class or route.executor_class == base_slot
-                            ]
-
-                            if relevant_chunk_ids:
-                                # Track metrics
-                                execution_metrics["chunk_executions"] += len(relevant_chunk_ids)
-                                execution_metrics["total_chunks_processed"] += len(relevant_chunk_ids)
-
-                                # Execute on relevant chunks only
-                                chunk_evidences = []
-                                for chunk_id in relevant_chunk_ids:
-                                    try:
-                                        # Call execute_chunk if available, otherwise fall back to execute
-                                        if hasattr(executor_instance, 'execute_chunk'):
-                                            chunk_evidence = await asyncio.to_thread(
-                                                executor_instance.execute_chunk, document, chunk_id
-                                            )
-                                        else:
-                                            # Fallback: execute on full document
-                                            chunk_evidence = await asyncio.to_thread(
-                                                executor_instance.execute, document, self.executor
-                                            )
-                                        if chunk_evidence:
-                                            chunk_evidences.append(chunk_evidence)
-                                    except Exception as chunk_exc:
-                                        logger.warning(
-                                            f"Chunk {chunk_id} execution failed for {base_slot}: {chunk_exc}"
-                                        )
-
-                                # Aggregate chunk results
-                                if chunk_evidences:
-                                    # Use first evidence as base, merge others
-                                    evidence = chunk_evidences[0]
-                                    # Simple aggregation: combine matches/claims if available
-                                    if len(chunk_evidences) > 1 and hasattr(evidence, 'matches'):
-                                        all_matches = []
-                                        for chunk_ev in chunk_evidences:
-                                            if hasattr(chunk_ev, 'matches') and chunk_ev.matches:
-                                                all_matches.extend(chunk_ev.matches)
-                                        evidence.matches = all_matches
-                                else:
-                                    evidence = None
-                            else:
-                                # No relevant chunks for this slot, execute on full document
-                                execution_metrics["full_doc_executions"] += 1
-                                evidence = await asyncio.to_thread(
-                                    executor_instance.execute, document, self.executor
-                                )
-                        else:
-                            # Flat mode or no chunk routes - use original behavior
-                            execution_metrics["full_doc_executions"] += 1
-                            evidence = await asyncio.to_thread(
-                                executor_instance.execute, document, self.executor
-                            )
-
+                        # Pass the question context to the executor
+                        evidence = await asyncio.to_thread(
+                            executor_instance.execute, document, self.executor, question_context=question
+                        )
                         circuit["failures"] = 0
                     except Exception as exc:  # pragma: no cover - dependencias externas
                         circuit["failures"] += 1

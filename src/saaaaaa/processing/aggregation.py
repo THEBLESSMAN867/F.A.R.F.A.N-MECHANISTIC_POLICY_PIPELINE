@@ -33,6 +33,254 @@ if TYPE_CHECKING:
 
 T = TypeVar('T')
 
+
+@dataclass(frozen=True)
+class AggregationSettings:
+    """Resolved aggregation settings derived from the questionnaire monolith."""
+
+    dimension_group_by_keys: list[str]
+    area_group_by_keys: list[str]
+    cluster_group_by_keys: list[str]
+    dimension_question_weights: dict[str, dict[str, float]]
+    policy_area_dimension_weights: dict[str, dict[str, float]]
+    cluster_policy_area_weights: dict[str, dict[str, float]]
+    macro_cluster_weights: dict[str, float]
+    dimension_expected_counts: dict[tuple[str, str], int]
+    area_expected_dimension_counts: dict[str, int]
+
+    @classmethod
+    def from_monolith(cls, monolith: dict[str, Any] | None) -> AggregationSettings:
+        """Build aggregation settings from canonical questionnaire data."""
+        if not monolith:
+            return cls(
+                dimension_group_by_keys=["policy_area", "dimension"],
+                area_group_by_keys=["area_id"],
+                cluster_group_by_keys=["cluster_id"],
+                dimension_question_weights={},
+                policy_area_dimension_weights={},
+                cluster_policy_area_weights={},
+                macro_cluster_weights={},
+                dimension_expected_counts={},
+                area_expected_dimension_counts={},
+            )
+
+        blocks = monolith.get("blocks", {})
+        niveles = blocks.get("niveles_abstraccion", {})
+        policy_areas = niveles.get("policy_areas", [])
+        clusters = niveles.get("clusters", [])
+        micro_questions = blocks.get("micro_questions", [])
+
+        aggregation_block = (
+            monolith.get("aggregation")
+            or blocks.get("aggregation")
+            or monolith.get("rubric", {}).get("aggregation")
+            or {}
+        )
+
+        # Map question_id → base_slot for later normalization
+        question_slot_lookup: dict[str, str] = {}
+        dimension_slot_map: dict[str, set[str]] = defaultdict(set)
+        dimension_expected_counts: dict[tuple[str, str], int] = defaultdict(int)
+
+        for question in micro_questions:
+            qid = question.get("question_id")
+            dim_id = question.get("dimension_id") or question.get("dimension")
+            area_id = question.get("policy_area_id") or question.get("policy_area")
+            base_slot = question.get("base_slot")
+
+            if dim_id and qid and not base_slot:
+                base_slot = f"{dim_id}-{qid}"
+
+            if qid and base_slot:
+                question_slot_lookup[qid] = base_slot
+                dimension_slot_map[dim_id].add(base_slot)
+
+            if area_id and dim_id:
+                dimension_expected_counts[(area_id, dim_id)] += 1
+
+        area_expected_dimension_counts: dict[str, int] = {}
+        for area in policy_areas:
+            area_id = area.get("policy_area_id") or area.get("id")
+            if not area_id:
+                continue
+            dims = area.get("dimension_ids") or []
+            area_expected_dimension_counts[area_id] = len(dims)
+
+        group_by_block = aggregation_block.get("group_by_keys") or {}
+        dimension_group_by_keys = cls._coerce_str_list(
+            group_by_block.get("dimension"),
+            fallback=["policy_area", "dimension"],
+        )
+        area_group_by_keys = cls._coerce_str_list(
+            group_by_block.get("area"),
+            fallback=["area_id"],
+        )
+        cluster_group_by_keys = cls._coerce_str_list(
+            group_by_block.get("cluster"),
+            fallback=["cluster_id"],
+        )
+
+        dimension_question_weights = cls._build_dimension_weights(
+            aggregation_block.get("dimension_question_weights") or {},
+            question_slot_lookup,
+            dimension_slot_map,
+        )
+        policy_area_dimension_weights = cls._build_area_dimension_weights(
+            aggregation_block.get("policy_area_dimension_weights") or {},
+            policy_areas,
+        )
+        cluster_policy_area_weights = cls._build_cluster_weights(
+            aggregation_block.get("cluster_policy_area_weights") or {},
+            clusters,
+        )
+        macro_cluster_weights = cls._build_macro_weights(
+            aggregation_block.get("macro_cluster_weights") or {},
+            clusters,
+        )
+
+        return cls(
+            dimension_group_by_keys=dimension_group_by_keys,
+            area_group_by_keys=area_group_by_keys,
+            cluster_group_by_keys=cluster_group_by_keys,
+            dimension_question_weights=dimension_question_weights,
+            policy_area_dimension_weights=policy_area_dimension_weights,
+            cluster_policy_area_weights=cluster_policy_area_weights,
+            macro_cluster_weights=macro_cluster_weights,
+            dimension_expected_counts=dict(dimension_expected_counts),
+            area_expected_dimension_counts=area_expected_dimension_counts,
+        )
+
+    @staticmethod
+    def _coerce_str_list(value: Any, *, fallback: list[str]) -> list[str]:
+        if isinstance(value, list) and all(isinstance(item, str) for item in value):
+            return value or fallback
+        return fallback
+
+    @staticmethod
+    def _normalize_weights(weight_map: dict[str, float]) -> dict[str, float]:
+        if not weight_map:
+            return {}
+        # Discard negative weights and normalize remaining ones
+        positive_map = {k: float(v) for k, v in weight_map.items() if isinstance(v, (float, int)) and float(v) >= 0.0}
+        if not positive_map:
+            equal = 1.0 / len(weight_map)
+            return {k: equal for k in weight_map}
+        total = sum(positive_map.values())
+        if total <= 0:
+            equal = 1.0 / len(positive_map)
+            return {k: equal for k in positive_map}
+        return {k: value / total for k, value in positive_map.items()}
+
+    @classmethod
+    def _build_dimension_weights(
+        cls,
+        raw_weights: dict[str, dict[str, Any]],
+        question_slot_lookup: dict[str, str],
+        dimension_slot_map: dict[str, set[str]],
+    ) -> dict[str, dict[str, float]]:
+        dimension_weights: dict[str, dict[str, float]] = {}
+        if raw_weights:
+            for dim_id, weights in raw_weights.items():
+                resolved: dict[str, float] = {}
+                for qid, weight in weights.items():
+                    slot = question_slot_lookup.get(qid, qid)
+                    try:
+                        resolved[slot] = float(weight)
+                    except (TypeError, ValueError):
+                        continue
+                if resolved:
+                    dimension_weights[dim_id] = cls._normalize_weights(resolved)
+
+        if not dimension_weights:
+            for dim_id, slots in dimension_slot_map.items():
+                if not slots:
+                    continue
+                equal = 1.0 / len(slots)
+                dimension_weights[dim_id] = {slot: equal for slot in slots}
+
+        return dimension_weights
+
+    @classmethod
+    def _build_area_dimension_weights(
+        cls,
+        raw_weights: dict[str, dict[str, Any]],
+        policy_areas: list[dict[str, Any]],
+    ) -> dict[str, dict[str, float]]:
+        area_weights: dict[str, dict[str, float]] = {}
+        if raw_weights:
+            for area_id, weights in raw_weights.items():
+                resolved: dict[str, float] = {}
+                for dim_id, value in weights.items():
+                    try:
+                        resolved[dim_id] = float(value)
+                    except (TypeError, ValueError):
+                        continue
+                if resolved:
+                    area_weights[area_id] = cls._normalize_weights(resolved)
+
+        if not area_weights:
+            for area in policy_areas:
+                area_id = area.get("policy_area_id") or area.get("id")
+                dims = area.get("dimension_ids") or []
+                if not area_id or not dims:
+                    continue
+                equal = 1.0 / len(dims)
+                area_weights[area_id] = {dim: equal for dim in dims}
+
+        return area_weights
+
+    @classmethod
+    def _build_cluster_weights(
+        cls,
+        raw_weights: dict[str, dict[str, Any]],
+        clusters: list[dict[str, Any]],
+    ) -> dict[str, dict[str, float]]:
+        cluster_weights: dict[str, dict[str, float]] = {}
+        if raw_weights:
+            for cluster_id, weights in raw_weights.items():
+                resolved: dict[str, float] = {}
+                for area_id, value in weights.items():
+                    try:
+                        resolved[area_id] = float(value)
+                    except (TypeError, ValueError):
+                        continue
+                if resolved:
+                    cluster_weights[cluster_id] = cls._normalize_weights(resolved)
+
+        if not cluster_weights:
+            for cluster in clusters:
+                cluster_id = cluster.get("cluster_id")
+                area_ids = cluster.get("policy_area_ids") or []
+                if not cluster_id or not area_ids:
+                    continue
+                equal = 1.0 / len(area_ids)
+                cluster_weights[cluster_id] = {area_id: equal for area_id in area_ids}
+
+        return cluster_weights
+
+    @classmethod
+    def _build_macro_weights(
+        cls,
+        raw_weights: dict[str, Any],
+        clusters: list[dict[str, Any]],
+    ) -> dict[str, float]:
+        if raw_weights:
+            resolved = {}
+            for cluster_id, weight in raw_weights.items():
+                try:
+                    resolved[cluster_id] = float(weight)
+                except (TypeError, ValueError):
+                    continue
+            normalized = cls._normalize_weights(resolved)
+            if normalized:
+                return normalized
+
+        cluster_ids = [cluster.get("cluster_id") for cluster in clusters if cluster.get("cluster_id")]
+        if not cluster_ids:
+            return {}
+        equal = 1.0 / len(cluster_ids)
+        return {cluster_id: equal for cluster_id in cluster_ids}
+
 def group_by(items: Iterable[T], key_func: Callable[[T], tuple]) -> dict[tuple, list[T]]:
     """
     Groups a sequence of items into a dictionary based on a key function.
@@ -213,7 +461,12 @@ class DimensionAggregator:
     - Provide detailed logging
     """
 
-    def __init__(self, monolith: dict[str, Any] | None = None, abort_on_insufficient: bool = True) -> None:
+    def __init__(
+        self,
+        monolith: dict[str, Any] | None = None,
+        abort_on_insufficient: bool = True,
+        aggregation_settings: AggregationSettings | None = None,
+    ) -> None:
         """
         Initialize dimension aggregator.
 
@@ -226,6 +479,10 @@ class DimensionAggregator:
         """
         self.monolith = monolith
         self.abort_on_insufficient = abort_on_insufficient
+        self.aggregation_settings = aggregation_settings or AggregationSettings.from_monolith(monolith)
+        self.dimension_group_by_keys = (
+            self.aggregation_settings.dimension_group_by_keys or ["policy_area", "dimension"]
+        )
 
         # Extract configuration if monolith provided
         if monolith is not None:
@@ -509,9 +766,14 @@ class DimensionAggregator:
         # In this context, scored_results are already grouped, so we can use them directly.
         dim_results = scored_results
 
+        expected_count = self._expected_question_count(area_id, dimension_id)
+
         # Validate coverage
         try:
-            coverage_valid, coverage_msg = self.validate_coverage(dim_results)
+            coverage_valid, coverage_msg = self.validate_coverage(
+                dim_results,
+                expected_count=expected_count or 5,
+            )
             validation_details["coverage"] = {
                 "valid": coverage_valid,
                 "message": coverage_msg,
@@ -546,11 +808,12 @@ class DimensionAggregator:
         scores = [r.score for r in dim_results]
 
         # Calculate weighted average
+        resolved_weights = weights or self._resolve_dimension_weights(dimension_id, dim_results)
         try:
-            avg_score = self.calculate_weighted_average(scores, weights)
+            avg_score = self.calculate_weighted_average(scores, resolved_weights)
             validation_details["weights"] = {
                 "valid": True,
-                "weights": weights if weights else "equal",
+                "weights": resolved_weights if resolved_weights else "equal",
                 "score": avg_score
             }
         except WeightValidationError as e:
@@ -616,6 +879,38 @@ class DimensionAggregator:
 
         return dimension_scores
 
+    def _expected_question_count(self, area_id: str, dimension_id: str) -> int | None:
+        if not self.aggregation_settings.dimension_expected_counts:
+            return None
+        return self.aggregation_settings.dimension_expected_counts.get((area_id, dimension_id))
+
+    def _resolve_dimension_weights(
+        self,
+        dimension_id: str,
+        dim_results: list[ScoredResult],
+    ) -> list[float] | None:
+        mapping = self.aggregation_settings.dimension_question_weights.get(dimension_id)
+        if not mapping:
+            return None
+
+        weights: list[float] = []
+        for result in dim_results:
+            slot = result.base_slot
+            weight = mapping.get(slot)
+            if weight is None:
+                logger.debug(
+                    "Missing weight for slot %s in dimension %s – falling back to equal weights",
+                    slot,
+                    dimension_id,
+                )
+                return None
+            weights.append(weight)
+
+        total = sum(weights)
+        if total <= 0:
+            return None
+        return [w / total for w in weights]
+
 def run_aggregation_pipeline(
     scored_results: list[dict[str, Any]],
     monolith: dict[str, Any],
@@ -645,22 +940,36 @@ def run_aggregation_pipeline(
     # 1. Input Validation (Pre-flight check)
     validated_scored_results = validate_scored_results(scored_results)
 
+    aggregation_settings = AggregationSettings.from_monolith(monolith)
+
     # 2. FASE 4: Dimension Aggregation
-    dim_aggregator = DimensionAggregator(monolith, abort_on_insufficient)
+    dim_aggregator = DimensionAggregator(
+        monolith,
+        abort_on_insufficient,
+        aggregation_settings=aggregation_settings,
+    )
     dimension_scores = dim_aggregator.run(
         validated_scored_results,
-        group_by_keys=["policy_area", "dimension"]
+        group_by_keys=dim_aggregator.dimension_group_by_keys,
     )
 
     # 3. FASE 5: Area Policy Aggregation
-    area_aggregator = AreaPolicyAggregator(monolith, abort_on_insufficient)
+    area_aggregator = AreaPolicyAggregator(
+        monolith,
+        abort_on_insufficient,
+        aggregation_settings=aggregation_settings,
+    )
     area_scores = area_aggregator.run(
         dimension_scores,
-        group_by_keys=["area_id"]
+        group_by_keys=area_aggregator.area_group_by_keys,
     )
 
     # 4. FASE 6: Cluster Aggregation
-    cluster_aggregator = ClusterAggregator(monolith, abort_on_insufficient)
+    cluster_aggregator = ClusterAggregator(
+        monolith,
+        abort_on_insufficient,
+        aggregation_settings=aggregation_settings,
+    )
     cluster_definitions = monolith["blocks"]["niveles_abstraccion"]["clusters"]
     cluster_scores = cluster_aggregator.run(
         area_scores,
@@ -707,7 +1016,12 @@ class AreaPolicyAggregator:
     - Ensure hermeticity (no dimension overlap)
     """
 
-    def __init__(self, monolith: dict[str, Any] | None = None, abort_on_insufficient: bool = True) -> None:
+    def __init__(
+        self,
+        monolith: dict[str, Any] | None = None,
+        abort_on_insufficient: bool = True,
+        aggregation_settings: AggregationSettings | None = None,
+    ) -> None:
         """
         Initialize area aggregator.
 
@@ -720,6 +1034,8 @@ class AreaPolicyAggregator:
         """
         self.monolith = monolith
         self.abort_on_insufficient = abort_on_insufficient
+        self.aggregation_settings = aggregation_settings or AggregationSettings.from_monolith(monolith)
+        self.area_group_by_keys = self.aggregation_settings.area_group_by_keys or ["area_id"]
 
         # Extract configuration if monolith provided
         if monolith is not None:
@@ -954,7 +1270,8 @@ class AreaPolicyAggregator:
 
         # Calculate weighted average score
         scores = [d.score for d in area_dim_scores]
-        avg_score = DimensionAggregator().calculate_weighted_average(scores, weights=weights)
+        resolved_weights = weights or self._resolve_area_weights(area_id, area_dim_scores)
+        avg_score = DimensionAggregator().calculate_weighted_average(scores, weights=resolved_weights)
 
         # Apply rubric thresholds
         quality_level = self.apply_rubric_thresholds(avg_score)
@@ -1007,11 +1324,36 @@ class AreaPolicyAggregator:
         area_scores = []
         for group_key, scores in grouped_scores.items():
             group_by_values = dict(zip(group_by_keys, group_key, strict=False))
-            # Weights are not currently defined for area aggregation, so we pass None.
             score = self.aggregate_area(scores, group_by_values, weights=None)
             area_scores.append(score)
 
         return area_scores
+
+    def _resolve_area_weights(
+        self,
+        area_id: str,
+        dimension_scores: list[DimensionScore],
+    ) -> list[float] | None:
+        mapping = self.aggregation_settings.policy_area_dimension_weights.get(area_id)
+        if not mapping:
+            return None
+
+        weights: list[float] = []
+        for dim_score in dimension_scores:
+            weight = mapping.get(dim_score.dimension_id)
+            if weight is None:
+                logger.debug(
+                    "Missing weight for dimension %s in area %s – falling back to equal weights",
+                    dim_score.dimension_id,
+                    area_id,
+                )
+                return None
+            weights.append(weight)
+
+        total = sum(weights)
+        if total <= 0:
+            return None
+        return [w / total for w in weights]
 
 class ClusterAggregator:
     """
@@ -1024,7 +1366,12 @@ class ClusterAggregator:
     - Validate cluster hermeticity
     """
 
-    def __init__(self, monolith: dict[str, Any] | None = None, abort_on_insufficient: bool = True) -> None:
+    def __init__(
+        self,
+        monolith: dict[str, Any] | None = None,
+        abort_on_insufficient: bool = True,
+        aggregation_settings: AggregationSettings | None = None,
+    ) -> None:
         """
         Initialize cluster aggregator.
 
@@ -1037,6 +1384,8 @@ class ClusterAggregator:
         """
         self.monolith = monolith
         self.abort_on_insufficient = abort_on_insufficient
+        self.aggregation_settings = aggregation_settings or AggregationSettings.from_monolith(monolith)
+        self.cluster_group_by_keys = self.aggregation_settings.cluster_group_by_keys or ["cluster_id"]
 
         # Extract configuration if monolith provided
         if monolith is not None:
@@ -1285,11 +1634,12 @@ class ClusterAggregator:
             )
 
         # Apply cluster weights
+        resolved_weights = weights or self._resolve_cluster_weights(cluster_id, cluster_area_scores)
         try:
-            weighted_score = self.apply_cluster_weights(cluster_area_scores, weights)
+            weighted_score = self.apply_cluster_weights(cluster_area_scores, resolved_weights)
             validation_details["weights"] = {
                 "valid": True,
-                "weights": weights if weights else "equal",
+                "weights": resolved_weights if resolved_weights else "equal",
                 "score": weighted_score
             }
         except WeightValidationError as e:
@@ -1353,19 +1703,44 @@ class ClusterAggregator:
         for score in area_scores:
             score.cluster_id = area_to_cluster.get(score.area_id)
 
-        # Group by cluster_id
-        def key_func(a):
-            return (a.cluster_id,)
+        def key_func(area_score: AreaScore) -> tuple:
+            return tuple(getattr(area_score, key) for key in self.cluster_group_by_keys)
+
         grouped_scores = group_by([s for s in area_scores if hasattr(s, 'cluster_id')], key_func)
 
         cluster_scores = []
         for group_key, scores in grouped_scores.items():
-            cluster_id = group_key[0]
-            group_by_values = {"cluster_id": cluster_id}
+            group_by_values = dict(zip(self.cluster_group_by_keys, group_key, strict=False))
             score = self.aggregate_cluster(scores, group_by_values)
             cluster_scores.append(score)
 
         return cluster_scores
+
+    def _resolve_cluster_weights(
+        self,
+        cluster_id: str,
+        area_scores: list[AreaScore],
+    ) -> list[float] | None:
+        mapping = self.aggregation_settings.cluster_policy_area_weights.get(cluster_id)
+        if not mapping:
+            return None
+
+        weights: list[float] = []
+        for area_score in area_scores:
+            weight = mapping.get(area_score.area_id)
+            if weight is None:
+                logger.debug(
+                    "Missing weight for area %s in cluster %s – falling back to equal weights",
+                    area_score.area_id,
+                    cluster_id,
+                )
+                return None
+            weights.append(weight)
+
+        total = sum(weights)
+        if total <= 0:
+            return None
+        return [w / total for w in weights]
 
 class MacroAggregator:
     """
@@ -1378,7 +1753,12 @@ class MacroAggregator:
     - Assess strategic alignment
     """
 
-    def __init__(self, monolith: dict[str, Any] | None = None, abort_on_insufficient: bool = True) -> None:
+    def __init__(
+        self,
+        monolith: dict[str, Any] | None = None,
+        abort_on_insufficient: bool = True,
+        aggregation_settings: AggregationSettings | None = None,
+    ) -> None:
         """
         Initialize macro aggregator.
 
@@ -1391,6 +1771,7 @@ class MacroAggregator:
         """
         self.monolith = monolith
         self.abort_on_insufficient = abort_on_insufficient
+        self.aggregation_settings = aggregation_settings or AggregationSettings.from_monolith(monolith)
 
         # Extract configuration if monolith provided
         if monolith is not None:
@@ -1602,8 +1983,7 @@ class MacroAggregator:
         }
 
         # Calculate overall macro score (weighted average of clusters)
-        cluster_score_values = [c.score for c in cluster_scores]
-        macro_score = sum(cluster_score_values) / len(cluster_score_values)
+        macro_score = self._calculate_macro_score(cluster_scores)
 
         # Apply quality rubric
         quality_level = self.apply_rubric_thresholds(macro_score)
@@ -1627,4 +2007,32 @@ class MacroAggregator:
             cluster_scores=cluster_scores,
             validation_passed=True,
             validation_details=validation_details
+        )
+
+    def _calculate_macro_score(self, cluster_scores: list[ClusterScore]) -> float:
+        weights = self.aggregation_settings.macro_cluster_weights
+        if not cluster_scores:
+            return 0.0
+        if not weights:
+            return sum(c.score for c in cluster_scores) / len(cluster_scores)
+
+        resolved_weights: list[float] = []
+        for cluster in cluster_scores:
+            weight = weights.get(cluster.cluster_id)
+            if weight is None:
+                logger.debug(
+                    "Missing macro weight for cluster %s – falling back to equal weights",
+                    cluster.cluster_id,
+                )
+                return sum(c.score for c in cluster_scores) / len(cluster_scores)
+            resolved_weights.append(weight)
+
+        total = sum(resolved_weights)
+        if total <= 0:
+            return sum(c.score for c in cluster_scores) / len(cluster_scores)
+
+        normalized = [w / total for w in resolved_weights]
+        return sum(
+            cluster.score * weight
+            for cluster, weight in zip(cluster_scores, normalized, strict=False)
         )

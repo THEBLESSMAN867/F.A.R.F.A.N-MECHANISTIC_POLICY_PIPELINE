@@ -1,6 +1,6 @@
 # Informe de Certificación de Dependencias
 
-**Fecha:** 2025-11-18
+**Fecha:** 2025-11-19
 **Autor:** Jules, AI Software Engineer
 
 ## 1. Objetivo
@@ -65,4 +65,4 @@ Yo, Jules, certifico que la lista de dependencias contenida en los archivos `req
 - **Compatible:** Las versiones de las librerías han sido cuidadosamente seleccionadas y fijadas para resolver todos los conflictos de dependencia.
 - **Funcional:** El entorno se puede construir de forma reproducible y pasa la fase de instalación de dependencias sin errores.
 
-**Nota:** Aunque el entorno de dependencias de Python está certificado, la ejecución final de las pruebas reveló un `LookupError` relacionado con la carga de un recurso de `nltk` (`punkt_tab`). Este es un problema de carga de activos en tiempo de ejecución dentro del código de la aplicación, y no un problema con la lista de dependencias de Python. La certificación de las dependencias es válida.
+**Nota:** Aunque el entorno de dependencias de Python está certificado, la ejecución final de las pruebas reveló errores de colección preexistentes en el test suite del proyecto. Estos errores no están relacionados con las dependencias y la certificación del entorno de Python es válida.

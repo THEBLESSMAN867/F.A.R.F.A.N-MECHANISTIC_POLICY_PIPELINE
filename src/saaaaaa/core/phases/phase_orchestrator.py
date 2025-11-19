@@ -125,7 +125,11 @@ class PhaseOrchestrator:
         # Initialize phase contracts
         self.phase0 = Phase0ValidationContract()
         self.phase1 = Phase1SPCIngestionContract()
-        # self.adapter = AdapterContract()  # To be implemented
+
+        # Import and initialize adapter contract
+        from saaaaaa.core.phases.phase1_to_phase2_adapter import AdapterContract
+        self.adapter = AdapterContract()
+
         # self.phase2 = Phase2Contract()     # To be implemented
 
         # Initialize manifest builder
@@ -243,27 +247,26 @@ class PhaseOrchestrator:
             logger.info("ADAPTER: CanonPolicyPackage → PreprocessedDocument")
             logger.info("=" * 70)
 
-            # Use existing SPCAdapter
-            from saaaaaa.utils.spc_adapter import SPCAdapter
+            # Run adapter with contract enforcement
+            preprocessed, adapter_metadata = await self.adapter.run(cpp)
 
-            adapter = SPCAdapter()
-            preprocessed = adapter.to_preprocessed_document(
-                cpp, document_id=canonical_input.document_id
+            # Record Adapter in manifest
+            self.manifest_builder.record_phase(
+                phase_name="phase1_to_phase2_adapter",
+                metadata=adapter_metadata,
+                input_validation=self.adapter.validate_input(cpp),
+                output_validation=self.adapter.validate_output(preprocessed),
+                invariants_checked=[inv.name for inv in self.adapter.invariants],
+                artifacts=[],
             )
-
-            # Validate adapter output
-            if not preprocessed.raw_text or not preprocessed.raw_text.strip():
-                raise ValueError("Adapter produced empty PreprocessedDocument")
-
-            if preprocessed.processing_mode != "chunked":
-                raise ValueError(
-                    f"Adapter must produce processing_mode='chunked', got '{preprocessed.processing_mode}'"
-                )
 
             result.preprocessed_document = preprocessed
             result.phases_completed += 1
+            result.total_duration_ms += adapter_metadata.duration_ms or 0.0
 
-            logger.info("Adapter completed successfully")
+            logger.info(
+                f"Adapter completed successfully in {adapter_metadata.duration_ms:.0f}ms"
+            )
             logger.info(
                 f"PreprocessedDocument: {len(preprocessed.sentences)} sentences, "
                 f"mode={preprocessed.processing_mode}"

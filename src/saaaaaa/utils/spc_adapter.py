@@ -198,12 +198,41 @@ class SPCAdapter:
 
             # Create chunk metadata (using SentenceMetadata for orchestrator compatibility)
             chunk_end = chunk_start + len(chunk_text)
+
+            # CRITICAL: Preserve PA×DIM metadata for Phase 2 question routing
+            extra_metadata = {
+                'chunk_id': chunk.id,
+                'policy_area_id': chunk.policy_area_id if hasattr(chunk, 'policy_area_id') else None,
+                'dimension_id': chunk.dimension_id if hasattr(chunk, 'dimension_id') else None,
+                'resolution': chunk.resolution.value if hasattr(chunk, 'resolution') else None,
+            }
+
+            # Add facets if available
+            if hasattr(chunk, 'policy_facets') and chunk.policy_facets:
+                extra_metadata['policy_facets'] = {
+                    'axes': chunk.policy_facets.axes if hasattr(chunk.policy_facets, 'axes') else [],
+                    'programs': chunk.policy_facets.programs if hasattr(chunk.policy_facets, 'programs') else [],
+                    'projects': chunk.policy_facets.projects if hasattr(chunk.policy_facets, 'projects') else [],
+                }
+
+            if hasattr(chunk, 'time_facets') and chunk.time_facets:
+                extra_metadata['time_facets'] = {
+                    'years': chunk.time_facets.years if hasattr(chunk.time_facets, 'years') else [],
+                    'periods': chunk.time_facets.periods if hasattr(chunk.time_facets, 'periods') else [],
+                }
+
+            if hasattr(chunk, 'geo_facets') and chunk.geo_facets:
+                extra_metadata['geo_facets'] = {
+                    'territories': chunk.geo_facets.territories if hasattr(chunk.geo_facets, 'territories') else [],
+                    'regions': chunk.geo_facets.regions if hasattr(chunk.geo_facets, 'regions') else [],
+                }
+
             chunk_meta = SentenceMetadata(
                 index=idx,
                 page_number=None,  # SPC doesn't track pages
                 start_char=chunk_start,
                 end_char=chunk_end,
-                extra=_EMPTY_MAPPING
+                extra=MappingProxyType(extra_metadata)
             )
             sentence_metadata.append(chunk_meta)
 

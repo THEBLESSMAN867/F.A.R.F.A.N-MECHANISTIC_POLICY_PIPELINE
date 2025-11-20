@@ -85,13 +85,17 @@ fn segment_graphemes(py: Python, text: &str) -> PyResult<PyObject> {
 
 /// Python module
 #[pymodule]
-fn cpp_ingestion(_py: Python, m: &PyModule) -> PyResult<()> {
+fn spc_ingestion(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(hash_blake3, m)?)?;
     m.add_function(wrap_pyfunction!(hash_blake3_keyed, m)?)?;
     m.add_function(wrap_pyfunction!(normalize_unicode_nfc, m)?)?;
     m.add_function(wrap_pyfunction!(normalize_unicode_nfd, m)?)?;
     m.add_function(wrap_pyfunction!(compute_merkle_root, m)?)?;
     m.add_function(wrap_pyfunction!(segment_graphemes, m)?)?;
+
+    // Backward compatibility alias
+    m.add("__legacy_name__", "cpp_ingestion")?;
+
     Ok(())
 }
 

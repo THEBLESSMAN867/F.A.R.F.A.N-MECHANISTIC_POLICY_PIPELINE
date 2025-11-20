@@ -17,6 +17,7 @@ Tests cover:
 - Error handling and abortability
 """
 
+import copy
 from pathlib import Path
 from typing import Any
 
@@ -92,6 +93,72 @@ def sample_dimension_scores() -> list[DimensionScore]:
         )
         for i in range(1, 7)
     ]
+
+
+def _build_weighted_monolith() -> dict[str, Any]:
+    """Construct a monolith payload with explicit aggregation weights."""
+    policy_areas = [
+        {
+            "policy_area_id": "PA01",
+            "i18n": {"keys": {"label_es": "Area 1"}},
+            "dimension_ids": ["D1", "D2"],
+        },
+        {
+            "policy_area_id": "PA02",
+            "i18n": {"keys": {"label_es": "Area 2"}},
+            "dimension_ids": ["D1", "D2"],
+        },
+    ]
+
+    clusters = [
+        {
+            "cluster_id": "CL01",
+            "i18n": {"keys": {"label_es": "Cluster 1"}},
+            "policy_area_ids": ["PA01", "PA02"],
+        }
+    ]
+
+    micro_questions = []
+    dimension_questions = {"D1": ["Q001", "Q002"], "D2": ["Q003", "Q004"]}
+    for area_id in ("PA01", "PA02"):
+        for dimension_id, question_ids in dimension_questions.items():
+            for qid in question_ids:
+                micro_questions.append(
+                    {
+                        "question_id": qid,
+                        "base_slot": f"{dimension_id}-{qid}",
+                        "dimension_id": dimension_id,
+                        "policy_area_id": area_id,
+                    }
+                )
+
+    aggregation = {
+        "dimension_question_weights": {
+            "D1": {"Q001": 0.8, "Q002": 0.2},
+            "D2": {"Q003": 0.4, "Q004": 0.6},
+        },
+        "policy_area_dimension_weights": {
+            "PA01": {"D1": 0.75, "D2": 0.25},
+            "PA02": {"D1": 0.25, "D2": 0.75},
+        },
+        "cluster_policy_area_weights": {
+            "CL01": {"PA01": 0.2, "PA02": 0.8},
+        },
+        "macro_cluster_weights": {"CL01": 1.0},
+    }
+
+    return {
+        "blocks": {
+            "scoring": {},
+            "micro_questions": micro_questions,
+            "niveles_abstraccion": {
+                "policy_areas": policy_areas,
+                "dimensions": [{"dimension_id": "D1"}, {"dimension_id": "D2"}],
+                "clusters": clusters,
+            },
+        },
+        "aggregation": aggregation,
+    }
 
 # ============================================================================
 # VALIDATION TESTS
@@ -251,7 +318,16 @@ class TestMacroAggregator:
         """Test successful macro evaluation."""
         aggregator = MacroAggregator(minimal_monolith, abort_on_insufficient=False)
         cluster_scores = [
-            ClusterScore(cluster_id="CL01", cluster_name="C1", areas=[], score=2.5, coherence=0.8, area_scores=[])
+            ClusterScore(
+                cluster_id="CL01",
+                cluster_name="C1",
+                areas=[],
+                score=2.5,
+                coherence=0.8,
+                variance=0.0,
+                weakest_area=None,
+                area_scores=[],
+            )
         ]
         area_scores = [
             AreaScore(area_id="P1", area_name="A1", score=2.5, quality_level="BUENO", dimension_scores=[])
@@ -290,6 +366,165 @@ class TestAggregationPipeline:
         assert area_scores
         assert isinstance(area_scores[0], AreaScore)
         assert area_scores[0].area_id == "P1"
+
+
+def test_dimension_aggregation_uses_config_weights():
+    """Dimension aggregation should respect configured question weights."""
+    monolith = _build_weighted_monolith()
+    aggregator = DimensionAggregator(monolith, abort_on_insufficient=False)
+    results = [
+        ScoredResult(
+            question_global=1,
+            base_slot="D1-Q001",
+            policy_area="PA01",
+            dimension="D1",
+            score=1.0,
+            quality_level="BUENO",
+            evidence={},
+            raw_results={},
+        ),
+        ScoredResult(
+            question_global=2,
+            base_slot="D1-Q002",
+            policy_area="PA01",
+            dimension="D1",
+            score=3.0,
+            quality_level="BUENO",
+            evidence={},
+            raw_results={},
+        ),
+    ]
+    score = aggregator.aggregate_dimension(results, {"policy_area": "PA01", "dimension": "D1"})
+    assert score.score == pytest.approx(1.4)
+
+
+def test_area_aggregation_uses_config_weights():
+    """Area aggregation should use the policy-area dimension weights."""
+    monolith = _build_weighted_monolith()
+    aggregator = AreaPolicyAggregator(monolith, abort_on_insufficient=False)
+    dimension_scores = [
+        DimensionScore(
+            dimension_id="D1",
+            area_id="PA01",
+            score=1.0,
+            quality_level="BUENO",
+            contributing_questions=[],
+        ),
+        DimensionScore(
+            dimension_id="D2",
+            area_id="PA01",
+            score=3.0,
+            quality_level="BUENO",
+            contributing_questions=[],
+        ),
+    ]
+    area_score = aggregator.aggregate_area(dimension_scores, {"area_id": "PA01"})
+    assert area_score.score == pytest.approx(1.5)
+
+
+def test_cluster_aggregation_uses_config_weights():
+    """Cluster aggregation should apply configured policy-area weights."""
+    monolith = _build_weighted_monolith()
+    aggregator = ClusterAggregator(monolith, abort_on_insufficient=False)
+    area_scores = [
+        AreaScore(
+            area_id="PA01",
+            area_name="Area 1",
+            score=1.0,
+            quality_level="BUENO",
+            dimension_scores=[],
+        ),
+        AreaScore(
+            area_id="PA02",
+            area_name="Area 2",
+            score=3.0,
+            quality_level="BUENO",
+            dimension_scores=[],
+        ),
+    ]
+    cluster_score = aggregator.aggregate_cluster(area_scores, {"cluster_id": "CL01"})
+    assert cluster_score.score == pytest.approx(2.6)
+
+
+def test_macro_aggregation_uses_macro_cluster_weights():
+    """Macro aggregator should respect macro-level cluster weights."""
+    monolith = copy.deepcopy(_build_weighted_monolith())
+    monolith["blocks"]["niveles_abstraccion"]["clusters"] = [
+        {
+            "cluster_id": "CL01",
+            "i18n": {"keys": {"label_es": "Cluster 1"}},
+            "policy_area_ids": ["PA01"],
+        },
+        {
+            "cluster_id": "CL02",
+            "i18n": {"keys": {"label_es": "Cluster 2"}},
+            "policy_area_ids": ["PA02"],
+        },
+    ]
+    monolith["aggregation"]["cluster_policy_area_weights"] = {
+        "CL01": {"PA01": 1.0},
+        "CL02": {"PA02": 1.0},
+    }
+    monolith["aggregation"]["macro_cluster_weights"] = {"CL01": 0.2, "CL02": 0.8}
+
+    aggregator = MacroAggregator(monolith, abort_on_insufficient=False)
+    cluster_scores = [
+        ClusterScore(
+            cluster_id="CL01",
+            cluster_name="Cluster 1",
+            areas=["PA01"],
+            score=1.0,
+            coherence=1.0,
+            variance=0.0,
+            weakest_area="PA01",
+            area_scores=[],
+        ),
+        ClusterScore(
+            cluster_id="CL02",
+            cluster_name="Cluster 2",
+            areas=["PA02"],
+            score=3.0,
+            coherence=1.0,
+            variance=0.0,
+            weakest_area="PA02",
+            area_scores=[],
+        ),
+    ]
+    area_scores = [
+        AreaScore(
+            area_id="PA01",
+            area_name="Area 1",
+            score=1.0,
+            quality_level="BUENO",
+            dimension_scores=[],
+        ),
+        AreaScore(
+            area_id="PA02",
+            area_name="Area 2",
+            score=3.0,
+            quality_level="BUENO",
+            dimension_scores=[],
+        ),
+    ]
+    dimension_scores = [
+        DimensionScore(
+            dimension_id="D1",
+            area_id="PA01",
+            score=1.0,
+            quality_level="BUENO",
+            contributing_questions=[],
+        ),
+        DimensionScore(
+            dimension_id="D1",
+            area_id="PA02",
+            score=3.0,
+            quality_level="BUENO",
+            contributing_questions=[],
+        ),
+    ]
+
+    macro = aggregator.evaluate_macro(cluster_scores, area_scores, dimension_scores)
+    assert macro.score == pytest.approx(2.6)
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

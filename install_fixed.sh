@@ -201,8 +201,8 @@ echo "----------------------------------------------------------------------"
 
 pip install --timeout=${TIMEOUT} --retries=${MAX_RETRIES} \
     -c constraints.txt \
-    huggingface-hub==0.27.1 \
-    transformers==4.48.3 \
+    huggingface-hub \
+    transformers==4.53.0 \
     tokenizers==0.21.0 \
     safetensors==0.5.2 \
     || {

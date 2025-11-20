@@ -45,7 +45,7 @@
 - Conflicting configurations (3 config files)
 
 **Fixes**:
-- Changed all "forbid" → "forbidden" in contracts/importlinter.ini
+- Changed all "forbid" → "forbidden" in contracts/tooling/importlinter.ini
 - Changed all "forbid" → "forbidden" in pyproject.toml
 - Removed problematic independence contract
 - Deleted setup.cfg (using pyproject.toml only)
@@ -180,7 +180,7 @@ See: `ARCHITECTURAL_VIOLATIONS_FOUND.md`
 
 ### Modified (13):
 - `Makefile` - Import linter now fails build
-- `contracts/importlinter.ini` - Fixed contract types
+- `contracts/tooling/importlinter.ini` - Fixed contract types
 - `pyproject.toml` - Fixed contract types, removed problematic contracts
 - `scripts/import_all.py` - Fixed package prefixes
 - `src/saaaaaa/core/orchestrator/executors.py` - Fixed import source

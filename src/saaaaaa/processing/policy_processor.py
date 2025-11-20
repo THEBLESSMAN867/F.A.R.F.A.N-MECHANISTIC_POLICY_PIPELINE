@@ -32,6 +32,7 @@ import numpy as np
 
 # Import runtime error fixes for defensive programming
 from saaaaaa.utils.runtime_error_fixes import ensure_list_return
+from saaaaaa.utils.contracts import ExtractionArtifact
 
 try:
     from saaaaaa.analysis.contradiction_deteccion import (
@@ -889,7 +890,7 @@ class IndustrialPolicyProcessor:
 
     def _match_patterns_in_sentences(
         self, compiled_patterns: list, relevant_sentences: list[str], **kwargs: Any
-    ) -> tuple[list[str], list[int]]:
+    ) -> list[ExtractionArtifact]:
         """
         Execute pattern matching across relevant sentences and collect matches with positions.
 
@@ -899,18 +900,24 @@ class IndustrialPolicyProcessor:
             **kwargs: Additional optional parameters for compatibility
 
         Returns:
-            Tuple of (matched_strings, match_positions)
+            List of ExtractionArtifact objects
         """
-        matches = []
-        positions = []
+        artifacts = []
+        document_id = kwargs.get("document_id", "unknown")
 
         for compiled_pattern in compiled_patterns:
             for sentence in relevant_sentences:
                 for match in compiled_pattern.finditer(sentence):
-                    matches.append(match.group(0))
-                    positions.append(match.start())
+                    artifact = ExtractionArtifact(
+                        data=match.group(0),
+                        extractor_id="_match_patterns_in_sentences",
+                        confidence=0.8,
+                        document_id=document_id,
+                        source_positions=(match.start(),),
+                    )
+                    artifacts.append(artifact)
 
-        return matches, positions
+        return artifacts
 
     def _compute_evidence_confidence(
         self, matches: list[str], text_length: int, pattern_specificity: float, **kwargs: Any
@@ -936,9 +943,7 @@ class IndustrialPolicyProcessor:
         self,
         dimension: CausalDimension,
         category: str,
-        matches: list[str],
-        positions: list[int],
-        confidence: float,
+        artifacts: list[ExtractionArtifact],
         **kwargs: Any
     ) -> dict[str, Any]:
         """
@@ -947,14 +952,16 @@ class IndustrialPolicyProcessor:
         Args:
             dimension: Causal dimension classification
             category: Specific category within dimension
-            matches: List of matched pattern strings
-            positions: List of match positions in text
-            confidence: Computed confidence score
+            artifacts: List of ExtractionArtifact objects
             **kwargs: Additional optional parameters for compatibility
 
         Returns:
             Serialized evidence bundle dictionary
         """
+        matches = [artifact.data for artifact in artifacts]
+        positions = [artifact.source_positions[0] for artifact in artifacts if artifact.source_positions]
+        confidence = np.mean([artifact.confidence for artifact in artifacts]) if artifacts else 0.0
+
         bundle = EvidenceBundle(
             dimension=dimension,
             category=category,

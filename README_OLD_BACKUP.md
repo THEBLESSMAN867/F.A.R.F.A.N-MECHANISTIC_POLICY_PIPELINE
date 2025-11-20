@@ -309,7 +309,7 @@ Execute the full verification pipeline in sequence to ensure governance:
 pip install -r requirements.txt  # or: poetry install
 python -m compileall -q core orchestrator executors
 python tools/scan_core_purity.py
-lint-imports --config contracts/importlinter.ini
+lint-imports --config contracts/tooling/importlinter.ini
 ruff check .
 mypy . --strict
 pycycle core orchestrator executors
@@ -509,4 +509,3 @@ python tests/test_import_consistency.py
 ```
 
 See **[OPERATIONAL_GUIDE.md](OPERATIONAL_GUIDE.md)** for complete import documentation.
-

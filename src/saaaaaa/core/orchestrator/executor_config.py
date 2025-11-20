@@ -40,7 +40,7 @@ except ImportError:
 
 from pydantic import BaseModel, Field, field_validator
 
-from .advanced_module_config import CONSERVATIVE_ADVANCED_CONFIG, AdvancedModuleConfig
+
 
 PolicyArea = Literal["fiscal", "salud", "ambiente", "energía", "transporte"]
 
@@ -123,10 +123,6 @@ class ExecutorConfig(BaseModel):
         ge=0,
         le=2147483647,
         description="Random seed for deterministic execution"
-    )
-    advanced_modules: AdvancedModuleConfig | None = Field(
-        default=None,
-        description="Academic research-based configuration for advanced modules"
     )
 
     model_config = {
@@ -534,5 +530,4 @@ CONSERVATIVE_CONFIG = ExecutorConfig(
     },
     enable_symbolic_sparse=False,
     seed=42,
-    advanced_modules=CONSERVATIVE_ADVANCED_CONFIG,
 )

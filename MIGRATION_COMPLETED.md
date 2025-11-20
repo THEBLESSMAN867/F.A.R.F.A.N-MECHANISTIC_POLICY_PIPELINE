@@ -58,7 +58,7 @@ scoring/
 ├── __init__.py, scoring.py
 
 contracts/
-├── __init__.py, importlinter.ini
+├── __init__.py, tooling/importlinter.ini
 
 core/
 ├── __init__.py, contracts.py

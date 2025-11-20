@@ -85,13 +85,11 @@ import numpy as np
 
 # Contract infrastructure - ACTUAL INTEGRATION
 from ...utils.determinism_helpers import deterministic
-from .advanced_module_config import (
-    AdvancedModuleConfig,
-)
 from .executor_config import ExecutorConfig
 from .signal_consumption import SignalConsumptionProof
 from .versions import CALIBRATION_VERSION
 from .versions import MIN_CALIBRATION_VERSION as MINIMUM_SUPPORTED_VERSION
+from ...utils.contracts import ExtractionArtifact
 
 if TYPE_CHECKING:
     from saaaaaa.core.calibration import CalibrationResult
@@ -358,714 +356,6 @@ def execution_timer(operation_name: str):
     finally:
         elapsed = time.time() - start_time
         logger.debug(f"{operation_name} completed in {elapsed:.3f}s")
-
-# ============================================================================
-# QUANTUM-INSPIRED OPTIMIZATION
-# ============================================================================
-
-class QuantumState:
-    """Quantum-inspired state for execution path optimization"""
-
-    def __init__(self, dimension: int) -> None:
-        self.dimension = dimension
-        self.amplitudes = np.ones(dimension, dtype=complex) / np.sqrt(dimension)
-        self.phase = np.zeros(dimension)
-
-    def apply_oracle(self, marked_states: list[int]) -> None:
-        """Apply oracle function to mark optimal states"""
-        for state in marked_states:
-            if 0 <= state < self.dimension:
-                self.amplitudes[state] *= -1
-
-    def apply_diffusion(self) -> None:
-        """Apply Grover diffusion operator"""
-        avg = np.mean(self.amplitudes)
-        self.amplitudes = 2 * avg - self.amplitudes
-
-    def measure(self, rng: np.random.Generator | None = None) -> int:
-        """Collapse to measured state"""
-        rng = _ensure_rng(rng)
-        probabilities = np.abs(self.amplitudes) ** 2
-        probabilities /= probabilities.sum()
-        return rng.choice(self.dimension, p=probabilities)
-
-    def optimize_path(self, iterations: int = 3, rng: np.random.Generator | None = None) -> int:
-        """Find optimal execution path using Grover-inspired search"""
-        rng = _ensure_rng(rng)
-        for _ in range(iterations):
-            self.apply_diffusion()
-        return self.measure(rng=rng)
-
-class QuantumExecutionOptimizer:
-    """Quantum-inspired optimizer for execution path selection
-
-    Instrumentation:
-    - Tracks convergence times for quantum optimization
-    - Records optimization attempts and success rates
-    """
-
-    def __init__(self, num_methods: int) -> None:
-        self.num_methods = num_methods
-        self.state = QuantumState(num_methods)
-        self.execution_history: list[tuple[int, float]] = []
-
-    def select_optimal_path(self, available_methods: list[int], rng: np.random.Generator | None = None) -> list[int]:
-        """Select optimal execution path using quantum annealing principles"""
-        rng = _ensure_rng(rng)
-        start_time = time.time()
-
-        if self.execution_history:
-            top_methods = sorted(self.execution_history, key=lambda x: x[1], reverse=True)
-            marked = [m[0] for m in top_methods[:len(top_methods) // 3]]
-            self.state.apply_oracle(marked)
-
-        optimal_idx = self.state.optimize_path(rng=rng)
-        path = self._construct_path(optimal_idx, available_methods, rng=rng)
-
-        # Record convergence time
-        convergence_time = time.time() - start_time
-        _global_metrics.record_quantum_optimization(convergence_time)
-        logger.debug(f"Quantum optimization converged in {convergence_time:.4f}s, path length: {len(path)}")
-
-        return path
-
-    def _construct_path(self, start_idx: int, available: list[int], rng: np.random.Generator | None = None) -> list[int]:
-        """Construct execution path from starting point"""
-        rng = _ensure_rng(rng)
-        if not available:
-            return []
-        path = [available[start_idx % len(available)]]
-        remaining = [m for m in available if m not in path]
-
-        while remaining and len(path) < len(available):
-            probs = self._tunneling_probabilities(path[-1], remaining)
-            next_method = rng.choice(remaining, p=probs)
-            path.append(next_method)
-            remaining.remove(next_method)
-
-        return path
-
-    def _tunneling_probabilities(self, current: int, candidates: list[int]) -> np.ndarray:
-        """Calculate quantum tunneling probabilities to candidate states"""
-        distances = np.array([abs(current - c) for c in candidates])
-        probs = np.exp(-distances / self.num_methods)
-        return probs / probs.sum()
-
-    def update_performance(self, method_idx: int, performance: float) -> None:
-        """Update execution history with performance metrics"""
-        self.execution_history.append((method_idx, performance))
-
-# ============================================================================
-# NEUROMORPHIC COMPUTING PATTERNS
-# ============================================================================
-
-class SpikingNeuron:
-    """Spiking neuron for neuromorphic data flow control"""
-
-    def __init__(self, threshold: float = 1.0, decay: float = 0.9) -> None:
-        self.potential = 0.0
-        self.threshold = threshold
-        self.decay = decay
-        self.spike_history: list[float] = []
-
-    def receive_input(self, signal: float) -> bool:
-        """Receive input signal and check for spike"""
-        self.potential += signal
-
-        if self.potential >= self.threshold:
-            self.spike_history.append(1.0)
-            self.potential = 0.0
-            return True
-
-        self.potential *= self.decay
-        self.spike_history.append(0.0)
-        return False
-
-    def get_firing_rate(self, window: int = 10) -> float:
-        """Calculate recent firing rate"""
-        if len(self.spike_history) < window:
-            return 0.0
-        return sum(self.spike_history[-window:]) / window
-
-class NeuromorphicFlowController:
-    """Neuromorphic controller for dynamic data flow"""
-
-    def __init__(self, num_stages: int, seed: int | None = None) -> None:
-        self.neurons = [SpikingNeuron() for _ in range(num_stages)]
-        rng = np.random.default_rng(seed)
-        self.synaptic_weights = rng.random((num_stages, num_stages)) * 0.5
-        self.stdp_learning_rate = 0.01
-
-    def process_data_flow(self, data_quality: list[float]) -> list[bool]:
-        """Process data flow through neuromorphic network"""
-        activations = []
-
-        for i, quality in enumerate(data_quality):
-            spike = self.neurons[i].receive_input(quality)
-            activations.append(spike)
-
-            if spike:
-                for j in range(i + 1, len(self.neurons)):
-                    self.neurons[j].receive_input(self.synaptic_weights[i, j])
-
-        return activations
-
-    def apply_stdp(self, pre_idx: int, post_idx: int, pre_spike: bool, post_spike: bool) -> None:
-        """Apply spike-timing-dependent plasticity"""
-        if pre_spike and post_spike:
-            self.synaptic_weights[pre_idx, post_idx] *= (1 + self.stdp_learning_rate)
-        elif pre_spike and not post_spike:
-            self.synaptic_weights[pre_idx, post_idx] *= (1 - self.stdp_learning_rate)
-
-        self.synaptic_weights[pre_idx, post_idx] = np.clip(
-            self.synaptic_weights[pre_idx, post_idx], 0.0, 1.0
-        )
-
-    def adapt_flow(self, performance_metrics: list[float]) -> None:
-        """Adapt flow based on performance using neuromorphic learning"""
-        for i in range(len(self.neurons) - 1):
-            pre_rate = self.neurons[i].get_firing_rate()
-            post_rate = self.neurons[i + 1].get_firing_rate()
-            self.apply_stdp(i, i + 1, pre_rate > 0.5, post_rate > 0.5)
-
-# ============================================================================
-# CAUSAL INFERENCE FRAMEWORK
-# ============================================================================
-
-class CausalGraph:
-    """Causal graph for dependency resolution using PC algorithm"""
-
-    def __init__(self, num_variables: int) -> None:
-        self.num_variables = num_variables
-        self.adjacency = np.zeros((num_variables, num_variables), dtype=int)
-        self.separating_sets = {}
-
-    def learn_structure(self, data: np.ndarray, alpha: float = 0.05) -> None:
-        """Learn causal structure using PC algorithm"""
-        self.adjacency = np.ones((self.num_variables, self.num_variables), dtype=int)
-        np.fill_diagonal(self.adjacency, 0)
-
-        for i in range(self.num_variables):
-            for j in range(i + 1, self.num_variables):
-                if self.adjacency[i, j] == 0:
-                    continue
-
-                if self._test_independence(data, i, j, set(), alpha):
-                    self.adjacency[i, j] = 0
-                    self.adjacency[j, i] = 0
-                    self.separating_sets[(i, j)] = set()
-
-        for size in range(1, self.num_variables - 1):
-            for i in range(self.num_variables):
-                neighbors = self._get_neighbors(i)
-                if len(neighbors) < size:
-                    continue
-
-                for j in neighbors:
-                    for cond_set in self._subsets(neighbors - {j}, size):
-                        if self._test_independence(data, i, j, cond_set, alpha):
-                            self.adjacency[i, j] = 0
-                            self.adjacency[j, i] = 0
-                            self.separating_sets[(i, j)] = cond_set
-                            break
-
-    def _test_independence(self, data: np.ndarray, i: int, j: int,
-                           cond_set: set, alpha: float) -> bool:
-        """Test conditional independence using partial correlation"""
-        if len(cond_set) == 0:
-            corr = np.corrcoef(data[:, i], data[:, j])[0, 1]
-        else:
-            cond_indices = list(cond_set)
-            corr = self._partial_correlation(data, i, j, cond_indices)
-
-        n = len(data)
-        z = 0.5 * np.log((1 + corr) / (1 - corr))
-        p_value = 2 * (1 - self._normal_cdf(abs(z) * np.sqrt(n - len(cond_set) - 3)))
-
-        return p_value > alpha
-
-    def _partial_correlation(self, data: np.ndarray, i: int, j: int,
-                             cond: list[int]) -> float:
-        """Calculate partial correlation"""
-        if len(cond) == 0:
-            return np.corrcoef(data[:, i], data[:, j])[0, 1]
-
-        k = cond[0]
-        remaining = cond[1:]
-
-        r_ij_rest = self._partial_correlation(data, i, j, remaining)
-        r_ik_rest = self._partial_correlation(data, i, k, remaining)
-        r_jk_rest = self._partial_correlation(data, j, k, remaining)
-
-        numerator = r_ij_rest - r_ik_rest * r_jk_rest
-        denominator = np.sqrt((1 - r_ik_rest ** 2) * (1 - r_jk_rest ** 2))
-
-        return numerator / denominator if denominator > 1e-10 else 0.0
-
-    def _normal_cdf(self, x: float) -> float:
-        """Standard normal CDF approximation"""
-        return 0.5 * (1 + math.erf(x / np.sqrt(2)))
-
-    def _get_neighbors(self, node: int) -> set:
-        """Get neighboring nodes"""
-        return {j for j in range(self.num_variables) if self.adjacency[node, j] == 1}
-
-    def _subsets(self, s: set, size: int):
-        """Generate all subsets of given size"""
-        from itertools import combinations
-        return [set(c) for c in combinations(s, size)]
-
-    def get_execution_order(self) -> list[int]:
-        """Get topological execution order"""
-        in_degree = self.adjacency.sum(axis=0)
-        order = []
-        available = {i for i in range(self.num_variables) if in_degree[i] == 0}
-
-        while available:
-            node = available.pop()
-            order.append(node)
-
-            for j in range(self.num_variables):
-                if self.adjacency[node, j] == 1:
-                    in_degree[j] -= 1
-                    if in_degree[j] == 0:
-                        available.add(j)
-
-        return order if len(order) == self.num_variables else list(range(self.num_variables))
-
-# ============================================================================
-# INFORMATION-THEORETIC FLOW OPTIMIZATION
-# ============================================================================
-
-class InformationFlowOptimizer:
-    """Optimize data flow using information theory principles"""
-
-    def __init__(self, num_stages: int) -> None:
-        self.num_stages = num_stages
-        self.mutual_information_matrix = np.zeros((num_stages, num_stages))
-        self.entropy_history: list[float] = []
-
-    def calculate_entropy(self, data: Any) -> float:
-        """Calculate Shannon entropy of data"""
-        if data is None:
-            return 0.0
-
-        data_str = str(data)
-        freq = defaultdict(int)
-        for char in data_str:
-            freq[char] += 1
-
-        total = len(data_str)
-        entropy = -sum((count / total) * np.log2(count / total)
-                       for count in freq.values() if count > 0)
-
-        return entropy
-
-    def calculate_mutual_information(self, data1: Any, data2: Any) -> float:
-        """Calculate mutual information between two data streams"""
-        h1 = self.calculate_entropy(data1)
-        h2 = self.calculate_entropy(data2)
-
-        combined = str(data1) + str(data2)
-        h_joint = self.calculate_entropy(combined)
-
-        mi = h1 + h2 - h_joint
-        return max(0.0, mi)
-
-    def update_flow_metrics(self, stage: int, data: Any) -> None:
-        """Update information flow metrics"""
-        entropy = self.calculate_entropy(data)
-        self.entropy_history.append(entropy)
-
-        if len(self.entropy_history) > stage:
-            for prev_stage in range(stage):
-                if prev_stage < len(self.entropy_history) - 1:
-                    prev_data = self.entropy_history[prev_stage]
-                    mi = self.calculate_mutual_information(prev_data, entropy)
-                    self.mutual_information_matrix[prev_stage, stage] = mi
-
-    def get_information_bottlenecks(self) -> list[int]:
-        """Identify information bottlenecks in the flow
-
-        Instrumentation: Records bottleneck detection events
-        """
-        bottlenecks = []
-
-        if len(self.entropy_history) < 2:
-            return bottlenecks
-
-        gradients = np.diff(self.entropy_history)
-        threshold = np.mean(gradients) - np.std(gradients)
-        for i, grad in enumerate(gradients):
-            if grad < threshold:
-                bottlenecks.append(i + 1)
-
-        # Record bottleneck detection
-        if bottlenecks:
-            _global_metrics.record_information_bottleneck()
-            logger.warning(f"Information bottlenecks detected at stages: {bottlenecks}")
-
-        return bottlenecks
-
-    def optimize_information_flow(self, current_order: list[int]) -> list[int]:
-        """
-        Reorder execution to maximize information flow using a greedy algorithm.
-
-        This method implements a greedy selection strategy that iteratively selects
-        the next stage based on mutual information with already-selected stages.
-        At each step, it chooses the remaining stage with the highest total mutual
-        information with all previously selected stages, creating an execution order
-        that maximizes information propagation.
-
-        The algorithm is used to optimize method execution order based on data
-        dependencies and information transfer between stages.
-
-        Args:
-            current_order: Initial execution order (list of stage indices)
-
-        Returns:
-            Optimized execution order maximizing cumulative mutual information
-        """
-        if len(current_order) <= 1:
-            return current_order
-
-        optimized = [current_order[0]]
-        remaining = set(current_order[1:])
-
-        while remaining:
-            best_next = None
-            best_mi = -1
-
-            for candidate in remaining:
-                total_mi = sum(self.mutual_information_matrix[s, candidate]
-                               for s in optimized if s < self.num_stages and candidate < self.num_stages)
-
-                if total_mi > best_mi:
-                    best_mi = total_mi
-                    best_next = candidate
-
-            if best_next is not None:
-                optimized.append(best_next)
-                remaining.remove(best_next)
-            else:
-                optimized.extend(sorted(remaining))
-                break
-
-        return optimized
-
-# ============================================================================
-# META-LEARNING EXECUTION STRATEGY
-# ============================================================================
-
-class MetaLearningStrategy:
-    """Meta-learning strategy for adaptive execution
-
-    Instrumentation:
-    - Tracks which strategies are selected most frequently
-    - Records strategy performance over time
-
-    Parameters from academic research:
-    - epsilon: Exploration rate (standard RL: 0.05-0.2)
-    - learning_rate: Update rate (Thrun & Pratt 1998: 0.01-0.1)
-    """
-
-    def __init__(
-        self,
-        num_strategies: int = 5,
-        epsilon: float = 0.1,
-        learning_rate: float = 0.05,
-    ) -> None:
-        self.num_strategies = num_strategies
-        self.strategy_performance = np.ones(num_strategies) / num_strategies
-        self.epsilon = epsilon
-        self.learning_rate = learning_rate
-
-    def select_strategy(self, rng: np.random.Generator | None = None) -> int:
-        """Select execution strategy using epsilon-greedy"""
-        rng = _ensure_rng(rng)
-        if rng.random() < self.epsilon:
-            strategy_idx = rng.integers(0, self.num_strategies)
-        else:
-            strategy_idx = np.argmax(self.strategy_performance)
-
-        # Record strategy selection
-        _global_metrics.record_meta_learner_selection(strategy_idx)
-        logger.debug(f"Meta-learner selected strategy {strategy_idx} (performance: {self.strategy_performance[strategy_idx]:.3f})")
-
-        return strategy_idx
-
-    def update_strategy_performance(self, strategy_idx: int, reward: float) -> None:
-        """Update strategy performance using exponential moving average"""
-        current_perf = self.strategy_performance[strategy_idx]
-        self.strategy_performance[strategy_idx] = (
-                (1 - self.learning_rate) * current_perf +
-                self.learning_rate * reward
-        )
-
-        self.strategy_performance /= self.strategy_performance.sum()
-
-        logger.debug(f"Updated strategy {strategy_idx} performance: {current_perf:.3f} -> {self.strategy_performance[strategy_idx]:.3f} (reward: {reward:.3f})")
-
-    def get_strategy_config(self, strategy_idx: int) -> dict[str, Any]:
-        """Get configuration for selected strategy"""
-        strategies = [
-            {"parallel": True, "batch_size": 10, "pruning": False},
-            {"parallel": False, "batch_size": 5, "pruning": True},
-            {"parallel": True, "batch_size": 1, "pruning": True},
-            {"parallel": False, "batch_size": 1, "pruning": False},
-            {"parallel": True, "batch_size": 20, "pruning": True},
-        ]
-
-        return strategies[strategy_idx % len(strategies)]
-
-# ============================================================================
-# ATTENTION MECHANISM
-# ============================================================================
-
-class AttentionMechanism:
-    """Attention mechanism for focusing computational resources"""
-
-    def __init__(self, embedding_dim: int = 64, seed: int | None = None) -> None:
-        self.embedding_dim = embedding_dim
-        rng = np.random.default_rng(seed)
-        self.query_weights = rng.standard_normal((embedding_dim, embedding_dim)) * 0.01
-        self.key_weights = rng.standard_normal((embedding_dim, embedding_dim)) * 0.01
-        self.value_weights = rng.standard_normal((embedding_dim, embedding_dim)) * 0.01
-
-    def embed_method(self, method_name: str) -> np.ndarray:
-        """Embed method name into vector space"""
-        hash_val = hash(method_name)
-        rng = np.random.default_rng(hash_val % (2 ** 31))
-        embedding = rng.standard_normal(self.embedding_dim)
-        return embedding / np.linalg.norm(embedding)
-
-    def compute_attention(self, query_methods: list[str],
-                          key_methods: list[str]) -> np.ndarray:
-        """Compute attention scores using scaled dot-product attention"""
-        Q = np.array([self.embed_method(m) @ self.query_weights for m in query_methods])
-        K = np.array([self.embed_method(m) @ self.key_weights for m in key_methods])
-        V = np.array([self.embed_method(m) @ self.value_weights for m in key_methods])
-
-        scores = Q @ K.T / np.sqrt(self.embedding_dim)
-        attention_weights = self._softmax(scores)
-
-        attention_weights @ V
-
-        return attention_weights
-
-    def _softmax(self, x: np.ndarray) -> np.ndarray:
-        """Compute softmax with numerical stability"""
-        exp_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
-        return exp_x / exp_x.sum(axis=-1, keepdims=True)
-
-    def prioritize_methods(self, available_methods: list[str],
-                           context_methods: list[str]) -> list[tuple[str, float]]:
-        """Prioritize methods based on attention scores"""
-        if not available_methods or not context_methods:
-            return [(m, 1.0) for m in available_methods]
-
-        attention = self.compute_attention([available_methods[0]], context_methods)
-        scores = attention[0]
-
-        method_scores = []
-        for i, method in enumerate(available_methods):
-            score = scores[i % len(scores)]
-            method_scores.append((method, float(score)))
-
-        return sorted(method_scores, key=lambda x: x[1], reverse=True)
-
-# ============================================================================
-# TOPOLOGICAL DATA ANALYSIS
-# ============================================================================
-
-class PersistentHomology:
-    """Persistent homology for understanding data topology"""
-
-    def __init__(self) -> None:
-        self.persistence_diagram: list[tuple[float, float]] = []
-
-    def compute_persistence(self, data: np.ndarray, max_dimension: int = 1) -> None:
-        """Compute persistence diagram"""
-        if len(data) == 0:
-            return
-
-        distances = self._pairwise_distances(data)
-
-        for i in range(len(data)):
-            for j in range(i + 1, len(data)):
-                birth = 0.0
-                death = distances[i, j]
-                self.persistence_diagram.append((birth, death))
-
-    def _pairwise_distances(self, data: np.ndarray) -> np.ndarray:
-        """Compute pairwise distances"""
-        n = len(data)
-        distances = np.zeros((n, n))
-
-        for i in range(n):
-            for j in range(i + 1, n):
-                dist = np.linalg.norm(data[i] - data[j])
-                distances[i, j] = dist
-                distances[j, i] = dist
-
-        return distances
-
-    def get_topological_features(self) -> dict[str, float]:
-        """Extract topological features from persistence diagram"""
-        if not self.persistence_diagram:
-            return {"persistence": 0.0, "num_features": 0}
-
-        lifetimes = [death - birth for birth, death in self.persistence_diagram]
-
-        return {
-            "persistence": np.mean(lifetimes),
-            "num_features": len(self.persistence_diagram),
-            "max_lifetime": max(lifetimes) if lifetimes else 0.0,
-            "total_persistence": sum(lifetimes)
-        }
-
-# ============================================================================
-# CATEGORY THEORY ABSTRACTIONS
-# ============================================================================
-
-T = TypeVar('T')
-U = TypeVar('U')
-
-class Functor(Generic[T, U], ABC):
-    """Functor abstraction for composable transformations"""
-
-    @abstractmethod
-    def fmap(self, f: Callable[[T], U]) -> 'Functor[T, U]':
-        """Map function over functor"""
-        pass
-
-class ExecutionMonad(Functor):
-    """Monad for composable execution pipelines"""
-
-    def __init__(self, value: Any) -> None:
-        self.value = value
-        self.history: list[str] = []
-
-    def fmap(self, f: Callable) -> 'ExecutionMonad':
-        """Apply function and wrap result"""
-        try:
-            result = f(self.value)
-            monad = ExecutionMonad(result)
-            monad.history = self.history + [f.__name__]
-            return monad
-        except Exception:
-            return ExecutionMonad(None)
-
-    def bind(self, f: Callable[[Any], 'ExecutionMonad']) -> 'ExecutionMonad':
-        """Monadic bind operation"""
-        if self.value is None:
-            return self
-
-        try:
-            result_monad = f(self.value)
-            result_monad.history = self.history + result_monad.history
-            return result_monad
-        except Exception:
-            return ExecutionMonad(None)
-
-    @staticmethod
-    def unit(value: Any) -> 'ExecutionMonad':
-        """Lift value into monad"""
-        return ExecutionMonad(value)
-
-    def get_value(self) -> Any:
-        """Extract value from monad"""
-        return self.value
-
-class CategoryTheoryExecutor:
-    """Executor using category theory abstractions"""
-
-    def __init__(self) -> None:
-        self.morphisms: dict[str, Callable] = {}
-
-    def add_morphism(self, name: str, f: Callable) -> None:
-        """Add morphism (function) to category"""
-        self.morphisms[name] = f
-
-    def compose(self, *morphism_names: str) -> Callable:
-        """Compose morphisms"""
-        morphisms = [self.morphisms[name] for name in morphism_names if name in self.morphisms]
-
-        def composed(x):
-            result = x
-            for f in morphisms:
-                result = f(result)
-            return result
-
-        return composed
-
-    def execute_pipeline(self, initial_value: Any,
-                         morphism_sequence: list[str]) -> ExecutionMonad:
-        """Execute pipeline using monadic composition"""
-        monad = ExecutionMonad.unit(initial_value)
-
-        for morphism_name in morphism_sequence:
-            if morphism_name in self.morphisms:
-                monad = monad.bind(lambda x: ExecutionMonad.unit(self.morphisms[morphism_name](x)))
-
-        return monad
-
-# ============================================================================
-# PROBABILISTIC PROGRAMMING
-# ============================================================================
-
-class ProbabilisticExecutor:
-    """Probabilistic programming for uncertainty quantification"""
-
-    def __init__(self) -> None:
-        self.distributions: dict[str, Any] = {}
-        self.samples: dict[str, list[float]] = defaultdict(list)
-
-    def define_prior(self, param_name: str, distribution: str, **kwargs) -> None:
-        """Define prior distribution for parameter"""
-        self.distributions[param_name] = (distribution, kwargs)
-
-    def sample_prior(self, param_name: str, rng: np.random.Generator | None = None) -> float:
-        """Sample from prior distribution"""
-        rng = _ensure_rng(rng)
-        if param_name not in self.distributions:
-            return 1.0
-
-        dist_type, params = self.distributions[param_name]
-
-        if dist_type == "normal":
-            return float(rng.normal(params.get("mean", 0), params.get("std", 1)))
-        elif dist_type == "beta":
-            return float(rng.beta(params.get("alpha", 2), params.get("beta", 2)))
-        elif dist_type == "gamma":
-            return float(rng.gamma(params.get("shape", 2), params.get("scale", 1)))
-        else:
-            return 1.0
-
-    def bayesian_update(self, param_name: str, likelihood: float) -> None:
-        """Update posterior using Bayesian inference"""
-        if param_name in self.samples:
-            prior_sample = self.sample_prior(param_name)
-            posterior_sample = prior_sample * likelihood
-            self.samples[param_name].append(posterior_sample)
-
-    def get_posterior_mean(self, param_name: str) -> float:
-        """Get posterior mean estimate"""
-        if param_name not in self.samples or not self.samples[param_name]:
-            return self.sample_prior(param_name)
-
-        return np.mean(self.samples[param_name])
-
-    def get_credible_interval(self, param_name: str, alpha: float = 0.95) -> tuple[float, float]:
-        """Get credible interval for parameter"""
-        if param_name not in self.samples or not self.samples[param_name]:
-            return (0.0, 1.0)
-
-        samples = np.array(self.samples[param_name])
-        lower = np.percentile(samples, (1 - alpha) / 2 * 100)
-        upper = np.percentile(samples, (1 + alpha) / 2 * 100)
-
-        return (float(lower), float(upper))
 
 # ============================================================================
 # ADVANCED EXECUTOR BASE CLASS
@@ -1355,12 +645,7 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
 
         # NEW: Store calibration results for current execution
         self.calibration_results: dict[str, CalibrationResult] = {}
-
-
-
-        # Get advanced module configuration from config or use default
-        # Pydantic ensures type safety, so if advanced_modules is set, it's AdvancedModuleConfig
-        self.adv_config: AdvancedModuleConfig = self.config.advanced_modules
+        self.accumulator: dict[str, list[Any]] = {}
 
     def _validate_executor_config(self) -> None:
         """Section 3.2: Validate config at construction time.
@@ -1417,63 +702,6 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
                 "calibration_enabled": self.calibration is not None,  # NEW
             },
         )
-
-        # Initialize advanced modules with academically-informed parameters
-        # Parameters combine VERIFIED academic principles with EMPIRICAL practical defaults
-        # See advanced_module_config.py for honest categorization
-
-        # Quantum-inspired optimization (Nielsen & Chuang 2010)
-        # FORMULA-DERIVED: iterations ≈ √num_methods from Grover's algorithm
-        # EMPIRICAL: num_methods chosen for policy analysis (not from paper)
-        self.quantum_optimizer = QuantumExecutionOptimizer(
-            num_methods=self.adv_config.quantum_num_methods
-        )
-
-        # Neuromorphic computing (Maass 1997)
-        # VERIFIED: Paper discusses spiking neurons and STDP
-        # EMPIRICAL: 8-12 stages range based on practice (not explicit in paper)
-        self.neuromorphic_controller = NeuromorphicFlowController(
-            num_stages=self.adv_config.neuromorphic_num_stages
-        )
-
-        # Causal inference (Spirtes et al. 2000; Pearl 2009)
-        # VERIFIED: PC algorithm and independence testing (α=0.05)
-        # EMPIRICAL: 10-30 variables for computational tractability (not explicit)
-        self.causal_graph = CausalGraph(
-            num_variables=self.adv_config.causal_num_variables
-        )
-
-        # Information-theoretic flow optimization (Shannon 1948; Cover & Thomas 2006)
-        # FORMULA-DERIVED: log₂(N) stages from information theory
-        # EMPIRICAL: Practical minimum samples
-        self.info_optimizer = InformationFlowOptimizer(
-            num_stages=self.adv_config.info_num_stages
-        )
-
-        # Meta-learning strategy (Thrun & Pratt 1998; Hospedales et al. 2021)
-        # VERIFIED: Learning rate range 0.01-0.1 from Thrun & Pratt
-        # EMPIRICAL: Number of strategies based on exploration-exploitation (not explicit)
-        self.meta_learner = MetaLearningStrategy(
-            num_strategies=self.adv_config.meta_num_strategies,
-            epsilon=self.adv_config.meta_epsilon,
-            learning_rate=self.adv_config.meta_learning_rate,
-        )
-
-        # Attention mechanism (Vaswani et al. 2017; Bahdanau et al. 2014)
-        # CLARIFIED: Vaswani uses 64 as per-head dimension (with 8 heads, d_model=512)
-        # EMPIRICAL: We use 64 as conservative total for resource-constrained scenarios
-        self.attention = AttentionMechanism(
-            embedding_dim=self.adv_config.attention_embedding_dim
-        )
-
-        # Topological data analysis (Carlsson 2009)
-        # VERIFIED: Dimension 1 sufficient, <1000 points practical
-        self.topology_analyzer = PersistentHomology()
-
-        # Category theory and probabilistic programming
-        # No parameterization needed - theoretical constructs
-        self.category_executor = CategoryTheoryExecutor()
-        self.probabilistic_executor = ProbabilisticExecutor()
 
         self.execution_metrics: dict[str, list[float]] = defaultdict(list)
         self.method_dependencies: dict[str, set] = {}
@@ -1718,6 +946,7 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
         - **DETERMINISTIC EXECUTION** via policy_unit_id seeding
         - **Section 3.3**: Config values propagated to execution context
         """
+        self.accumulator.clear()
         execution_start = time.time()
         self.executor = method_executor
 
@@ -1898,13 +1127,7 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
                 elif span_context:
                     span.set_attribute("signals.fetched", False)
 
-                strategy_idx = self.meta_learner.select_strategy()
-                self.meta_learner.get_strategy_config(strategy_idx)
-
-                method_names = [f"{cls}.{method}" for cls, method in method_sequence]
-                self.attention.prioritize_methods(method_names, method_names[:3])
-
-                logger.info(f"Starting execution with {len(method_sequence)} methods using strategy {strategy_idx}")
+                logger.info(f"Starting execution with {len(method_sequence)} methods")
 
                 total_entropy = 0.0
 
@@ -1949,11 +1172,6 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
 
                     executed_sequence.append((class_name, method_name))
 
-                    self.probabilistic_executor.define_prior(
-                        method_key, "beta", alpha=2, beta=2
-                    )
-                    self.probabilistic_executor.sample_prior(method_key)
-
                     # Execute with retry logic
                     method_start = time.time()
                     success = False
@@ -1977,17 +1195,6 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
 
                             results[method_key] = result
                             success = True
-
-                            self.info_optimizer.update_flow_metrics(idx, result)
-
-                            data_quality = self._assess_data_quality(result)
-                            self.neuromorphic_controller.process_data_flow([data_quality])
-
-                            performance = data_quality
-                            self.probabilistic_executor.bayesian_update(method_key, performance)
-
-                            entropy = self.info_optimizer.calculate_entropy(result)
-                            total_entropy += entropy
 
                             if result is not None:
                                 current_data = result
@@ -2029,20 +1236,11 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
                     method_time = time.time() - method_start
                     _global_metrics.record_execution(success, method_time, method_key)
 
-                avg_entropy = total_entropy / max(len(method_sequence), 1)
-                reward = self._calculate_reward(avg_entropy)
-                self.meta_learner.update_strategy_performance(strategy_idx, reward)
-
-                bottlenecks = self.info_optimizer.get_information_bottlenecks()
-
                 total_time = time.time() - execution_start
                 logger.info(
                     f"Execution completed in {total_time:.3f}s: {_global_metrics.successful_executions}/{_global_metrics.total_executions} methods successful",
                     extra={
                         'total_time': total_time,
-                        'avg_entropy': avg_entropy,
-                        'bottlenecks': len(bottlenecks),
-                        'strategy': strategy_idx,
                         'policy_unit_id': policy_unit_id,
                         'correlation_id': correlation_id,
                     }
@@ -2053,7 +1251,6 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
                     span.set_attribute("execution_time_s", total_time)
                     span.set_attribute("successful_methods", _global_metrics.successful_executions)
                     span.set_attribute("total_methods", _global_metrics.total_executions)
-                span.set_attribute("avg_entropy", avg_entropy)
                 span.set_attribute("used_signals_count", len(self.used_signals))
                 span.set_status(Status(StatusCode.OK))
 
@@ -2075,16 +1272,6 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
                 'elements': self._extract(results),
                 'raw': results,
                 'confidence': float(self._argument_context.get('confidence', 0.0) or 0.0),
-                'meta': {
-                    'strategy': strategy_idx,
-                    'avg_entropy': avg_entropy,
-                    'bottlenecks': bottlenecks,
-                    'confidence_intervals': self._get_confidence_intervals(method_sequence),
-                    'execution_time': total_time,
-                    'metrics_summary': _global_metrics.get_summary(),
-                    'used_signals': self.used_signals,  # Add signal usage metadata
-                    'consumption_proof': consumption_proof.get_consumption_proof() if consumption_proof else None,
-                }
             }
 
             # ============================================================
@@ -2206,29 +1393,6 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
         # (better to execute all than execute none)
         return filtered if filtered else methods
 
-    def _assess_data_quality(self, data: Any) -> float:
-        """Assess quality of data output"""
-        if data is None:
-            return 0.0
-
-        entropy = self.info_optimizer.calculate_entropy(data)
-        max_entropy = 8.0
-        quality = min(entropy / max_entropy, 1.0)
-
-        return quality
-
-    def _calculate_reward(self, avg_entropy: float) -> float:
-        """Calculate reward for meta-learning"""
-        return min(avg_entropy / 8.0, 1.0)
-
-    def _get_confidence_intervals(self, method_sequence: list[tuple[str, str]]) -> dict[str, tuple[float, float]]:
-        """Get confidence intervals for all methods"""
-        intervals = {}
-        for class_name, method_name in method_sequence:
-            method_key = f"{class_name}.{method_name}"
-            intervals[method_key] = self.probabilistic_executor.get_credible_interval(method_key)
-        return intervals
-
     @abstractmethod
     def _extract(self, results: dict) -> list:
         """Extract final results (to be implemented by subclasses)"""
@@ -2322,6 +1486,9 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
                     continue
 
             prepared[name] = value
+
+        if 'extract' not in method_name.lower():
+            prepared['accumulator'] = self.accumulator
 
         return prepared
 
@@ -2825,6 +1992,11 @@ class AdvancedDataFlowExecutor(ExecutorBase, MethodSequenceValidatingMixin):
     ) -> None:
         """Enhanced context update with graph-aware tracking"""
         ctx = self._argument_context
+
+        if isinstance(result, ExtractionArtifact):
+            if result.extractor_id not in self.accumulator:
+                self.accumulator[result.extractor_id] = []
+            self.accumulator[result.extractor_id].append(result)
 
         # ========================================================================
         # ENHANCED: TRACK GRAPH OBJECTS FROM RESULTS
@@ -4541,21 +3713,10 @@ class D6Q5_Executor(AdvancedDataFlowExecutor):
 # ORCHESTRATOR
 # ============================================================================
 
-class FrontierExecutorOrchestrator:
-    """Orchestrator managing frontier-enhanced executors with signal support"""
+class ExecutorDispatcher:
+    """Acts as a factory to dispatch the correct executor for a given question."""
 
-    # Canonical policy areas from questionnaire_monolith.json
-    CANONICAL_POLICY_AREAS = [
-        "PA01", "PA02", "PA03", "PA04", "PA05",
-        "PA06", "PA07", "PA08", "PA09", "PA10"
-    ]
-    EXPECTED_EXECUTOR_IDS = tuple(
-        f"D{dimension}Q{question}"
-        for dimension in range(1, 7)
-        for question in range(1, 6)
-    )
-
-    def __init__(self, signal_registry=None) -> None:
+    def __init__(self, signal_registry=None, config: ExecutorConfig | None = None, calibration_orchestrator: "CalibrationOrchestrator | None" = None) -> None:
         self.executors = {
             'D1Q1': D1Q1_Executor,
             'D1Q2': D1Q2_Executor,
@@ -4588,251 +3749,24 @@ class FrontierExecutorOrchestrator:
             'D6Q4': D6Q4_Executor,
             'D6Q5': D6Q5_Executor,
         }
+        self.signal_registry = signal_registry
+        self.config = config
+        self.calibration = calibration_orchestrator
 
-        self.global_causal_graph = CausalGraph(num_variables=30)
-        self.global_meta_learner = MetaLearningStrategy(num_strategies=10)
-
-        # NEW: Signal support for policy area processing
-        from .chunk_router import ChunkRouter
-        from .signals import SignalRegistry
-        self.signal_registry = signal_registry or SignalRegistry()
-        self.chunk_router = ChunkRouter()
-        self._verify_executor_coverage()
-
-    def execute_question(self, question_id: str, doc, method_executor) -> dict[str, Any]:
-        """Execute specific question with frontier optimizations"""
-        canonical_id = self.normalize_question_id(question_id)
+    def get_executor(self, question_id: str, method_executor) -> AdvancedDataFlowExecutor:
+        """Get executor instance for a given question ID."""
+        canonical_id = question_id.replace("-", "").replace("_", "").replace(" ", "").upper()
         if canonical_id not in self.executors:
             logger.error(f"Unknown question ID: {question_id}")
             raise ValueError(f"Unknown question ID: {question_id}")
 
-        logger.info(
-            "executing_question",
-            requested_question=question_id,
-            canonical_question=canonical_id,
-        )
-        start_time = time.time()
-
         executor_class = self.executors[canonical_id]
-        executor = executor_class(method_executor)
-
-        result = executor.execute(doc, method_executor)
-
-        execution_time = time.time() - start_time
-        logger.info(
-            "question_completed",
-            canonical_question=canonical_id,
-            requested_question=question_id,
-            elapsed_s=f"{execution_time:.3f}",
+        return executor_class(
+            method_executor,
+            signal_registry=self.signal_registry,
+            config=self.config,
+            calibration_orchestrator=self.calibration,
         )
-
-        return result
-
-    def batch_execute(self, question_ids: list[str], doc, method_executor) -> dict[str, Any]:
-        """Execute multiple questions with cross-question optimization"""
-        logger.info(f"Starting batch execution of {len(question_ids)} questions")
-        batch_start = time.time()
-
-        normalized_ids = [self.normalize_question_id(q) for q in question_ids]
-        results = {}
-
-        execution_order = self._optimize_execution_order(normalized_ids)
-        logger.info(f"Optimized execution order: {execution_order}")
-
-        for qid in execution_order:
-            results[qid] = self.execute_question(qid, doc, method_executor)
-
-        batch_time = time.time() - batch_start
-        logger.info(f"Batch execution completed in {batch_time:.3f}s")
-
-        return results
-
-    def _optimize_execution_order(self, question_ids: list[str], rng: np.random.Generator | None = None) -> list[str]:
-        """Optimize execution order using causal inference"""
-        rng = _ensure_rng(rng)
-        if len(question_ids) <= 1:
-            return question_ids
-
-        # Create a temporary causal graph for the actual number of questions
-        n_questions = len(question_ids)
-        temp_graph = CausalGraph(num_variables=n_questions)
-
-        # Generate synthetic data for structure learning
-        data = rng.standard_normal((max(100, n_questions * 10), n_questions))
-        temp_graph.learn_structure(data, alpha=0.05)
-
-        # Get optimal execution order
-        indices = temp_graph.get_execution_order()
-
-        # Map indices to question IDs
-        return [question_ids[i] for i in indices if i < len(question_ids)]
-
-    def load_policy_signals(self, signals_dir: str) -> None:
-        """
-        Load signal packs from directory for PA01-PA10.
-
-        Args:
-            signals_dir: Directory containing PA01.json, PA02.json, ..., PA10.json
-        """
-        import json
-        from pathlib import Path
-
-        signals_path = Path(signals_dir)
-        if not signals_path.exists():
-            raise ValueError(f"Signals directory not found: {signals_path}")
-
-        loaded_count = 0
-        for pa in self.CANONICAL_POLICY_AREAS:
-            signal_file = signals_path / f"{pa}.json"
-            if signal_file.exists():
-                with open(signal_file, encoding='utf-8') as f:
-                    signal_data = json.load(f)
-
-                from .signals import SignalPack
-                signal_pack = SignalPack(**signal_data)
-                self.signal_registry.put(pa, signal_pack)
-                loaded_count += 1
-                logger.info(f"Loaded signal pack for {pa} v{signal_pack.version}")
-
-        logger.info(f"Loaded {loaded_count}/{len(self.CANONICAL_POLICY_AREAS)} signal packs")
-
-    @staticmethod
-    def normalize_question_id(question_id: str) -> str:
-        """Normalize question identifiers to canonical format (e.g., D1Q1)."""
-        cleaned = (
-            question_id.replace("-", "")
-            .replace("_", "")
-            .replace(" ", "")
-            .upper()
-        )
-        return cleaned
-
-    def _verify_executor_coverage(self) -> None:
-        """Ensure all 30 canonical executors are present."""
-        missing = [
-            expected_id
-            for expected_id in self.EXPECTED_EXECUTOR_IDS
-            if expected_id not in self.executors
-        ]
-        if missing:
-            raise RuntimeError(
-                f"Executor coverage incomplete. Missing executors for: {', '.join(missing)}"
-            )
-
-    def process_policy_area_chunks(
-        self,
-        chunks: list[dict[str, Any]],
-        policy_area: str,
-        method_executor
-    ) -> dict[str, Any]:
-        """
-        Process chunks for a policy area with signals.
-
-        Args:
-            chunks: List of 10 chunk dictionaries
-            policy_area: Policy area ID (PA01-PA10)
-            method_executor: Method executor for running analysis
-
-        Returns:
-            Dictionary with processing results
-
-        Raises:
-            ValueError: If chunk count != 10 or invalid policy area
-        """
-        if policy_area not in self.CANONICAL_POLICY_AREAS:
-            raise ValueError(
-                f"Invalid policy area: {policy_area}. "
-                f"Must be one of {self.CANONICAL_POLICY_AREAS}"
-            )
-
-        if len(chunks) != 10:
-            raise ValueError(
-                f"Expected exactly 10 chunks for {policy_area}, got {len(chunks)}"
-            )
-
-        logger.info(f"Processing {len(chunks)} chunks for {policy_area}")
-
-        # Get signal pack for this policy area
-        signal_pack = self.signal_registry.get(policy_area)
-        if signal_pack:
-            logger.info(f"Using signals v{signal_pack.version} for {policy_area}")
-
-        # Convert all chunk dicts to ChunkData objects (do this ONCE, not per iteration)
-        from .core import ChunkData, PreprocessedDocument
-
-        chunk_data_list = []
-        chunk_index_map = {}
-        all_text_parts = []
-
-        for i, chunk_dict in enumerate(chunks):
-            chunk = ChunkData(
-                id=i,
-                text=chunk_dict.get('text', ''),
-                chunk_type=chunk_dict.get('chunk_type', 'diagnostic'),
-                sentences=chunk_dict.get('sentences', []),
-                tables=chunk_dict.get('tables', []),
-                start_pos=chunk_dict.get('start_pos', 0),
-                end_pos=chunk_dict.get('end_pos', len(chunk_dict.get('text', ''))),
-                confidence=chunk_dict.get('confidence', 1.0),
-                edges_out=chunk_dict.get('edges_out', []),
-                edges_in=chunk_dict.get('edges_in', [])
-            )
-            chunk_data_list.append(chunk)
-            chunk_id_str = chunk_dict.get('id', f'{policy_area}_chunk_{i}')
-            chunk_index_map[chunk_id_str] = i
-            all_text_parts.append(chunk.text)
-
-        # Create ONE PreprocessedDocument with ALL chunks (efficient!)
-        combined_doc = PreprocessedDocument(
-            document_id=f'{policy_area}_document',
-            raw_text='\n\n'.join(all_text_parts),
-            sentences=[],
-            tables=[],
-            metadata={
-                'policy_area': policy_area,
-                'total_chunks': len(chunks)
-            },
-            chunks=chunk_data_list,
-            chunk_index=chunk_index_map,
-            processing_mode='chunked'
-        )
-
-        # Process each chunk with routing
-        executor_results = []
-        for i, chunk in enumerate(chunk_data_list):
-            # Route to executor
-            route = self.chunk_router.route_chunk(chunk)
-
-            if route.skip_reason:
-                logger.warning(f"Chunk {i} skipped: {route.skip_reason}")
-                continue
-
-            # Get executor and execute
-            executor_key = route.executor_class
-            executor_class = self.executors.get(executor_key)
-
-            if executor_class:
-                executor = executor_class(method_executor, self.signal_registry)
-
-                # Execute chunk using the SHARED PreprocessedDocument (no object creation in loop!)
-                try:
-                    result = executor.execute_chunk(combined_doc, i)
-                except Exception as e:
-                    logger.error(f"Executor {executor_key} failed on chunk {i}: {e}")
-                    result = {'error': str(e), 'chunk_id': i}
-
-                executor_results.append({
-                    'chunk_id': i,
-                    'executor': executor_key,
-                    'result': result
-                })
-
-        return {
-            'policy_area': policy_area,
-            'chunks_processed': len(executor_results),
-            'results': executor_results,
-            'signals_version': signal_pack.version if signal_pack else None
-        }
 
 # Backwards compatibility alias
 DataFlowExecutor = AdvancedDataFlowExecutor
@@ -4871,10 +3805,9 @@ __all__ = [
     'D6Q4_Executor',
     'D6Q5_Executor',
     # Main orchestrator
-    'FrontierExecutorOrchestrator',
+    'ExecutorDispatcher',
     # Base classes
     'ExecutorBase',
     'ValidationResult',
     'AdvancedDataFlowExecutor',
-    'DataFlowExecutor',  # Backwards compatibility alias
 ]

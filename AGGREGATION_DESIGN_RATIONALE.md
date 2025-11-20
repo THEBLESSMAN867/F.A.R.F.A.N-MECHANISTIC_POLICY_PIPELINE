@@ -1,6 +1,6 @@
 # Justificación del Diseño del Sistema de Agregación
 
-**DEPRECATED (2025-11-17)** – Sustituido por `docs/aggregation_phase_canonical.md`.
+**DEPRECATED (2025-11-17)** – Sustituido por los dossiers `docs/phases/phase_4/P04-*.md`, `phase_5/P05-*.md`, `phase_6/P06-*.md` y `phase_7/P07-*.md`.
 Mantener solo como referencia histórica; no refleja el contrato actual.
 
 **Fecha:** 2025-11-17

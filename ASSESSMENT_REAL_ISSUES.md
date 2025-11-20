@@ -49,7 +49,7 @@ Here's what's **actually** broken vs. what I claimed was fixed.
 **Reality**: Configuration had wrong contract type ("forbid" vs "forbidden")
 
 **Status NOW**:
-- ✅ Configuration fixed in all 3 config files (contracts/importlinter.ini, setup.cfg, pyproject.toml)
+- ✅ Configuration fixed in all 3 config files (contracts/tooling/importlinter.ini, setup.cfg, pyproject.toml)
 - ✅ Import linter now runs successfully
 - ❌ **FOUND REAL ARCHITECTURAL VIOLATIONS**:
   ```

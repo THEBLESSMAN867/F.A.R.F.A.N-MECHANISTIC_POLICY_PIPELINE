@@ -2915,7 +2915,7 @@
       "ambiguity": "Root-level Python file; might be compatibility shim or standalone script"
     },
     {
-      "path": "contracts/importlinter.ini",
+      "path": "contracts/tooling/importlinter.ini",
       "ambiguity": "Classification unclear; requires human review"
     },
     {

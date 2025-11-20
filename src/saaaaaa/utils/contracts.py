@@ -230,6 +230,15 @@ class SentenceCollection:
         """Return count."""
         return len(self.sentences)
 
+@dataclass(frozen=True, slots=True)
+class ExtractionArtifact:
+    """Standardized output from an extraction method."""
+    data: Any
+    extractor_id: str
+    confidence: float
+    document_id: str
+    source_positions: tuple[int, ...] = ()
+
 # ============================================================================
 # SENTINEL VALUES (avoid None ambiguity)
 # ============================================================================
@@ -389,6 +398,7 @@ __all__ = [
     "DocumentMetadataV1Optional",
     "ExecutionContextV1",
     "ExecutionContextV1Optional",
+    "ExtractionArtifact",
     "MISSING",
     "ProcessedTextV1",
     "ProcessedTextV1Optional",

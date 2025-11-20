@@ -1,0 +1,86 @@
+{
+  "version": "1.0.0",
+  "timestamp": "2025-11-20T17:55:18.761445Z",
+  "success": false,
+  "versions": {
+    "pipeline": "2.0.0",
+    "calibration": "2.0.0",
+    "signal": "1.0.0",
+    "advanced_module": "1.0.0",
+    "seed": "sha256_v1",
+    "manifest": "1.0.0"
+  },
+  "pipeline_hash": "8591ef9d59594d7897e611cd5533f274e5ef80a9a49a0b1e347028ec767aa3ba",
+  "environment": {
+    "python_version": "3.12.12 (main, Nov 20 2025, 09:34:37) [Clang 17.0.0 (clang-1700.0.13.5)]",
+    "platform": "macOS-15.4-arm64-arm-64bit",
+    "cpu_count": 8,
+    "timestamp_utc": "2025-11-20T17:55:41.917488Z"
+  },
+  "determinism": {
+    "seed_version": "sha256_v1",
+    "policy_unit_id": "policy_unit::Plan_1",
+    "correlation_id": "20251120_175518",
+    "seeds_by_component": {
+      "numpy": 1559977388,
+      "python": 637286080,
+      "quantum": 3070762790,
+      "neuromorphic": 3315328653,
+      "meta_learner": 696401151
+    }
+  },
+  "calibrations": {
+    "version": "2.0.0",
+    "hash": "9b16de6c88990f28",
+    "methods_calibrated": 5,
+    "methods_missing": []
+  },
+  "phases": [
+    {
+      "phase_id": 0,
+      "phase_name": "complete_pipeline",
+      "success": false,
+      "duration_ms": 23156,
+      "items_processed": 0,
+      "error": "SPC ingestion failed: Converting from SentencePiece and Tiktoken failed, if a converter for SentencePiece is available, provide a model path with a SentencePiece tokenizer.model file.Currently available slow->fast converters: ['AlbertTokenizer', 'BartTokenizer', 'BarthezTokenizer', 'BertTokenizer', 'BigBirdTokenizer', 'BlenderbotTokenizer', 'CamembertTokenizer', 'CLIPTokenizer', 'CodeGenTokenizer', 'ConvBertTokenizer', 'DebertaTokenizer', 'DebertaV2Tokenizer', 'DistilBertTokenizer', 'DPRReaderTokenizer', 'DPRQuestionEncoderTokenizer', 'DPRContextEncoderTokenizer', 'ElectraTokenizer', 'FNetTokenizer', 'FunnelTokenizer', 'GPT2Tokenizer', 'HerbertTokenizer', 'LayoutLMTokenizer', 'LayoutLMv2Tokenizer', 'LayoutLMv3Tokenizer', 'LayoutXLMTokenizer', 'LongformerTokenizer', 'LEDTokenizer', 'LxmertTokenizer', 'MarkupLMTokenizer', 'MBartTokenizer', 'MBart50Tokenizer', 'MPNetTokenizer', 'MobileBertTokenizer', 'MvpTokenizer', 'NllbTokenizer', 'OpenAIGPTTokenizer', 'PegasusTokenizer', 'Qwen2Tokenizer', 'RealmTokenizer', 'ReformerTokenizer', 'RemBertTokenizer', 'RetriBertTokenizer', 'RobertaTokenizer', 'RoFormerTokenizer', 'SeamlessM4TTokenizer', 'SqueezeBertTokenizer', 'T5Tokenizer', 'UdopTokenizer', 'WhisperTokenizer', 'XLMRobertaTokenizer', 'XLNetTokenizer', 'SplinterTokenizer', 'XGLMTokenizer', 'LlamaTokenizer', 'CodeLlamaTokenizer', 'GemmaTokenizer', 'Phi3Tokenizer']"
+    }
+  ],
+  "artifacts": {
+    "questionnaire_source": {
+      "path": "/Users/recovered/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE_FINAL/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE_FINAL/data/questionnaire_monolith.json",
+      "hash": "f4a48932f6a3c408e65589680de334d54e69d4a43adb787bb91571788a91feb8",
+      "size_bytes": 1158260
+    }
+  },
+  "signals": {
+    "enabled": true,
+    "transport": "memory",
+    "policy_areas_loaded": 10,
+    "executors_using_signals": 0,
+    "total_executors": 0,
+    "note": "Signal infrastructure initialized, actual usage not tracked in results",
+    "signal_versions": {
+      "PA01": "1.0.0",
+      "PA02": "1.0.0",
+      "PA03": "1.0.0",
+      "PA04": "1.0.0",
+      "PA05": "1.0.0",
+      "PA06": "1.0.0",
+      "PA07": "1.0.0",
+      "PA08": "1.0.0",
+      "PA09": "1.0.0",
+      "PA10": "1.0.0"
+    }
+  },
+  "execution_id": "20251120_175518",
+  "start_time": "2025-11-20T17:55:18.761267",
+  "end_time": "2025-11-20T17:55:41.917381",
+  "input_pdf_path": "/Users/recovered/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE_FINAL/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE_FINAL/data/plans/Plan_1.pdf",
+  "total_claims": 8,
+  "errors": [
+    "SPC ingestion failed: Converting from SentencePiece and Tiktoken failed, if a converter for SentencePiece is available, provide a model path with a SentencePiece tokenizer.model file.Currently available slow->fast converters: ['AlbertTokenizer', 'BartTokenizer', 'BarthezTokenizer', 'BertTokenizer', 'BigBirdTokenizer', 'BlenderbotTokenizer', 'CamembertTokenizer', 'CLIPTokenizer', 'CodeGenTokenizer', 'ConvBertTokenizer', 'DebertaTokenizer', 'DebertaV2Tokenizer', 'DistilBertTokenizer', 'DPRReaderTokenizer', 'DPRQuestionEncoderTokenizer', 'DPRContextEncoderTokenizer', 'ElectraTokenizer', 'FNetTokenizer', 'FunnelTokenizer', 'GPT2Tokenizer', 'HerbertTokenizer', 'LayoutLMTokenizer', 'LayoutLMv2Tokenizer', 'LayoutLMv3Tokenizer', 'LayoutXLMTokenizer', 'LongformerTokenizer', 'LEDTokenizer', 'LxmertTokenizer', 'MarkupLMTokenizer', 'MBartTokenizer', 'MBart50Tokenizer', 'MPNetTokenizer', 'MobileBertTokenizer', 'MvpTokenizer', 'NllbTokenizer', 'OpenAIGPTTokenizer', 'PegasusTokenizer', 'Qwen2Tokenizer', 'RealmTokenizer', 'ReformerTokenizer', 'RemBertTokenizer', 'RetriBertTokenizer', 'RobertaTokenizer', 'RoFormerTokenizer', 'SeamlessM4TTokenizer', 'SqueezeBertTokenizer', 'T5Tokenizer', 'UdopTokenizer', 'WhisperTokenizer', 'XLMRobertaTokenizer', 'XLNetTokenizer', 'SplinterTokenizer', 'XGLMTokenizer', 'LlamaTokenizer', 'CodeLlamaTokenizer', 'GemmaTokenizer', 'Phi3Tokenizer']"
+  ],
+  "artifacts_generated": [],
+  "artifact_hashes": {},
+  "integrity_hmac": "0000000000000000000000000000000000000000000000000000000000000000"
+}

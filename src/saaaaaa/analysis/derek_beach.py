@@ -53,6 +53,7 @@ except ImportError as e:
     print(f"ERROR: Dependencia faltante. Ejecute: pip install {e.name}")
     sys.exit(1)
 
+
 # DNP Standards Integration
 try:
     from dnp_integration import ValidadorDNP, validar_plan_desarrollo_completo

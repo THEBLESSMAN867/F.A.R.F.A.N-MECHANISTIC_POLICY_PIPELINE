@@ -53,14 +53,23 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from saaaaaa.core.orchestrator.core import PreprocessedDocument
 from saaaaaa.core.phases.phase_protocol import (
     ContractValidationResult,
     PhaseContract,
 )
 from saaaaaa.processing.cpp_ingestion.models import CanonPolicyPackage
-from schemas.preprocessed_document import PreprocessedDocument
 
 logger = logging.getLogger(__name__)
+
+
+def _meta_extra(meta: Any) -> dict[str, Any]:
+    """Extract extra metadata from sentence metadata entries."""
+    if isinstance(meta, dict):
+        return meta.get("extra", {}) or {}
+    if hasattr(meta, "extra"):
+        return getattr(meta, "extra") or {}
+    return {}
 
 
 class AdapterContract(PhaseContract[CanonPolicyPackage, PreprocessedDocument]):
@@ -96,10 +105,7 @@ class AdapterContract(PhaseContract[CanonPolicyPackage, PreprocessedDocument]):
         self.add_invariant(
             name="chunk_id_preserved",
             description="All sentence_metadata must have chunk_id in extra",
-            check=lambda data: all(
-                hasattr(meta, 'extra') and 'chunk_id' in meta.extra
-                for meta in data.sentence_metadata
-            ),
+            check=lambda data: all("chunk_id" in _meta_extra(meta) for meta in data.sentence_metadata),
             error_message="Missing chunk_id in sentence_metadata.extra",
         )
 
@@ -107,10 +113,7 @@ class AdapterContract(PhaseContract[CanonPolicyPackage, PreprocessedDocument]):
         self.add_invariant(
             name="policy_area_id_preserved",
             description="All sentence_metadata must have policy_area_id in extra",
-            check=lambda data: all(
-                hasattr(meta, 'extra') and 'policy_area_id' in meta.extra
-                for meta in data.sentence_metadata
-            ),
+            check=lambda data: all("policy_area_id" in _meta_extra(meta) for meta in data.sentence_metadata),
             error_message="Missing policy_area_id in sentence_metadata.extra - CRITICAL for Phase 2",
         )
 
@@ -118,10 +121,7 @@ class AdapterContract(PhaseContract[CanonPolicyPackage, PreprocessedDocument]):
         self.add_invariant(
             name="dimension_id_preserved",
             description="All sentence_metadata must have dimension_id in extra",
-            check=lambda data: all(
-                hasattr(meta, 'extra') and 'dimension_id' in meta.extra
-                for meta in data.sentence_metadata
-            ),
+            check=lambda data: all("dimension_id" in _meta_extra(meta) for meta in data.sentence_metadata),
             error_message="Missing dimension_id in sentence_metadata.extra - CRITICAL for Phase 2",
         )
 
@@ -231,11 +231,11 @@ class AdapterContract(PhaseContract[CanonPolicyPackage, PreprocessedDocument]):
             # Validate PA×DIM preservation in sentence_metadata
             missing_metadata = []
             for idx, meta in enumerate(output_data.sentence_metadata):
-                if not hasattr(meta, 'extra'):
+                extra = _meta_extra(meta)
+                if not extra:
                     missing_metadata.append(f"sentence[{idx}]: no extra field")
                     continue
 
-                extra = meta.extra
                 if 'chunk_id' not in extra:
                     missing_metadata.append(f"sentence[{idx}]: missing chunk_id")
                 if 'policy_area_id' not in extra:

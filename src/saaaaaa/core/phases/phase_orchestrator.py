@@ -51,7 +51,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from saaaaaa.core.phases.phase_protocol import PhaseManifestBuilder
+from saaaaaa.core.phases.phase_protocol import (
+    ContractValidationResult,
+    PhaseManifestBuilder,
+    PhaseMetadata,
+)
 from saaaaaa.core.phases.phase0_input_validation import (
     CanonicalInput,
     Phase0Input,
@@ -279,47 +283,140 @@ class PhaseOrchestrator:
             logger.info("CORE ORCHESTRATOR: Executing Phases 0-10")
             logger.info("=" * 70)
 
-            # Build core.Orchestrator with required dependencies
+            # --- Imports for Phase 2 Integration ---
+            from datetime import datetime, timedelta, timezone
+
             from saaaaaa.core.orchestrator.factory import build_processor
+            from saaaaaa.core.phases.phase2_types import Phase2Result
 
+            # --- Execute Core Orchestrator ---
             processor = build_processor()
-
-            # core.Orchestrator expects:
-            # - pdf_path (str)
-            # - preprocessed_document (PreprocessedDocument)
+            p2_block_started_at = datetime.now(timezone.utc)
             core_results = await processor.orchestrator.process_development_plan_async(
                 pdf_path=str(pdf_path),
                 preprocessed_document=preprocessed,
             )
+            p2_block_finished_at = datetime.now(timezone.utc)
 
-            # Extract Phase 2 results (micro-questions)
-            # core_results is list[PhaseResult]
-            if len(core_results) >= 3:  # Phase 0, 1, 2 at minimum
+            # --- Process and Record Phase 2 ---
+            phase2_success = False
+            phase2_present_in_results = False
+            if len(core_results) >= 3:
+                phase2_present_in_results = True
                 phase2_core = core_results[2]  # FASE 2 - Micro Preguntas
-                result.phase2_result = phase2_core.data if phase2_core.success else None
+                result.phase2_result = phase2_data = (
+                    phase2_core.data if phase2_core.success else None
+                )
 
-                if not phase2_core.success:
-                    error_msg = f"Core Orchestrator Phase 2 failed: {phase2_core.error}"
+                # INVARIANT: Phase 2 must produce a non-empty list of questions
+                phase2_questions_ok = (
+                    isinstance(phase2_data, dict)
+                    and isinstance(phase2_data.get("questions"), list)
+                    and len(phase2_data["questions"]) > 0
+                )
+
+                phase2_success = bool(phase2_core.success and phase2_questions_ok)
+
+                # --- Create Manifest Entry for Phase 2 ---
+                p2_error_msg = str(phase2_core.error) if phase2_core.error else None
+                if phase2_core.success and not phase2_questions_ok:
+                    p2_error_msg = "Phase 2 failed structural invariant: questions list is empty or missing."
+
+                # Approximate start/end times for the manifest metadata
+                p2_duration = timedelta(milliseconds=phase2_core.duration_ms)
+                p2_started_at_approx = p2_block_finished_at - p2_duration
+
+                p2_metadata = PhaseMetadata(
+                    phase_name="phase2_microquestions",
+                    success=phase2_success,
+                    error=p2_error_msg,
+                    duration_ms=phase2_core.duration_ms,
+                    started_at=p2_started_at_approx.isoformat(),
+                    finished_at=p2_block_finished_at.isoformat(),
+                )
+
+                # Create dummy validation results to satisfy the manifest builder
+                dummy_input_validation = ContractValidationResult(
+                    passed=True,
+                    contract_type="input",
+                    phase_name="phase2_microquestions",
+                )
+                dummy_output_validation = ContractValidationResult(
+                    passed=phase2_success,
+                    contract_type="output",
+                    phase_name="phase2_microquestions",
+                    errors=[p2_error_msg] if p2_error_msg else [],
+                )
+
+                self.manifest_builder.record_phase(
+                    phase_name="phase2_microquestions",
+                    metadata=p2_metadata,
+                    input_validation=dummy_input_validation,
+                    output_validation=dummy_output_validation,
+                    invariants_checked=["questions_are_present_and_non_empty"],
+                    artifacts=[],
+                )
+
+                if not phase2_success:
+                    error_msg = f"Core Orchestrator Phase 2 failed: {p2_error_msg}"
                     logger.error(error_msg)
                     result.errors.append(error_msg)
                     result.phases_failed += 1
-                    result.success = False
-                    return result  # Stop here if Phase 2 failed
+                else:
+                    # Only add core result count if Phase 2 was successful
+                    result.phases_completed += len(core_results)
+                    logger.info(
+                        f"Core Orchestrator completed {len(core_results)} phases successfully"
+                    )
 
-            result.phases_completed += len(core_results)
-            logger.info(
-                f"Core Orchestrator completed {len(core_results)} phases successfully"
-            )
+            else:
+                # Phase 2 was not even present in the results
+                missing_p2_error = "Core Orchestrator did not produce a result for Phase 2."
+                logger.error(missing_p2_error)
+                result.errors.append(missing_p2_error)
+                result.phases_failed += 1
+                # Create a failure record in the manifest
+                p2_metadata = PhaseMetadata(
+                    phase_name="phase2_microquestions",
+                    success=False,
+                    error=missing_p2_error,
+                    started_at=p2_block_started_at.isoformat(),
+                    finished_at=p2_block_finished_at.isoformat(),
+                    duration_ms=(p2_block_finished_at-p2_block_started_at).total_seconds() * 1000,
+                )
+                self.manifest_builder.record_phase(
+                    phase_name="phase2_microquestions",
+                    metadata=p2_metadata,
+                    input_validation=ContractValidationResult(passed=False, contract_type="input", phase_name="phase2_microquestions", errors=[missing_p2_error]),
+                    output_validation=ContractValidationResult(passed=False, contract_type="output", phase_name="phase2_microquestions", errors=[missing_p2_error]),
+                    invariants_checked=[],
+                    artifacts=[],
+                )
+
 
             # ================================================================
             # PIPELINE SUCCESS
             # ================================================================
-            result.success = True
-            logger.info("=" * 70)
-            logger.info(f"PIPELINE COMPLETED SUCCESSFULLY")
-            logger.info(f"Phases completed: {result.phases_completed}")
-            logger.info(f"Total duration: {result.total_duration_ms:.0f}ms")
-            logger.info("=" * 70)
+            # Success is now conditional on all canonical phases, including Phase 2
+            all_phases_ok = all(
+                p.get("status") == "success"
+                for p in self.manifest_builder.phases.values()
+            )
+
+            if all_phases_ok:
+                result.success = True
+                logger.info("=" * 70)
+                logger.info(f"PIPELINE COMPLETED SUCCESSFULLY")
+                logger.info(f"Phases completed: {result.phases_completed}")
+                logger.info(f"Total duration: {result.total_duration_ms:.0f}ms")
+                logger.info("=" * 70)
+            else:
+                # Ensure result.success is False if we got here with a failure
+                result.success = False
+                final_error = f"Pipeline failed. Check manifest for details. Completed: {result.phases_completed}, Failed: {result.phases_failed}"
+                if not result.errors:
+                    result.errors.append(final_error)
+                logger.error(final_error)
 
         except Exception as e:
             # Capture error

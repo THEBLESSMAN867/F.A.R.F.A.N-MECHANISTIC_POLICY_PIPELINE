@@ -52,7 +52,7 @@ from ...processing.aggregation import (
     validate_scored_results,
 )
 from ..dependency_lockdown import get_dependency_lockdown
-from . import executors
+from . import executors_contract as executors
 from .arg_router import ArgRouterError, ArgumentValidationError, ExtendedArgRouter
 from .class_registry import ClassRegistryError, build_class_registry
 from .executor_config import ExecutorConfig
@@ -318,6 +318,12 @@ class PreprocessedDocument:
     sentences: list[Any]
     tables: list[Any]
     metadata: dict[str, Any]
+    sentence_metadata: list[Any] = field(default_factory=list)
+    indexes: dict[str, Any] | None = None
+    structured_text: dict[str, Any] | None = None
+    language: str | None = None
+    ingested_at: datetime | None = None
+    full_text: str | None = None
 
     # NEW CHUNK FIELDS for SPC exploitation
     chunks: list[ChunkData] = field(default_factory=list)
@@ -331,6 +337,9 @@ class PreprocessedDocument:
         Raises:
             ValueError: If raw_text is empty or whitespace-only
         """
+        if (not self.raw_text or not self.raw_text.strip()) and self.full_text:
+            # Backward-compatible fallback when only full_text is provided
+            self.raw_text = self.full_text
         if not self.raw_text or not self.raw_text.strip():
             raise ValueError(
                 "PreprocessedDocument cannot have empty raw_text. "

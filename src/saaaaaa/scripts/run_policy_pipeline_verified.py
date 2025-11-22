@@ -351,48 +351,70 @@ class VerifiedPipelineRunner:
             self.errors.append(error_msg)
             return None
     
-    async def run_orchestrator(self, preprocessed_doc: Any) -> Optional[Dict[str, Any]]:
+    async def run_orchestrator(self, preprocessed_doc: Any) -> Optional[list[Any]]:
         """
-        Run orchestrator with all phases.
+        Run orchestrator with all phases and verify Phase 2 success.
         
         Args:
             preprocessed_doc: PreprocessedDocument
             
         Returns:
-            Results dictionary if successful, None otherwise
+            List of PhaseResult objects if successful, None otherwise
         """
         self.log_claim("start", "orchestrator", "Starting orchestrator execution")
         
         try:
-            from saaaaaa.core.orchestrator import Orchestrator
+            # This is not the PhaseOrchestrator from the other file, but the core one.
             from saaaaaa.core.orchestrator.factory import build_processor
             
             processor = build_processor()
-            orchestrator = Orchestrator(
-                monolith=processor.questionnaire,
-                catalog=processor.factory.catalog
-            )
-
-            # Run all phases (using correct method name)
-            results = await orchestrator.process_development_plan_async(
+            
+            # The core orchestrator is at processor.orchestrator
+            results = await processor.orchestrator.process_development_plan_async(
                 pdf_path=str(self.plan_pdf_path),
                 preprocessed_document=preprocessed_doc
             )
             
-            # Count actual phases completed based on results
-            if results and hasattr(results, '__dict__'):
-                phase_attrs = [attr for attr in dir(results) 
-                             if not attr.startswith('_') and attr.endswith('_result')]
-                completed_phases = sum(1 for attr in phase_attrs 
-                                      if getattr(results, attr, None) is not None)
-                self.phases_completed += completed_phases
+            if not results:
+                raise RuntimeError("Orchestrator returned no results.")
+
+            # JOBFRONT 3: Verify Phase 2 (Microquestions) success
+            phase2_ok = False
+            if len(results) >= 3:
+                phase2_result = results[2]  # This is a PhaseResult dataclass
+                if phase2_result.success:
+                    phase2_data = phase2_result.data
+                    # Structural invariant check
+                    if (isinstance(phase2_data, dict) and
+                        isinstance(phase2_data.get("questions"), list) and
+                        len(phase2_data["questions"]) > 0):
+                        phase2_ok = True
+                    else:
+                        error_msg = "Orchestrator Phase 2 failed structural invariant: questions list is empty or missing."
+                        self.log_claim("error", "orchestrator", error_msg, {"phase_id": phase2_result.phase_id})
+                        self.errors.append(error_msg)
+                else:
+                    error_msg = f"Orchestrator Phase 2 failed internally: {phase2_result.error}"
+                    self.log_claim("error", "orchestrator", error_msg, {"phase_id": phase2_result.phase_id})
+                    self.errors.append(error_msg)
             else:
-                # Fallback if we can't inspect results
-                self.phases_completed += 1
+                error_msg = "Orchestrator did not produce a result for Phase 2."
+                self.log_claim("error", "orchestrator", error_msg)
+                self.errors.append(error_msg)
+
+            if not phase2_ok:
+                # Signal failure as per this script's convention
+                self.phases_failed += 1
+                return None
+
+            # Correctly count completed phases from the results list
+            completed_phases = sum(1 for r in results if r.success)
+            self.phases_completed += completed_phases
             
             self.log_claim("complete", "orchestrator", 
                           "Orchestrator execution completed successfully",
-                          {"phases_completed": self.phases_completed})
+                          {"phases_completed": self.phases_completed, 
+                           "core_phases_run": len(results)})
             return results
             
         except Exception as e:

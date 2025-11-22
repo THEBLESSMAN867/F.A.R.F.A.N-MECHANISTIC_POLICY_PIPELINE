@@ -21,13 +21,7 @@ from datetime import datetime, timezone
 from types import MappingProxyType
 from typing import Any
 
-from schemas.preprocessed_document import (
-    DocumentIndexesV1,
-    PreprocessedDocument,
-    SentenceMetadata,
-    StructuredTextV1,
-    TableAnnotation,
-)
+from saaaaaa.core.orchestrator.core import PreprocessedDocument
 
 logger = logging.getLogger(__name__)
 
@@ -172,84 +166,115 @@ class SPCAdapter:
         self.logger.info(f"Processing {len(sorted_chunks)} chunks")
 
         # Build full text by concatenating chunks
-        full_text_parts = []
-        sentences = []
-        sentence_metadata = []
-        tables = []
+        full_text_parts: list[str] = []
+        sentences: list[dict[str, Any]] = []
+        sentence_metadata: list[dict[str, Any]] = []
+        tables: list[dict[str, Any]] = []
+        chunk_index: dict[str, int] = {}
+        chunk_summaries: list[dict[str, Any]] = []
 
         # Track indices for building indexes
-        term_index = {}
-        numeric_index = {}
-        temporal_index = {}
-        entity_index = {}
+        term_index: dict[str, list[int]] = {}
+        numeric_index: dict[str, list[int]] = {}
+        temporal_index: dict[str, list[int]] = {}
+        entity_index: dict[str, list[int]] = {}
 
         # Track running offset that matches how full_text is built
         current_offset = 0
 
+        provenance_with_data = 0
+
         for idx, chunk in enumerate(sorted_chunks):
             chunk_text = chunk.text
             chunk_start = current_offset
+            chunk_index[chunk.id] = idx
 
             # Add to full text
             full_text_parts.append(chunk_text)
 
             # Create sentence entry (each chunk is represented as a sentence for orchestrator compatibility)
-            sentences.append(chunk_text)
+            sentences.append(
+                {
+                    "text": chunk_text,
+                    "chunk_id": chunk.id,
+                    "resolution": (chunk.resolution.value.lower() if hasattr(chunk, "resolution") else None),
+                }
+            )
 
-            # Create chunk metadata (using SentenceMetadata for orchestrator compatibility)
+            # Create chunk metadata for per-sentence tracking
             chunk_end = chunk_start + len(chunk_text)
 
             # CRITICAL: Preserve PA×DIM metadata for Phase 2 question routing
             extra_metadata = {
-                'chunk_id': chunk.id,
-                'policy_area_id': chunk.policy_area_id if hasattr(chunk, 'policy_area_id') else None,
-                'dimension_id': chunk.dimension_id if hasattr(chunk, 'dimension_id') else None,
-                'resolution': chunk.resolution.value if hasattr(chunk, 'resolution') else None,
+                "chunk_id": chunk.id,
+                "policy_area_id": chunk.policy_area_id if hasattr(chunk, "policy_area_id") else None,
+                "dimension_id": chunk.dimension_id if hasattr(chunk, "dimension_id") else None,
+                "resolution": chunk.resolution.value.lower() if hasattr(chunk, "resolution") else None,
             }
 
             # Add facets if available
-            if hasattr(chunk, 'policy_facets') and chunk.policy_facets:
-                extra_metadata['policy_facets'] = {
-                    'axes': chunk.policy_facets.axes if hasattr(chunk.policy_facets, 'axes') else [],
-                    'programs': chunk.policy_facets.programs if hasattr(chunk.policy_facets, 'programs') else [],
-                    'projects': chunk.policy_facets.projects if hasattr(chunk.policy_facets, 'projects') else [],
+            if hasattr(chunk, "policy_facets") and chunk.policy_facets:
+                extra_metadata["policy_facets"] = {
+                    "axes": chunk.policy_facets.axes if hasattr(chunk.policy_facets, "axes") else [],
+                    "programs": chunk.policy_facets.programs if hasattr(chunk.policy_facets, "programs") else [],
+                    "projects": chunk.policy_facets.projects if hasattr(chunk.policy_facets, "projects") else [],
                 }
 
-            if hasattr(chunk, 'time_facets') and chunk.time_facets:
-                extra_metadata['time_facets'] = {
-                    'years': chunk.time_facets.years if hasattr(chunk.time_facets, 'years') else [],
-                    'periods': chunk.time_facets.periods if hasattr(chunk.time_facets, 'periods') else [],
+            if hasattr(chunk, "time_facets") and chunk.time_facets:
+                extra_metadata["time_facets"] = {
+                    "years": chunk.time_facets.years if hasattr(chunk.time_facets, "years") else [],
+                    "periods": chunk.time_facets.periods if hasattr(chunk.time_facets, "periods") else [],
                 }
 
-            if hasattr(chunk, 'geo_facets') and chunk.geo_facets:
-                extra_metadata['geo_facets'] = {
-                    'territories': chunk.geo_facets.territories if hasattr(chunk.geo_facets, 'territories') else [],
-                    'regions': chunk.geo_facets.regions if hasattr(chunk.geo_facets, 'regions') else [],
+            if hasattr(chunk, "geo_facets") and chunk.geo_facets:
+                extra_metadata["geo_facets"] = {
+                    "territories": chunk.geo_facets.territories if hasattr(chunk.geo_facets, "territories") else [],
+                    "regions": chunk.geo_facets.regions if hasattr(chunk.geo_facets, "regions") else [],
                 }
 
-            chunk_meta = SentenceMetadata(
-                index=idx,
-                page_number=None,  # SPC doesn't track pages
-                start_char=chunk_start,
-                end_char=chunk_end,
-                extra=MappingProxyType(extra_metadata)
+            sentence_metadata.append(
+                {
+                    "index": idx,
+                    "page_number": None,
+                    "start_char": chunk_start,
+                    "end_char": chunk_end,
+                    "extra": dict(extra_metadata),
+                }
             )
-            sentence_metadata.append(chunk_meta)
+
+            chunk_summary = {
+                "id": chunk.id,
+                "resolution": (chunk.resolution.value.lower() if hasattr(chunk, "resolution") else None),
+                "text_span": {"start": chunk_start, "end": chunk_end},
+                "policy_area_id": extra_metadata["policy_area_id"],
+                "dimension_id": extra_metadata["dimension_id"],
+                "has_kpi": hasattr(chunk, "kpi") and chunk.kpi is not None,
+                "has_budget": hasattr(chunk, "budget") and chunk.budget is not None,
+                "confidence": {
+                    "layout": getattr(chunk.confidence, "layout", 0.0) if hasattr(chunk, "confidence") else 0.0,
+                    "ocr": getattr(chunk.confidence, "ocr", 0.0) if hasattr(chunk, "confidence") else 0.0,
+                    "typing": getattr(chunk.confidence, "typing", 0.0) if hasattr(chunk, "confidence") else 0.0,
+                },
+            }
+            chunk_summaries.append(chunk_summary)
+
+            if hasattr(chunk, "provenance") and chunk.provenance:
+                provenance_with_data += 1
 
             # Advance offset by chunk length + 1 space separator
             current_offset = chunk_end + 1
 
             # Extract entities for entity_index
-            if hasattr(chunk, 'entities') and chunk.entities:
+            if hasattr(chunk, "entities") and chunk.entities:
                 for entity in chunk.entities:
-                    entity_text = entity.text if hasattr(entity, 'text') else str(entity)
+                    entity_text = entity.text if hasattr(entity, "text") else str(entity)
                     if entity_text not in entity_index:
                         entity_index[entity_text] = []
                     entity_index[entity_text].append(idx)
 
             # Extract temporal markers for temporal_index
-            if hasattr(chunk, 'time_facets') and chunk.time_facets:
-                if hasattr(chunk.time_facets, 'years') and chunk.time_facets.years:
+            if hasattr(chunk, "time_facets") and chunk.time_facets:
+                if hasattr(chunk.time_facets, "years") and chunk.time_facets.years:
                     for year in chunk.time_facets.years:
                         year_key = str(year)
                         if year_key not in temporal_index:
@@ -257,40 +282,33 @@ class SPCAdapter:
                         temporal_index[year_key].append(idx)
 
             # Extract budget for tables
-            if hasattr(chunk, 'budget') and chunk.budget:
+            if hasattr(chunk, "budget") and chunk.budget:
                 budget = chunk.budget
-                table = TableAnnotation(
-                    table_id=f"budget_{idx}",
-                    label=f"Budget: {budget.source if hasattr(budget, 'source') else 'Unknown'}",
-                    attributes=MappingProxyType({
-                        'amount': budget.amount if hasattr(budget, 'amount') else 0,
-                        'currency': budget.currency if hasattr(budget, 'currency') else 'COP',
-                        'year': budget.year if hasattr(budget, 'year') else None,
-                        'use': budget.use if hasattr(budget, 'use') else None,
-                    })
+                tables.append(
+                    {
+                        "table_id": f"budget_{idx}",
+                        "label": f"Budget: {budget.source if hasattr(budget, 'source') else 'Unknown'}",
+                        "amount": getattr(budget, "amount", 0),
+                        "currency": getattr(budget, "currency", "COP"),
+                        "year": getattr(budget, "year", None),
+                        "use": getattr(budget, "use", None),
+                        "source": getattr(budget, "source", None),
+                    }
                 )
-                tables.append(table)
 
         # Join full text
-        full_text = ' '.join(full_text_parts)
+        full_text = " ".join(full_text_parts)
 
         if not full_text:
             raise SPCAdapterError("Generated full_text is empty")
 
-        # Build structured text (no sections available from SPC)
-        structured_text = StructuredTextV1(
-            full_text=full_text,
-            sections=(),
-            page_boundaries=()
-        )
-
         # Build document indexes
-        indexes = DocumentIndexesV1(
-            term_index=MappingProxyType({k: tuple(v) for k, v in term_index.items()}),
-            numeric_index=MappingProxyType({k: tuple(v) for k, v in numeric_index.items()}),
-            temporal_index=MappingProxyType({k: tuple(v) for k, v in temporal_index.items()}),
-            entity_index=MappingProxyType({k: tuple(v) for k, v in entity_index.items()})
-        )
+        indexes = {
+            "term_index": {k: tuple(v) for k, v in term_index.items()},
+            "numeric_index": {k: tuple(v) for k, v in numeric_index.items()},
+            "temporal_index": {k: tuple(v) for k, v in temporal_index.items()},
+            "entity_index": {k: tuple(v) for k, v in entity_index.items()},
+        }
 
         # Build metadata from canon_package
         metadata_dict = {
@@ -298,6 +316,7 @@ class SPCAdapter:
             'schema_version': canon_package.schema_version if hasattr(canon_package, 'schema_version') else 'SPC-2025.1',
             'chunk_count': len(sorted_chunks),
             'processing_mode': 'chunked',
+            'chunks': chunk_summaries,
         }
 
         # Add quality metrics if available
@@ -329,23 +348,34 @@ class SPCAdapter:
             if 'spc_rich_data' in canon_package.metadata:
                 metadata_dict['spc_rich_data'] = canon_package.metadata['spc_rich_data']
 
+        if len(sorted_chunks) > 0:
+            metadata_dict['provenance_completeness'] = provenance_with_data / len(sorted_chunks)
+
         metadata = MappingProxyType(metadata_dict)
 
         # Detect language (default to Spanish for Colombian policy documents)
         language = "es"
 
-        # Create PreprocessedDocument
+        # Create PreprocessedDocument (canonical orchestrator dataclass)
         preprocessed_doc = PreprocessedDocument(
             document_id=document_id,
-            full_text=full_text,
-            sentences=tuple(sentences),
-            language=language,
-            structured_text=structured_text,
-            sentence_metadata=tuple(sentence_metadata),
-            tables=tuple(tables),
+            raw_text=full_text,
+            sentences=sentences,
+            tables=tables,
+            metadata=dict(metadata),
+            sentence_metadata=sentence_metadata,
             indexes=indexes,
-            metadata=metadata,
-            ingested_at=datetime.now(timezone.utc)
+            structured_text={"full_text": full_text, "sections": (), "page_boundaries": ()},
+            language=language,
+            ingested_at=datetime.now(timezone.utc),
+            full_text=full_text,
+            chunks=[],
+            chunk_index=chunk_index,
+            chunk_graph={
+                "chunks": {cid: chunk_index[cid] for cid in chunk_index},
+                "edges": list(getattr(chunk_graph, "edges", [])),
+            },
+            processing_mode="chunked",
         )
 
         self.logger.info(

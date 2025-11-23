@@ -19,6 +19,7 @@ Usage:
 from typing import Dict, List, Any, Optional
 from abc import ABC, abstractmethod
 
+from saaaaaa.core.canonical_notation import CanonicalDimension, get_dimension_info
 from saaaaaa.core.orchestrator.core import MethodExecutor
 from saaaaaa.core.orchestrator.factory import build_processor
 
@@ -1213,9 +1214,13 @@ class D3_Q1_IndicatorQualityValidator(BaseExecutor):
 
 class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
     """
-    Analyzes proportionality of targets to diagnosed population/universe.
+    DIM03_Q02_PRODUCT_TARGET_PROPORTIONALITY — Analyzes proportionality of targets to the diagnosed universe using canonical D3 notation.
+    Epistemic mix: structural coverage, financial/normative feasibility, statistical Bayes tests, and semantic indicator quality.
     
     Methods (from D3-Q2):
+    - PDETMunicipalPlanAnalyzer.analyze_financial_feasibility
+    - PDETMunicipalPlanAnalyzer._score_indicators
+    - PDETMunicipalPlanAnalyzer._interpret_risk
     - FinancialAuditor._calculate_sufficiency
     - BayesianMechanismInference._test_sufficiency
     - BayesianMechanismInference._test_necessity
@@ -1227,6 +1232,15 @@ class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
     
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         raw_evidence = {}
+        dim_info = get_dimension_info(CanonicalDimension.D3.value)
+        
+        # Step 0: Financial feasibility snapshot and indicator quality
+        financial_feasibility = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "analyze_financial_feasibility", context
+        )
+        indicator_quality = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_score_indicators", context
+        )
         
         # Step 1: Calculate sufficiency
         sufficiency_calc = self._execute_method(
@@ -1244,6 +1258,10 @@ class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
         # Step 3: Assess financial sustainability
         sustainability_assessment = self._execute_method(
             "PDETMunicipalPlanAnalyzer", "_assess_financial_sustainability", context
+        )
+        risk_interpretation = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_interpret_risk", context,
+            risk=financial_feasibility.get("risk_assessment", {}).get("risk_score", 0.0)
         )
         
         # Step 4: Calculate adaptive likelihood
@@ -1269,6 +1287,9 @@ class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
             "sufficiency_test": sufficiency_test,
             "necessity_test": necessity_test,
             "sustainability": sustainability_assessment,
+            "financial_feasibility": financial_feasibility,
+            "indicator_quality": indicator_quality,
+            "risk_interpretation": risk_interpretation,
             "proportionality_score": quality_score,
             "recommendations": internal_suggestions
         }
@@ -1279,7 +1300,10 @@ class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
             "metadata": {
                 "methods_executed": [log["method"] for log in self.execution_log],
                 "targets_analyzed": len(context.get("product_targets", [])),
-                "coverage_adequate": sufficiency_calc.get("is_sufficient", False)
+                "coverage_adequate": sufficiency_calc.get("is_sufficient", False),
+                "canonical_question": "DIM03_Q02_PRODUCT_TARGET_PROPORTIONALITY",
+                "dimension_code": dim_info.code,
+                "dimension_label": dim_info.label
             },
             "execution_metrics": {
                 "methods_count": len(self.execution_log),
@@ -1290,7 +1314,8 @@ class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
 
 class D3_Q3_TraceabilityValidator(BaseExecutor):
     """
-    Validates budgetary and organizational traceability of products.
+    DIM03_Q03_TRACEABILITY_BUDGET_ORG — Validates budgetary and organizational traceability of products under canonical D3 notation.
+    Epistemic mix: structural budget tracing, organizational semantics, and accountability synthesis.
     
     Methods (from D3-Q3):
     - FinancialAuditor._match_program_to_node
@@ -1304,6 +1329,7 @@ class D3_Q3_TraceabilityValidator(BaseExecutor):
     
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         raw_evidence = {}
+        dim_info = get_dimension_info(CanonicalDimension.D3.value)
         
         # Step 1: Match programs to budget nodes
         program_matches = self._execute_method(
@@ -1321,6 +1347,13 @@ class D3_Q3_TraceabilityValidator(BaseExecutor):
         consolidated_entities = self._execute_method(
             "PDETMunicipalPlanAnalyzer", "_consolidate_entities", context,
             entities=responsibility_data
+        )
+        responsible_entities = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "identify_responsible_entities", context
+        )
+        responsibility_clarity = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_score_responsibility_clarity", context,
+            entities=consolidated_entities
         )
         
         # Step 3: Generate traceability records
@@ -1354,7 +1387,9 @@ class D3_Q3_TraceabilityValidator(BaseExecutor):
             },
             "traceability_record": traceability_record,
             "pdq_report": pdq_report,
-            "accountability_matrix": accountability_matrix
+            "accountability_matrix": accountability_matrix,
+            "responsible_entities": responsible_entities,
+            "responsibility_clarity_score": responsibility_clarity
         }
         
         return {
@@ -1363,7 +1398,10 @@ class D3_Q3_TraceabilityValidator(BaseExecutor):
             "metadata": {
                 "methods_executed": [log["method"] for log in self.execution_log],
                 "products_with_bpin": len([m for m in program_matches if m.get("bpin")]),
-                "products_with_responsible": len(consolidated_entities)
+                "products_with_responsible": len(consolidated_entities),
+                "canonical_question": "DIM03_Q03_TRACEABILITY_BUDGET_ORG",
+                "dimension_code": dim_info.code,
+                "dimension_label": dim_info.label
             },
             "execution_metrics": {
                 "methods_count": len(self.execution_log),
@@ -1374,9 +1412,12 @@ class D3_Q3_TraceabilityValidator(BaseExecutor):
 
 class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
     """
-    Evaluates technical feasibility: activity-product relationship vs resources/deadlines.
+    DIM03_Q04_TECHNICAL_FEASIBILITY — Evaluates activity-product feasibility vs resources/deadlines (canonical D3).
+    Epistemic mix: structural DAG validity, causal necessity, performance/implementation readiness, and statistical robustness.
     
     Methods (from D3-Q4):
+    - AdvancedDAGValidator.get_graph_stats
+    - AdvancedDAGValidator._calculate_node_importance
     - AdvancedDAGValidator.calculate_acyclicity_pvalue
     - AdvancedDAGValidator._is_acyclic
     - BayesianMechanismInference._test_necessity
@@ -1391,6 +1432,7 @@ class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
     
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         raw_evidence = {}
+        dim_info = get_dimension_info(CanonicalDimension.D3.value)
         
         # Step 1: Validate DAG structure
         acyclicity_pvalue = self._execute_method(
@@ -1398,6 +1440,12 @@ class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
         )
         is_acyclic = self._execute_method(
             "AdvancedDAGValidator", "_is_acyclic", context
+        )
+        graph_stats = self._execute_method(
+            "AdvancedDAGValidator", "get_graph_stats", context
+        )
+        node_importance = self._execute_method(
+            "AdvancedDAGValidator", "_calculate_node_importance", context
         )
         
         # Step 2: Test necessity of activities for products
@@ -1417,6 +1465,9 @@ class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
         )
         benchmark_ops = self._execute_method(
             "IndustrialGradeValidator", "_benchmark_operation", context
+        )
+        engine_readiness = self._execute_method(
+            "IndustrialGradeValidator", "validate_engine_readiness", context
         )
         
         # Step 4: Analyze performance
@@ -1439,13 +1490,16 @@ class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
             "technical_validation": {
                 "dag_valid": is_acyclic,
                 "acyclicity_p": acyclicity_pvalue,
-                "necessity_score": necessity_test
+                "necessity_score": necessity_test,
+                "graph_stats": graph_stats,
+                "node_importance": node_importance
             },
             "performance_metrics": {
                 "benchmarks": performance_benchmarks,
                 "loss_functions": loss_functions,
                 "ess": ess
             },
+            "engine_readiness": engine_readiness,
             "feasibility_score": validation_suite.get("overall_score", 0)
         }
         
@@ -1455,7 +1509,10 @@ class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
             "metadata": {
                 "methods_executed": [log["method"] for log in self.execution_log],
                 "dag_is_valid": is_acyclic,
-                "feasibility_score": validation_suite.get("overall_score", 0)
+                "feasibility_score": validation_suite.get("overall_score", 0),
+                "canonical_question": "DIM03_Q04_TECHNICAL_FEASIBILITY",
+                "dimension_code": dim_info.code,
+                "dimension_label": dim_info.label
             },
             "execution_metrics": {
                 "methods_count": len(self.execution_log),
@@ -1466,9 +1523,14 @@ class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
 
 class D3_Q5_OutputOutcomeLinkageAnalyzer(BaseExecutor):
     """
-    Analyzes mechanism linking outputs (products) to outcomes (results).
+    DIM03_Q05_OUTPUT_OUTCOME_LINKAGE — Analyzes mechanisms linking outputs to outcomes with canonical D3 labeling.
+    Epistemic mix: semantic hierarchy checks, causal order validation, DAG/effect estimation, and Bayesian mechanism inference.
     
     Methods (from D3-Q5):
+    - PDETMunicipalPlanAnalyzer.analyze_financial_feasibility
+    - PDETMunicipalPlanAnalyzer.construct_causal_dag
+    - PDETMunicipalPlanAnalyzer.estimate_causal_effects
+    - PDETMunicipalPlanAnalyzer.generate_counterfactuals
     - CausalExtractor._build_type_hierarchy
     - CausalExtractor._check_structural_violation
     - CausalExtractor._calculate_type_transition_prior
@@ -1481,6 +1543,27 @@ class D3_Q5_OutputOutcomeLinkageAnalyzer(BaseExecutor):
     
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         raw_evidence = {}
+        dim_info = get_dimension_info(CanonicalDimension.D3.value)
+        
+        # Step 0: Build causal backbone and effects
+        financial_analysis = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "analyze_financial_feasibility", context
+        )
+        causal_dag = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "construct_causal_dag", context,
+            financial_analysis=financial_analysis
+        )
+        causal_effects = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "estimate_causal_effects", context,
+            dag=causal_dag,
+            financial_analysis=financial_analysis
+        )
+        counterfactuals = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "generate_counterfactuals", context,
+            dag=causal_dag,
+            causal_effects=causal_effects,
+            financial_analysis=financial_analysis
+        )
         
         # Step 1: Build type hierarchy
         type_hierarchy = self._execute_method(
@@ -1529,6 +1612,10 @@ class D3_Q5_OutputOutcomeLinkageAnalyzer(BaseExecutor):
             "output_outcome_links": refined_edges,
             "mechanism_explanation": mechanisms,
             "type_hierarchy": type_hierarchy,
+            "causal_dag": causal_dag,
+            "causal_effects": causal_effects,
+            "counterfactuals": counterfactuals,
+            "financial_analysis": financial_analysis,
             "causal_validity": {
                 "structural_violations": structural_violations,
                 "order_valid": causal_order_validation
@@ -1544,7 +1631,10 @@ class D3_Q5_OutputOutcomeLinkageAnalyzer(BaseExecutor):
             "metadata": {
                 "methods_executed": [log["method"] for log in self.execution_log],
                 "mechanisms_identified": len(mechanisms),
-                "violations_found": len(structural_violations)
+                "violations_found": len(structural_violations),
+                "canonical_question": "DIM03_Q05_OUTPUT_OUTCOME_LINKAGE",
+                "dimension_code": dim_info.code,
+                "dimension_label": dim_info.label
             },
             "execution_metrics": {
                 "methods_count": len(self.execution_log),
@@ -1559,9 +1649,11 @@ class D3_Q5_OutputOutcomeLinkageAnalyzer(BaseExecutor):
 
 class D4_Q1_OutcomeMetricsValidator(BaseExecutor):
     """
-    Validates outcome indicators: baseline, target, time horizon.
+    DIM04_Q01_OUTCOME_INDICATOR_COMPLETENESS — Validates outcome indicators (baseline, target, horizon) with canonical D4 notation.
+    Epistemic mix: semantic goal extraction, temporal/consistency checks, statistical performance signals, and indicator quality scoring.
     
     Methods (from D4-Q1):
+    - PDETMunicipalPlanAnalyzer._score_indicators
     - PDETMunicipalPlanAnalyzer._find_outcome_mentions
     - PDETMunicipalPlanAnalyzer._score_temporal_consistency
     - CausalExtractor._extract_goals
@@ -1569,10 +1661,12 @@ class D4_Q1_OutcomeMetricsValidator(BaseExecutor):
     - CausalExtractor._classify_goal_type
     - TemporalLogicVerifier._parse_temporal_marker
     - PerformanceAnalyzer.analyze_performance
+    - PerformanceAnalyzer._generate_recommendations
     """
     
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         raw_evidence = {}
+        dim_info = get_dimension_info(CanonicalDimension.D4.value)
         
         # Step 1: Find outcome mentions
         outcome_mentions = self._execute_method(
@@ -1609,6 +1703,13 @@ class D4_Q1_OutcomeMetricsValidator(BaseExecutor):
             "PerformanceAnalyzer", "analyze_performance", context,
             outcomes=outcome_mentions
         )
+        indicator_quality = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_score_indicators", context
+        )
+        performance_recommendations = self._execute_method(
+            "PerformanceAnalyzer", "_generate_recommendations", context,
+            performance_analysis=performance_analysis
+        )
         
         raw_evidence = {
             "outcome_indicators": outcome_mentions,
@@ -1618,7 +1719,9 @@ class D4_Q1_OutcomeMetricsValidator(BaseExecutor):
             "temporal_consistency_score": temporal_consistency,
             "goal_classifications": goal_types,
             "temporal_markers": temporal_markers,
-            "performance_metrics": performance_analysis
+            "performance_metrics": performance_analysis,
+            "indicator_quality": indicator_quality,
+            "performance_recommendations": performance_recommendations
         }
         
         return {
@@ -1628,7 +1731,10 @@ class D4_Q1_OutcomeMetricsValidator(BaseExecutor):
                 "methods_executed": [log["method"] for log in self.execution_log],
                 "total_outcomes": len(outcome_mentions),
                 "complete_indicators": len([o for o in outcome_mentions 
-                    if o.get("has_baseline") and o.get("has_target") and o.get("time_horizon")])
+                    if o.get("has_baseline") and o.get("has_target") and o.get("time_horizon")]),
+                "canonical_question": "DIM04_Q01_OUTCOME_INDICATOR_COMPLETENESS",
+                "dimension_code": dim_info.code,
+                "dimension_label": dim_info.label
             },
             "execution_metrics": {
                 "methods_count": len(self.execution_log),
@@ -2067,9 +2173,13 @@ class D5_Q1_LongTermVisionAnalyzer(BaseExecutor):
 
 class D5_Q2_CompositeMeasurementValidator(BaseExecutor):
     """
-    Validates use of composite indices/proxies for complex impacts.
+    DIM05_Q02_COMPOSITE_PROXY_VALIDITY — Validates composite indices/proxies for complex impacts (canonical D5).
+    Epistemic mix: statistical robustness (E-value), Bayesian confidence, normative reporting quality, and semantic consistency.
     
     Methods (from D5-Q2):
+    - PDETMunicipalPlanAnalyzer._interpret_sensitivity
+    - PDETMunicipalPlanAnalyzer._interpret_overall_quality
+    - PolicyAnalysisEmbedder.get_diagnostics
     - PDETMunicipalPlanAnalyzer.calculate_quality_score
     - PDETMunicipalPlanAnalyzer._estimate_score_confidence
     - PDETMunicipalPlanAnalyzer._compute_e_value
@@ -2082,6 +2192,7 @@ class D5_Q2_CompositeMeasurementValidator(BaseExecutor):
     
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         raw_evidence = {}
+        dim_info = get_dimension_info(CanonicalDimension.D5.value)
         
         # Step 1: Calculate quality scores
         quality_score = self._execute_method(
@@ -2101,6 +2212,11 @@ class D5_Q2_CompositeMeasurementValidator(BaseExecutor):
             "PDETMunicipalPlanAnalyzer", "_compute_robustness_value", context,
             score=quality_score
         )
+        sensitivity_interpretation = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_interpret_sensitivity", context,
+            e_value=e_value,
+            robustness=robustness
+        )
         
         # Step 3: Calculate reporting quality score
         reporting_quality = self._execute_method(
@@ -2117,10 +2233,17 @@ class D5_Q2_CompositeMeasurementValidator(BaseExecutor):
         numerical_consistency = self._execute_method(
             "PolicyAnalysisEmbedder", "evaluate_policy_numerical_consistency", context
         )
+        embedder_diagnostics = self._execute_method(
+            "PolicyAnalysisEmbedder", "get_diagnostics", context
+        )
         
         # Step 6: Calculate sufficiency
         sufficiency = self._execute_method(
             "FinancialAuditor", "_calculate_sufficiency", context
+        )
+        overall_interpretation = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_interpret_overall_quality", context,
+            score=getattr(quality_score, "overall_score", quality_score)
         )
         
         raw_evidence = {
@@ -2129,7 +2252,8 @@ class D5_Q2_CompositeMeasurementValidator(BaseExecutor):
             "validity_justification": score_confidence,
             "robustness_metrics": {
                 "e_value": e_value,
-                "robustness": robustness
+                "robustness": robustness,
+                "interpretation": sensitivity_interpretation
             },
             "quality_scores": {
                 "overall": quality_score,
@@ -2137,7 +2261,9 @@ class D5_Q2_CompositeMeasurementValidator(BaseExecutor):
             },
             "bayesian_confidence": bayesian_confidence,
             "numerical_consistency": numerical_consistency,
-            "measurement_sufficiency": sufficiency
+            "measurement_sufficiency": sufficiency,
+            "embedder_diagnostics": embedder_diagnostics,
+            "quality_interpretation": overall_interpretation
         }
         
         return {
@@ -2146,7 +2272,10 @@ class D5_Q2_CompositeMeasurementValidator(BaseExecutor):
             "metadata": {
                 "methods_executed": [log["method"] for log in self.execution_log],
                 "composite_indices_count": len(context.get("composite_indicators", [])),
-                "validity_score": score_confidence
+                "validity_score": score_confidence,
+                "canonical_question": "DIM05_Q02_COMPOSITE_PROXY_VALIDITY",
+                "dimension_code": dim_info.code,
+                "dimension_label": dim_info.label
             },
             "execution_metrics": {
                 "methods_count": len(self.execution_log),

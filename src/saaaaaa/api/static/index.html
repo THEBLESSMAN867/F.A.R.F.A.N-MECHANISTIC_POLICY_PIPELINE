@@ -2108,7 +2108,13 @@
             const conceptText = document.getElementById('conceptText');
             const tags = document.getElementById('tribunalTags');
 
-            if (!grid || !chip || !narrative || !tags || !conceptText) return;
+            if (!grid || !chip || !narrative || !tags || !conceptText) {
+                console.warn('renderConceptTribunal: Missing required DOM elements', {
+                    grid: !!grid, chip: !!chip, narrative: !!narrative,
+                    tags: !!tags, conceptText: !!conceptText
+                });
+                return;
+            }
 
             grid.innerHTML = '';
             tags.innerHTML = '';

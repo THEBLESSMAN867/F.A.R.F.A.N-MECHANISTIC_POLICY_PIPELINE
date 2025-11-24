@@ -34,6 +34,7 @@ from decimal import ROUND_DOWN, ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal, Invalid
 from enum import Enum
 from numbers import Real
 from typing import Any, ClassVar
+from saaaaaa.core.orchestrator.arg_router import special_route
 
 logger = logging.getLogger(__name__)
 
@@ -137,36 +138,43 @@ class ModalityConfig:
     expected_elements: int | None = None
     deterministic: bool = True
 
-    def validate_evidence(self, evidence: dict[str, Any]) -> None:
-        """
-        Validate evidence structure against modality requirements.
 
-        Args:
-            evidence: Evidence dictionary to validate
+@special_route(
+    required=["claims", "evidence"],
+    optional=["validation_rules", "min_confidence"],
+    accepts_kwargs=True,
+)
+def validate_evidence(self, evidence: dict[str, Any], context: dict = None) -> None:
+    """
+    Validate evidence structure against modality requirements.
 
-        Raises:
-            EvidenceStructureError: If evidence is missing required keys
-            ModalityValidationError: If evidence structure doesn't match modality
-        """
-        if not isinstance(evidence, dict):
-            raise EvidenceStructureError(
-                f"Evidence must be a dictionary, got {type(evidence).__name__}"
+    Args:
+        evidence: Evidence dictionary to validate
+
+    Raises:
+        EvidenceStructureError: If evidence is missing required keys
+        ModalityValidationError: If evidence structure doesn't match modality
+    """
+    if not isinstance(evidence, dict):
+        raise EvidenceStructureError(
+            f"Evidence must be a dictionary, got {type(evidence).__name__}"
+        )
+
+    # Check required keys
+    missing_keys = [key for key in self.required_evidence_keys if key not in evidence]
+    if missing_keys:
+        raise EvidenceStructureError(
+            f"Evidence missing required keys for {self.name}: {missing_keys}"
+        )
+
+    # Validate expected elements if applicable
+    if self.expected_elements is not None:
+        elements = evidence.get("elements", [])
+        if not isinstance(elements, list):
+            raise ModalityValidationError(
+                f"{self.name} requires 'elements' to be a list, got {type(elements).__name__}"
             )
 
-        # Check required keys
-        missing_keys = [key for key in self.required_evidence_keys if key not in evidence]
-        if missing_keys:
-            raise EvidenceStructureError(
-                f"Evidence missing required keys for {self.name}: {missing_keys}"
-            )
-
-        # Validate expected elements if applicable
-        if self.expected_elements is not None:
-            elements = evidence.get("elements", [])
-            if not isinstance(elements, list):
-                raise ModalityValidationError(
-                    f"{self.name} requires 'elements' to be a list, got {type(elements).__name__}"
-                )
 
 class ScoringValidator:
     """Validates evidence structure against modality requirements."""
@@ -242,7 +250,7 @@ class ScoringValidator:
         logger.info(f"Validating evidence for {modality.value}")
 
         try:
-            config.validate_evidence(evidence)
+            validate_evidence(config, evidence)
             logger.info(f"✓ Evidence validation passed for {modality.value}")
         except (EvidenceStructureError, ModalityValidationError) as e:
             logger.exception(f"✗ Evidence validation failed for {modality.value}: {e}")

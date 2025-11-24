@@ -51,6 +51,7 @@ from scipy import stats
 # === NLP Y TRANSFORMERS ===
 # Check dependency lockdown before importing transformers
 from saaaaaa.core.dependency_lockdown import get_dependency_lockdown
+from saaaaaa.core.orchestrator.arg_router import special_route
 from sentence_transformers import SentenceTransformer, util
 from sklearn.cluster import DBSCAN, AgglomerativeClustering
 
@@ -1681,7 +1682,12 @@ class PDETMunicipalPlanAnalyzer:
 
         return float(min(budget_score + diversity_score + sustainability_score + risk_score, 10.0))
 
-    def _score_indicators(self, tables: list[ExtractedTable], text: str) -> float:
+    @special_route(
+        required=["content"],
+        optional=["indicator_patterns", "extraction_mode"],
+        accepts_kwargs=True
+    )
+    def _score_indicators(self, tables: list[ExtractedTable], text: str, context: dict = None) -> float:
         """Score calidad de indicadores (0-10)"""
 
         indicator_tables = [t for t in tables if t.table_type == 'indicadores']

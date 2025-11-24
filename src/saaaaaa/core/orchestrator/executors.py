@@ -16,11 +16,14 @@ Usage:
     result = run_executor("D1-Q1", context_package)
 """
 
+import logging
 from typing import Dict, List, Any, Optional
 from abc import ABC, abstractmethod
 
 from saaaaaa.core.canonical_notation import CanonicalDimension, get_dimension_info
 from saaaaaa.core.orchestrator.core import MethodExecutor
+
+logger = logging.getLogger(__name__)
 from saaaaaa.core.orchestrator.factory import build_processor
 
 # Canonical question labels (only defined when verified in repo)
@@ -174,12 +177,15 @@ class BaseExecutor(ABC):
             raise RuntimeError("A valid MethodExecutor instance is required for executor injection.")
         self.method_executor = method_executor
         self.execution_log = []
-        self.dimension_info = None
+        self.dimension_info = self._get_canonical_dimension_info()
+
+    def _get_canonical_dimension_info(self) -> Optional[Any]:
         try:
-            dim_key = executor_id.split("-")[0].replace("D", "D")
-            self.dimension_info = get_dimension_info(dim_key)
-        except Exception:
-            self.dimension_info = None
+            dim_key = self.executor_id.split("-")[0]
+            return get_dimension_info(dim_key)
+        except Exception as e:
+            logger.error(f"Failed to load dimension info for {self.executor_id}: {e}")
+            return None
         
     @abstractmethod
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -226,7 +232,7 @@ class BaseExecutor(ABC):
             self._log_method_execution(class_name, method_name, False, error=str(e))
             raise ExecutorFailure(
                 f"Executor {self.executor_id} failed: {class_name}.{method_name} - {str(e)}"
-            )
+            ) from e
     
     def _get_method(self, class_name: str, method_name: str):
         """Retrieve method using MethodExecutor to enforce routed execution."""
@@ -1420,14 +1426,24 @@ class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
             "PDETMunicipalPlanAnalyzer", "_deduplicate_tables", context,
             tables=context.get("tables", [])
         )
-        first_indicator = None
-        if isinstance(financial_feasibility.get("financial_indicators", []), list):
-            inds = financial_feasibility.get("financial_indicators", [])
-            first_indicator = inds[0] if inds else None
-        indicator_dict = self._execute_method(
-            "PDETMunicipalPlanAnalyzer", "_indicator_to_dict", context,
-            ind=first_indicator if first_indicator else {}
-        )
+        financial_indicators = financial_feasibility.get("financial_indicators", [])
+
+        if not isinstance(financial_indicators, list):
+            logger.warning(
+                f"Expected list for financial_indicators, got {type(financial_indicators).__name__}"
+            )
+            financial_indicators = []
+
+        # ✅ CORRECCIÓN: Solo procesar si hay datos válidos
+        indicator_dict = None
+        if financial_indicators:
+            first_indicator = financial_indicators[0]
+            indicator_dict = self._execute_method(
+                "PDETMunicipalPlanAnalyzer",
+                "_indicator_to_dict",
+                context,
+                ind=first_indicator
+            )
         proportionality_recommendations = self._execute_method(
             "PDETMunicipalPlanAnalyzer", "_generate_recommendations", context,
             analysis_results={"financial_analysis": financial_feasibility, "quality_score": quality_score} if 'quality_score' in locals() else {}
@@ -1648,11 +1664,18 @@ class D3_Q3_TraceabilityValidator(BaseExecutor):
             text_length=len(document_text),
             pattern_specificity=0.5
         )
-        entity_dicts = [
-            self._execute_method("PDETMunicipalPlanAnalyzer", "_entity_to_dict", context, entity=e)
-            for e in consolidated_entities[:5]
-            if isinstance(e, dict) or hasattr(e, "__dict__")
-        ]
+        entity_dicts = []
+        for e in consolidated_entities[:5]:
+            if isinstance(e, dict) or hasattr(e, "__dict__"):
+                try:
+                    entity_dict = self._execute_method(
+                        "PDETMunicipalPlanAnalyzer", "_entity_to_dict",
+                        context, entity=e
+                    )
+                    entity_dicts.append(entity_dict)
+                except Exception as ex:
+                    logger.warning(f"Failed to convert entity: {ex}")
+                    continue
         
         # Step 3: Generate traceability records
         traceability_record = self._execute_method(
@@ -2035,14 +2058,15 @@ Methods (from D3-Q5):
                 intervention={"shift": 0.1}
             )
         matched_node = None
-        try:
-            matched_node = self._execute_method(
-                "PDETMunicipalPlanAnalyzer", "_match_text_to_node", context,
-                text=context.get("document_text", "")[:200],
-                nodes=causal_nodes if isinstance(causal_nodes, dict) else {}
-            )
-        except Exception:
-            matched_node = None
+        if isinstance(causal_nodes, dict) and causal_nodes:
+            try:
+                matched_node = self._execute_method(
+                    "PDETMunicipalPlanAnalyzer", "_match_text_to_node", context,
+                    text=context.get("document_text", "")[:200],
+                    nodes=causal_nodes
+                )
+            except (KeyError, ValueError, TypeError) as e:
+                logger.warning(f"Node matching failed: {type(e).__name__}: {e}")
         
         # Step 1: Build type hierarchy
         type_hierarchy = self._execute_method(
@@ -3740,22 +3764,6 @@ def _build_method_executor() -> MethodExecutor:
     return method_executor
 
 
-def _canonical_metadata(executor_id: str) -> Dict[str, Any]:
-    """Build canonical metadata block using canonical_notation."""
-    metadata: Dict[str, Any] = {}
-    try:
-        dim_key = executor_id.split("-")[0]
-        dim_info = get_dimension_info(dim_key)
-        metadata["dimension_code"] = dim_info.code
-        metadata["dimension_label"] = dim_info.label
-    except Exception:
-        pass
-
-    if executor_id in CANONICAL_QUESTION_LABELS:
-        metadata["canonical_question"] = CANONICAL_QUESTION_LABELS[executor_id]
-    return metadata
-
-
 def run_phase2_executors(context_package: Dict[str, Any], 
                          policy_areas: List[str]) -> Dict[str, Any]:
     """
@@ -3794,10 +3802,6 @@ def run_phase2_executors(context_package: Dict[str, Any],
                 
                 # Execute and collect results
                 result = executor.execute(area_context)
-                # Append canonical metadata consistently
-                result_metadata = result.get("metadata", {})
-                result_metadata.update(_canonical_metadata(executor_id))
-                result["metadata"] = result_metadata
                 area_results[executor_id] = result
                 
                 print(f"  ✓ Success: {len(result['metadata']['methods_executed'])} methods executed")

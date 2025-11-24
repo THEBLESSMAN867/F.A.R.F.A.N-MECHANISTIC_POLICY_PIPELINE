@@ -1,10 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, NotRequired, TypedDict
 
 
-@dataclass
+class ExecutorConfigExtra(TypedDict):
+    """Parámetros extra tipados y documentados."""
+    enable_caching: NotRequired[bool]
+    parallel_execution: NotRequired[bool]
+    batch_size: NotRequired[int]
+    custom_thresholds: NotRequired[dict[str, float]]
+
+@dataclass(frozen=True)
 class ExecutorConfig:
     """
     Lightweight configuration for executors.
@@ -19,7 +26,7 @@ class ExecutorConfig:
     timeout_s: float | None = None
     retry: int | None = None
     seed: int | None = None
-    extra: dict[str, Any] | None = None
+    extra: ExecutorConfigExtra | None = None
 
     def __post_init__(self) -> None:
         # Basic type guards without altering semantics

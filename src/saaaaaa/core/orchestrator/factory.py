@@ -25,9 +25,11 @@ Status: Refactored to be fully aligned with questionnaire.py
 import copy
 import json
 import logging
+import os
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Generic, Optional, TypeVar, TypedDict
 
 from ..contracts import (
     CDAFFrameworkInputContract,
@@ -40,7 +42,6 @@ from ..contracts import (
     SemanticChunkingInputContract,
     TeoriaCambioInputContract,
 )
-from .core import MethodExecutor
 from .executor_config import ExecutorConfig
 from .questionnaire import (
     EXPECTED_HASH,
@@ -55,9 +56,25 @@ from .questionnaire import (
 
 logger = logging.getLogger(__name__)
 
-# Canonical repository root - single source of truth for all file paths
-_REPO_ROOT = Path(__file__).resolve().parents[4]
-_DEFAULT_DATA_DIR = _REPO_ROOT / "data"
+
+def get_repo_root() -> Path:
+    """Encuentra la raíz del repositorio de forma robusta."""
+    # 1. Intenta variable de entorno
+    if env_root := os.getenv('SAAAAAA_REPO_ROOT'):
+        return Path(env_root)
+
+    # 2. Busca .git hacia arriba
+    current = Path(__file__).resolve()
+    for parent in [current, *current.parents]:
+        if (parent / '.git').exists():
+            return parent
+
+    # 3. Fallback a heurística
+    return Path(__file__).resolve().parents[4]
+
+_REPO_ROOT = get_repo_root()
+_DEFAULT_DATA_DIR = Path(os.getenv('SAAAAAA_DATA_DIR', _REPO_ROOT / "data"))
+
 
 @dataclass(frozen=True)
 class ProcessorBundle:
@@ -74,7 +91,7 @@ class ProcessorBundle:
             executors.
     """
 
-    method_executor: MethodExecutor
+    method_executor: "MethodExecutor"
     questionnaire: CanonicalQuestionnaire
     factory: "CoreModuleFactory"
     signal_registry: Any | None
@@ -128,31 +145,43 @@ def load_method_map(path: Path | None = None) -> dict[str, Any]:
     with open(path, encoding='utf-8') as f:
         return json.load(f)
 
-def get_canonical_dimensions(questionnaire_path: Path | None = None) -> dict[str, dict[str, str]]:
-    """
-    Get canonical dimension definitions from questionnaire monolith.
+class DimensionInfo(TypedDict):
+    code: str
+    label: str
+    description: str
 
-    Args:
-        questionnaire_path: Optional path to questionnaire file (IGNORED for integrity)
-
-    Returns:
-        Dictionary mapping dimension keys (D1-D6) to dimension info.
-    """
-    if questionnaire_path is not None:
-        logger.warning(
-            "get_canonical_dimensions: questionnaire_path parameter is IGNORED. "
-            "Dimensions always load from canonical questionnaire path for integrity."
-        )
-
+def get_canonical_dimensions(
+    questionnaire_path: Path | None = None
+) -> dict[str, DimensionInfo]:
     canonical = load_questionnaire()
 
-    if 'canonical_notation' not in canonical.data:
-        raise KeyError("canonical_notation section missing from questionnaire")
+    try:
+        dimensions_raw = canonical.data['canonical_notation']['dimensions']
+    except KeyError as e:
+        raise ValueError(f"Invalid questionnaire structure: {e}") from e
 
-    if 'dimensions' not in canonical.data['canonical_notation']:
-        raise KeyError("dimensions section missing from canonical_notation")
+    # Validación estructural
+    expected_keys = {'D1', 'D2', 'D3', 'D4', 'D5', 'D6'}
+    if set(dimensions_raw.keys()) != expected_keys:
+        raise ValueError(
+            f"Expected dimensions {expected_keys}, "
+            f"got {set(dimensions_raw.keys())}"
+        )
 
-    return copy.deepcopy(canonical.data['canonical_notation']['dimensions'])
+    # Validación de campos requeridos
+    for dim_key, dim_data in dimensions_raw.items():
+        required_fields = {'code', 'label', 'description'}
+        missing = required_fields - set(dim_data.keys())
+        if missing:
+            raise ValueError(
+                f"Dimension {dim_key} missing fields: {missing}"
+            )
+
+    # Retorna copia inmutable
+    return {
+        k: DimensionInfo(**v)
+        for k, v in dimensions_raw.items()
+    }
 
 def get_canonical_policy_areas(questionnaire_path: Path | None = None) -> dict[str, dict[str, str]]:
     """
@@ -298,27 +327,51 @@ def construct_policy_processor_input(document: DocumentData, **kwargs) -> Policy
 # FACTORY FUNCTIONS
 # ============================================================================
 
+T = TypeVar('T')
+
+@dataclass
+class CachedValue(Generic[T]):
+    value: T
+    timestamp: datetime
+    file_mtime: float
+
+    def is_stale(self, file_path: Path, ttl: timedelta) -> bool:
+        # Invalida si pasó el TTL
+        if datetime.now() - self.timestamp > ttl:
+            return True
+        # Invalida si el archivo cambió
+        if file_path.exists() and file_path.stat().st_mtime > self.file_mtime:
+            return True
+        return False
+
 class CoreModuleFactory:
     """Factory for constructing core modules with injected dependencies."""
 
-    def __init__(self, data_dir: Path | None = None) -> None:
+    def __init__(self, data_dir: Path | None = None, cache_ttl: timedelta = None):
         """Initialize factory."""
         self.data_dir = data_dir or _DEFAULT_DATA_DIR
-        self.questionnaire_cache: CanonicalQuestionnaire | None = None
+        self.cache_ttl = cache_ttl or timedelta(minutes=5)
+        self._questionnaire_cache: CachedValue[CanonicalQuestionnaire] | None = None
         self.catalog_cache: dict[str, Any] | None = None
 
-    def get_questionnaire(self) -> CanonicalQuestionnaire:
+    def get_questionnaire(self, force_reload: bool = False) -> CanonicalQuestionnaire:
         """Get the canonical questionnaire object (cached)."""
-        if self.questionnaire_cache is None:
-            questionnaire_path = self.data_dir / "questionnaire_monolith.json"
+        questionnaire_path = self.data_dir / "questionnaire_monolith.json"
+
+        if (
+            self._questionnaire_cache is None
+            or force_reload
+            or self._questionnaire_cache.is_stale(questionnaire_path, self.cache_ttl)
+        ):
             canonical_q = load_questionnaire(questionnaire_path)
-            self.questionnaire_cache = canonical_q
-            logger.info(
-                "factory_loaded_questionnaire",
-                sha256=canonical_q.sha256[:16] + "...",
-                question_count=canonical_q.total_question_count,
+            self._questionnaire_cache = CachedValue(
+                value=canonical_q,
+                timestamp=datetime.now(),
+                file_mtime=questionnaire_path.stat().st_mtime
             )
-        return self.questionnaire_cache
+            logger.info("questionnaire_cache_refreshed")
+
+        return self._questionnaire_cache.value
 
     @property
     def catalog(self) -> dict[str, Any]:
@@ -358,7 +411,7 @@ def build_processor(
     executor_config: ExecutorConfig | None = None,
 ) -> ProcessorBundle:
     """Create a processor bundle with orchestrator dependencies wired together."""
-
+    from .core import MethodExecutor
     # Runtime type checks
     if questionnaire_path is not None and not isinstance(questionnaire_path, Path):
         raise TypeError(f"questionnaire_path must be Path or None, got {type(questionnaire_path).__name__}.")
@@ -433,6 +486,7 @@ def migrate_io_from_module(module_name: str, line_numbers: list[int]) -> None:
     )
 
 __all__ = [
+    'ProcessorBundle',
     # Questionnaire integrity types and constants
     'CanonicalQuestionnaire',
     'EXPECTED_HASH',

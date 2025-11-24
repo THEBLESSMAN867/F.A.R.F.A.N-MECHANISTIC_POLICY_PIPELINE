@@ -55,7 +55,6 @@ from ..dependency_lockdown import get_dependency_lockdown
 from . import executors_contract as executors
 from .arg_router import ArgRouterError, ArgumentValidationError, ExtendedArgRouter
 from .class_registry import ClassRegistryError, build_class_registry
-from .executor_config import ExecutorConfig
 from .versions import CALIBRATION_VERSION
 from ...utils.paths import safe_join
 

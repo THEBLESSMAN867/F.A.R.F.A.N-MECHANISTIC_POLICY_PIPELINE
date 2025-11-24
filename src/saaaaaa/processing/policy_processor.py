@@ -32,6 +32,7 @@ import numpy as np
 
 # Import runtime error fixes for defensive programming
 from saaaaaa.utils.runtime_error_fixes import ensure_list_return
+from saaaaaa.core.orchestrator.arg_router import special_route
 
 try:
     from saaaaaa.analysis.contradiction_deteccion import (
@@ -738,7 +739,12 @@ class IndustrialPolicyProcessor:
         )
         return {"questions": []}
 
-    def _compile_pattern_registry(self) -> dict[CausalDimension, dict[str, list[re.Pattern]]]:
+    @special_route(
+        required=["patterns"],
+        optional=["category", "flags"],
+        accepts_kwargs=True
+    )
+    def _compile_pattern_registry(self, context: dict = None) -> dict[CausalDimension, dict[str, list[re.Pattern]]]:
         """Compile all causal patterns into efficient regex objects."""
         registry = {}
         for dimension, categories in CAUSAL_PATTERN_TAXONOMY.items():

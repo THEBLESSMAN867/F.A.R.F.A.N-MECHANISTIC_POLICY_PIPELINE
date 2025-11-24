@@ -53,6 +53,7 @@ except ImportError as e:
     print(f"ERROR: Dependencia faltante. Ejecute: pip install {e.name}")
     sys.exit(1)
 
+from saaaaaa.core.orchestrator.arg_router import special_route
 # DNP Standards Integration
 try:
     from dnp_integration import ValidadorDNP, validar_plan_desarrollo_completo
@@ -1450,7 +1451,12 @@ class CausalExtractor:
 
         return final_score
 
-    def _assess_temporal_coherence(self, source: str, target: str) -> float:
+    @special_route(
+        required=["content"],
+        optional=["temporal_patterns", "baseline_date"],
+        accepts_kwargs=True
+    )
+    def _assess_temporal_coherence(self, source: str, target: str, context: dict = None) -> float:
         """Assess temporal coherence based on verb sequences"""
         source_node = self.nodes.get(source)
         target_node = self.nodes.get(target)

@@ -35,7 +35,7 @@ from transformers import AutoModelForSequenceClassification, DebertaV2Tokenizer,
 
 # Check dependency lockdown
 from saaaaaa.core.dependency_lockdown import get_dependency_lockdown
-
+from saaaaaa.core.orchestrator.arg_router import special_route
 # Import runtime error fixes for defensive programming
 from saaaaaa.utils.runtime_error_fixes import ensure_list_return, safe_text_extract
 
@@ -112,11 +112,17 @@ class BayesianConfidenceCalculator:
         self.prior_alpha = 2.5  # Shape parameter for beta distribution
         self.prior_beta = 7.5  # Scale parameter (conservative bias favoring lower confidence)
 
+    @special_route(
+        required=["evidence"],
+        optional=["prior", "weights"],
+        accepts_kwargs=True
+    )
     def calculate_posterior(
             self,
             evidence_strength: float,
             observations: int,
-            domain_weight: float = 1.0
+            domain_weight: float = 1.0,
+            context: dict = None
     ) -> float:
         """
         Calculate posterior probability using Bayesian inference.
@@ -224,7 +230,12 @@ class TemporalLogicVerifier:
                 })
         return sorted(timeline, key=lambda x: x.get('timestamp', 0))
 
-    def _parse_temporal_marker(self, marker: str) -> int | None:
+    @special_route(
+        required=["text"],
+        optional=["reference_date", "format_hints"],
+        accepts_kwargs=True
+    )
+    def _parse_temporal_marker(self, marker: str, context: dict = None) -> int | None:
         """
         Parse temporal marker to numeric timestamp.
 
@@ -1169,6 +1180,11 @@ class PolicyContradictionDetector:
 
         return markers
 
+    @special_route(
+        required=['text'],
+        optional=['context', 'thresholds', 'patterns'],
+        accepts_kwargs=True
+    )
     def _extract_quantitative_claims(self, text: str) -> list[dict[str, Any]]:
         """Extrae afirmaciones cuantitativas estructuradas"""
         claims = []
@@ -1199,6 +1215,11 @@ class PolicyContradictionDetector:
 
         return claims
 
+    @special_route(
+        required=['text'],
+        optional=['locale', 'unit_system'],
+        accepts_kwargs=True
+    )
     def _parse_number(self, text: str) -> float:
         """Parsea número desde texto"""
         try:
@@ -1231,6 +1252,11 @@ class PolicyContradictionDetector:
 
         return resources
 
+    @special_route(
+        required=['sent'],
+        optional=['role_taxonomy', 'confidence_threshold'],
+        accepts_kwargs=True
+    )
     def _determine_semantic_role(self, sent) -> str | None:
         """Determina el rol semántico de una oración"""
         # Safely extract text (handles both strings and spacy objects)

@@ -3,6 +3,12 @@ from __future__ import annotations
 import statistics
 from typing import Any, Iterable, Literal
 
+try:
+    import structlog
+    logger = structlog.get_logger(__name__)
+except ImportError:
+    import logging
+    logger = logging.getLogger(__name__)
 
 def _resolve_value(source: str, method_outputs: dict[str, Any]) -> Any:
     """Resolve dotted source paths from method_outputs."""
@@ -41,6 +47,12 @@ class EvidenceAssembler:
     def assemble(method_outputs: dict[str, Any], assembly_rules: list[dict[str, Any]]) -> dict[str, Any]:
         evidence: dict[str, Any] = {}
         trace: dict[str, Any] = {}
+
+        if "_signal_usage" in method_outputs:
+            logger.info("signal_consumption_trace", signals_used=method_outputs["_signal_usage"])
+            trace["signal_usage"] = method_outputs["_signal_usage"]
+            # Remove from method_outputs to not interfere with evidence assembly
+            del method_outputs["_signal_usage"]
 
         for rule in assembly_rules:
             target = rule.get("target")

@@ -144,6 +144,15 @@ class BaseExecutorWithContract(ABC):
                 **payload,
             )
 
+            if "signal_pack" in payload and payload["signal_pack"] is not None:
+                if "_signal_usage" not in method_outputs:
+                    method_outputs["_signal_usage"] = []
+                method_outputs["_signal_usage"].append({
+                    "method": f"{class_name}.{method_name}",
+                    "policy_area": payload["signal_pack"].policy_area,
+                    "version": payload["signal_pack"].version,
+                })
+
             if isinstance(provides, str):
                 method_outputs[provides] = result
             else:

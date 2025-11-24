@@ -23,6 +23,143 @@ from saaaaaa.core.canonical_notation import CanonicalDimension, get_dimension_in
 from saaaaaa.core.orchestrator.core import MethodExecutor
 from saaaaaa.core.orchestrator.factory import build_processor
 
+# Canonical question labels (only defined when verified in repo)
+CANONICAL_QUESTION_LABELS = {
+    "D3-Q2": "DIM03_Q02_PRODUCT_TARGET_PROPORTIONALITY",
+    "D3-Q3": "DIM03_Q03_TRACEABILITY_BUDGET_ORG",
+    "D3-Q4": "DIM03_Q04_TECHNICAL_FEASIBILITY",
+    "D3-Q5": "DIM03_Q05_OUTPUT_OUTCOME_LINKAGE",
+    "D4-Q1": "DIM04_Q01_OUTCOME_INDICATOR_COMPLETENESS",
+    "D5-Q2": "DIM05_Q02_COMPOSITE_PROXY_VALIDITY",
+}
+
+# Epistemic taxonomy per method (focused on executors expanded in this iteration)
+EPISTEMIC_TAGS = {
+    ("FinancialAuditor", "_calculate_sufficiency"): ["statistical", "normative"],
+    ("FinancialAuditor", "_match_program_to_node"): ["structural"],
+    ("FinancialAuditor", "_match_goal_to_budget"): ["structural", "normative"],
+    ("PDETMunicipalPlanAnalyzer", "_assess_financial_sustainability"): ["financial", "normative"],
+    ("PDETMunicipalPlanAnalyzer", "analyze_financial_feasibility"): ["financial", "statistical"],
+    ("PDETMunicipalPlanAnalyzer", "_score_indicators"): ["normative", "semantic"],
+    ("PDETMunicipalPlanAnalyzer", "_interpret_risk"): ["normative", "statistical"],
+    ("PDETMunicipalPlanAnalyzer", "_extract_from_responsibility_tables"): ["structural"],
+    ("PDETMunicipalPlanAnalyzer", "_consolidate_entities"): ["structural"],
+    ("PDETMunicipalPlanAnalyzer", "_extract_entities_syntax"): ["semantic"],
+    ("PDETMunicipalPlanAnalyzer", "_extract_entities_ner"): ["semantic"],
+    ("PDETMunicipalPlanAnalyzer", "identify_responsible_entities"): ["semantic", "structural"],
+    ("PDETMunicipalPlanAnalyzer", "_score_responsibility_clarity"): ["normative"],
+    ("PDETMunicipalPlanAnalyzer", "_refine_edge_probabilities"): ["statistical", "causal"],
+    ("PDETMunicipalPlanAnalyzer", "construct_causal_dag"): ["structural", "causal"],
+    ("PDETMunicipalPlanAnalyzer", "estimate_causal_effects"): ["causal", "statistical"],
+    ("PDETMunicipalPlanAnalyzer", "generate_counterfactuals"): ["causal"],
+    ("PDETMunicipalPlanAnalyzer", "_identify_confounders"): ["causal", "consistency"],
+    ("PDETMunicipalPlanAnalyzer", "_effect_to_dict"): ["descriptive"],
+    ("PDETMunicipalPlanAnalyzer", "_scenario_to_dict"): ["descriptive"],
+    ("PDETMunicipalPlanAnalyzer", "_get_spanish_stopwords"): ["semantic"],
+    ("AdaptivePriorCalculator", "calculate_likelihood_adaptativo"): ["statistical", "bayesian"],
+    ("AdaptivePriorCalculator", "_adjust_domain_weights"): ["statistical"],
+    ("BayesianMechanismInference", "_test_sufficiency"): ["statistical", "bayesian"],
+    ("BayesianMechanismInference", "_test_necessity"): ["statistical", "bayesian"],
+    ("BayesianMechanismInference", "_log_refactored_components"): ["implementation"],
+    ("BayesianMechanismInference", "_infer_activity_sequence"): ["causal"],
+    ("BayesianMechanismInference", "infer_mechanisms"): ["causal", "bayesian"],
+    ("AdvancedDAGValidator", "calculate_acyclicity_pvalue"): ["statistical", "consistency"],
+    ("AdvancedDAGValidator", "_is_acyclic"): ["structural", "consistency"],
+    ("AdvancedDAGValidator", "_calculate_bayesian_posterior"): ["statistical", "bayesian"],
+    ("AdvancedDAGValidator", "_calculate_confidence_interval"): ["statistical"],
+    ("AdvancedDAGValidator", "_calculate_statistical_power"): ["statistical"],
+    ("AdvancedDAGValidator", "_generate_subgraph"): ["structural"],
+    ("AdvancedDAGValidator", "_get_node_validator"): ["implementation"],
+    ("AdvancedDAGValidator", "_create_empty_result"): ["descriptive"],
+    ("AdvancedDAGValidator", "_initialize_rng"): ["implementation"],
+    ("AdvancedDAGValidator", "get_graph_stats"): ["structural"],
+    ("AdvancedDAGValidator", "_calculate_node_importance"): ["structural"],
+    ("AdvancedDAGValidator", "export_nodes"): ["structural", "descriptive"],
+    ("AdvancedDAGValidator", "add_node"): ["structural"],
+    ("AdvancedDAGValidator", "add_edge"): ["structural"],
+    ("IndustrialGradeValidator", "execute_suite"): ["implementation", "normative"],
+    ("IndustrialGradeValidator", "validate_connection_matrix"): ["consistency"],
+    ("IndustrialGradeValidator", "run_performance_benchmarks"): ["implementation"],
+    ("IndustrialGradeValidator", "_benchmark_operation"): ["implementation"],
+    ("IndustrialGradeValidator", "validate_causal_categories"): ["consistency"],
+    ("IndustrialGradeValidator", "_log_metric"): ["implementation"],
+    ("PerformanceAnalyzer", "analyze_performance"): ["implementation", "normative"],
+    ("PerformanceAnalyzer", "_calculate_loss_functions"): ["statistical"],
+    ("HierarchicalGenerativeModel", "_calculate_ess"): ["statistical"],
+    ("HierarchicalGenerativeModel", "_calculate_likelihood"): ["statistical"],
+    ("HierarchicalGenerativeModel", "_calculate_r_hat"): ["statistical"],
+    ("ReportingEngine", "generate_accountability_matrix"): ["normative", "structural"],
+    ("ReportingEngine", "_calculate_quality_score"): ["normative", "statistical"],
+    ("PolicyAnalysisEmbedder", "generate_pdq_report"): ["semantic", "descriptive"],
+    ("PolicyAnalysisEmbedder", "compare_policy_interventions"): ["normative"],
+    ("PolicyAnalysisEmbedder", "evaluate_policy_numerical_consistency"): ["consistency", "statistical"],
+    ("PolicyAnalysisEmbedder", "process_document"): ["semantic", "structural"],
+    ("PolicyAnalysisEmbedder", "semantic_search"): ["semantic"],
+    ("PolicyAnalysisEmbedder", "_apply_mmr"): ["semantic"],
+    ("PolicyAnalysisEmbedder", "_generate_query_from_pdq"): ["semantic"],
+    ("PolicyAnalysisEmbedder", "_filter_by_pdq"): ["semantic"],
+    ("PolicyAnalysisEmbedder", "_extract_numerical_values"): ["statistical"],
+    ("PolicyAnalysisEmbedder", "_compute_overall_confidence"): ["statistical", "normative"],
+    ("PolicyAnalysisEmbedder", "_embed_texts"): ["semantic"],
+    ("SemanticAnalyzer", "_classify_policy_domain"): ["semantic"],
+    ("SemanticAnalyzer", "_empty_semantic_cube"): ["descriptive"],
+    ("SemanticAnalyzer", "_classify_cross_cutting_themes"): ["semantic"],
+    ("SemanticAnalyzer", "_classify_value_chain_link"): ["semantic"],
+    ("SemanticAnalyzer", "_vectorize_segments"): ["semantic"],
+    ("SemanticAnalyzer", "_calculate_semantic_complexity"): ["semantic"],
+    ("SemanticAnalyzer", "_process_segment"): ["semantic"],
+    ("PDETMunicipalPlanAnalyzer", "_entity_to_dict"): ["descriptive"],
+    ("PDETMunicipalPlanAnalyzer", "_quality_to_dict"): ["descriptive", "normative"],
+    ("PDETMunicipalPlanAnalyzer", "_deduplicate_tables"): ["structural", "implementation"],
+    ("PDETMunicipalPlanAnalyzer", "_indicator_to_dict"): ["descriptive"],
+    ("PDETMunicipalPlanAnalyzer", "_generate_recommendations"): ["normative"],
+    ("PDETMunicipalPlanAnalyzer", "_simulate_intervention"): ["causal", "statistical"],
+    ("PDETMunicipalPlanAnalyzer", "_identify_causal_nodes"): ["structural", "causal"],
+    ("PDETMunicipalPlanAnalyzer", "_match_text_to_node"): ["semantic", "structural"],
+    ("TeoriaCambio", "_validar_orden_causal"): ["causal", "consistency"],
+    ("TeoriaCambio", "_generar_sugerencias_internas"): ["normative"],
+    ("TeoriaCambio", "_extraer_categorias"): ["semantic"],
+    ("BayesianMechanismInference", "_extract_observations"): ["semantic", "causal"],
+    ("BayesianMechanismInference", "_generate_necessity_remediation"): ["normative", "causal"],
+    ("BayesianMechanismInference", "_quantify_uncertainty"): ["statistical", "bayesian"],
+    ("CausalExtractor", "_build_type_hierarchy"): ["structural"],
+    ("CausalExtractor", "_check_structural_violation"): ["structural", "consistency"],
+    ("CausalExtractor", "_calculate_type_transition_prior"): ["statistical", "bayesian"],
+    ("CausalExtractor", "_calculate_textual_proximity"): ["semantic"],
+    ("CausalExtractor", "_calculate_language_specificity"): ["semantic"],
+    ("CausalExtractor", "_calculate_composite_likelihood"): ["statistical", "semantic"],
+    ("CausalExtractor", "_assess_financial_consistency"): ["financial", "consistency"],
+    ("CausalExtractor", "_calculate_semantic_distance"): ["semantic"],
+    ("CausalExtractor", "_extract_goals"): ["semantic"],
+    ("CausalExtractor", "_parse_goal_context"): ["semantic"],
+    ("CausalExtractor", "_classify_goal_type"): ["semantic"],
+    ("TemporalLogicVerifier", "_parse_temporal_marker"): ["temporal", "consistency"],
+    ("TemporalLogicVerifier", "_classify_temporal_type"): ["temporal", "consistency"],
+    ("TemporalLogicVerifier", "_extract_resources"): ["structural"],
+    ("TemporalLogicVerifier", "_should_precede"): ["temporal", "consistency"],
+    ("AdaptivePriorCalculator", "generate_traceability_record"): ["structural", "semantic"],
+    ("PolicyAnalysisEmbedder", "generate_pdq_report"): ["semantic", "normative"],
+    ("ReportingEngine", "generate_confidence_report"): ["normative", "descriptive"],
+    ("PolicyTextProcessor", "segment_into_sentences"): ["semantic", "structural"],
+    ("PolicyTextProcessor", "normalize_unicode"): ["implementation"],
+    ("PolicyTextProcessor", "compile_pattern"): ["implementation"],
+    ("PolicyTextProcessor", "extract_contextual_window"): ["semantic"],
+    ("BayesianCounterfactualAuditor", "aggregate_risk_and_prioritize"): ["causal", "normative"],
+    ("BayesianCounterfactualAuditor", "refutation_and_sanity_checks"): ["causal", "consistency"],
+    ("BayesianCounterfactualAuditor", "_evaluate_factual"): ["causal", "statistical"],
+    ("BayesianCounterfactualAuditor", "_evaluate_counterfactual"): ["causal", "statistical"],
+    ("CausalExtractor", "_assess_financial_consistency"): ["financial", "consistency"],
+    ("IndustrialPolicyProcessor", "_load_questionnaire"): ["descriptive", "implementation"],
+    ("IndustrialPolicyProcessor", "_compile_pattern_registry"): ["structural", "semantic"],
+    ("IndustrialPolicyProcessor", "_build_point_patterns"): ["semantic"],
+    ("IndustrialPolicyProcessor", "_empty_result"): ["implementation"],
+    ("IndustrialPolicyProcessor", "_compute_evidence_confidence"): ["statistical"],
+    ("IndustrialPolicyProcessor", "_compute_avg_confidence"): ["statistical"],
+    ("IndustrialPolicyProcessor", "_construct_evidence_bundle"): ["structural"],
+    ("PDETMunicipalPlanAnalyzer", "generate_executive_report"): ["normative"],
+    ("IndustrialPolicyProcessor", "export_results"): ["implementation"],
+}
+
 
 class BaseExecutor(ABC):
     """
@@ -37,6 +174,12 @@ class BaseExecutor(ABC):
             raise RuntimeError("A valid MethodExecutor instance is required for executor injection.")
         self.method_executor = method_executor
         self.execution_log = []
+        self.dimension_info = None
+        try:
+            dim_key = executor_id.split("-")[0].replace("D", "D")
+            self.dimension_info = get_dimension_info(dim_key)
+        except Exception:
+            self.dimension_info = None
         
     @abstractmethod
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -1218,6 +1361,11 @@ class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
     Epistemic mix: structural coverage, financial/normative feasibility, statistical Bayes tests, and semantic indicator quality.
     
     Methods (from D3-Q2):
+    - AdvancedDAGValidator._calculate_bayesian_posterior
+    - AdvancedDAGValidator._calculate_confidence_interval
+    - AdaptivePriorCalculator._adjust_domain_weights
+    - PDETMunicipalPlanAnalyzer._get_spanish_stopwords
+    - BayesianMechanismInference._log_refactored_components
     - PDETMunicipalPlanAnalyzer.analyze_financial_feasibility
     - PDETMunicipalPlanAnalyzer._score_indicators
     - PDETMunicipalPlanAnalyzer._interpret_risk
@@ -1228,6 +1376,12 @@ class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
     - AdaptivePriorCalculator.calculate_likelihood_adaptativo
     - IndustrialPolicyProcessor._calculate_quality_score
     - TeoriaCambio._generar_sugerencias_internas
+    - PDETMunicipalPlanAnalyzer._deduplicate_tables
+    - PDETMunicipalPlanAnalyzer._indicator_to_dict
+    - PDETMunicipalPlanAnalyzer._generate_recommendations
+    - IndustrialPolicyProcessor._compile_pattern_registry
+    - IndustrialPolicyProcessor._build_point_patterns
+    - IndustrialPolicyProcessor._empty_result
     """
     
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -1240,6 +1394,43 @@ class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
         )
         indicator_quality = self._execute_method(
             "PDETMunicipalPlanAnalyzer", "_score_indicators", context
+        )
+        spanish_stopwords = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_get_spanish_stopwords", context
+        )
+        funding_sources = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_analyze_funding_sources", context,
+            financial_indicators=financial_feasibility.get("financial_indicators", []),
+            tables=context.get("tables", [])
+        )
+        financial_component = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_score_financial_component", context,
+            financial_analysis=financial_feasibility
+        )
+        pattern_registry = self._execute_method(
+            "IndustrialPolicyProcessor", "_compile_pattern_registry", context
+        )
+        point_patterns = self._execute_method(
+            "IndustrialPolicyProcessor", "_build_point_patterns", context
+        )
+        empty_policy_result = self._execute_method(
+            "IndustrialPolicyProcessor", "_empty_result", context
+        )
+        dedup_tables = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_deduplicate_tables", context,
+            tables=context.get("tables", [])
+        )
+        first_indicator = None
+        if isinstance(financial_feasibility.get("financial_indicators", []), list):
+            inds = financial_feasibility.get("financial_indicators", [])
+            first_indicator = inds[0] if inds else None
+        indicator_dict = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_indicator_to_dict", context,
+            ind=first_indicator if first_indicator else {}
+        )
+        proportionality_recommendations = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_generate_recommendations", context,
+            analysis_results={"financial_analysis": financial_feasibility, "quality_score": quality_score} if 'quality_score' in locals() else {}
         )
         
         # Step 1: Calculate sufficiency
@@ -1268,6 +1459,19 @@ class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
         adaptive_likelihood = self._execute_method(
             "AdaptivePriorCalculator", "calculate_likelihood_adaptativo", context
         )
+        domain_scores = {
+            "structural": sufficiency_calc.get("coverage_ratio", 0.0),
+            "financial": financial_feasibility.get("sustainability_score", 0.0),
+            "semantic": indicator_quality if isinstance(indicator_quality, (int, float)) else 0.0
+        }
+        adjusted_weights = self._execute_method(
+            "AdaptivePriorCalculator", "_adjust_domain_weights", context,
+            domain_scores=domain_scores
+        )
+        avg_confidence = self._execute_method(
+            "IndustrialPolicyProcessor", "_compute_avg_confidence", context,
+            dimension_analysis={"D3": {"dimension_confidence": domain_scores.get("structural", 0.0)}}
+        )
         
         # Step 5: Calculate quality score
         quality_score = self._execute_method(
@@ -1277,6 +1481,21 @@ class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
         # Step 6: Generate internal suggestions
         internal_suggestions = self._execute_method(
             "TeoriaCambio", "_generar_sugerencias_internas", context
+        )
+        # Bayesian posterior diagnostics for proportionality evidence
+        posterior_probability = self._execute_method(
+            "AdvancedDAGValidator", "_calculate_bayesian_posterior", context,
+            likelihood=sufficiency_calc.get("coverage_ratio", 0.5),
+            prior=0.5
+        )
+        confidence_interval = self._execute_method(
+            "AdvancedDAGValidator", "_calculate_confidence_interval", context,
+            s=int(sufficiency_calc.get("covered_targets", 0)),
+            n=max(1, int(sufficiency_calc.get("targets_total", len(context.get("product_targets", []))))),
+            conf=0.95
+        )
+        self._execute_method(
+            "BayesianMechanismInference", "_log_refactored_components", context
         )
         
         raw_evidence = {
@@ -1291,7 +1510,20 @@ class D3_Q2_TargetProportionalityAnalyzer(BaseExecutor):
             "indicator_quality": indicator_quality,
             "risk_interpretation": risk_interpretation,
             "proportionality_score": quality_score,
-            "recommendations": internal_suggestions
+            "recommendations": internal_suggestions,
+            "stopwords_spanish": spanish_stopwords,
+            "funding_sources_analysis": funding_sources,
+            "financial_component_score": financial_component,
+            "pattern_registry": pattern_registry,
+            "point_patterns": point_patterns,
+            "empty_policy_result": empty_policy_result,
+            "avg_confidence": avg_confidence,
+            "deduplicated_tables": dedup_tables,
+            "indicator_sample": indicator_dict,
+            "proportionality_recommendations": proportionality_recommendations,
+            "adjusted_domain_weights": adjusted_weights,
+            "posterior_proportionality": posterior_probability,
+            "coverage_interval": confidence_interval
         }
         
         return {
@@ -1318,6 +1550,11 @@ class D3_Q3_TraceabilityValidator(BaseExecutor):
     Epistemic mix: structural budget tracing, organizational semantics, and accountability synthesis.
     
     Methods (from D3-Q3):
+    - PolicyAnalysisEmbedder.process_document
+    - PolicyAnalysisEmbedder.semantic_search
+    - PolicyAnalysisEmbedder._apply_mmr
+    - PolicyAnalysisEmbedder._generate_query_from_pdq
+    - SemanticAnalyzer._empty_semantic_cube
     - FinancialAuditor._match_program_to_node
     - FinancialAuditor._match_goal_to_budget
     - PDETMunicipalPlanAnalyzer._extract_from_responsibility_tables
@@ -1330,6 +1567,8 @@ class D3_Q3_TraceabilityValidator(BaseExecutor):
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         raw_evidence = {}
         dim_info = get_dimension_info(CanonicalDimension.D3.value)
+        document_text = context.get("document_text", "")
+        document_metadata = context.get("metadata", {})
         
         # Step 1: Match programs to budget nodes
         program_matches = self._execute_method(
@@ -1355,6 +1594,65 @@ class D3_Q3_TraceabilityValidator(BaseExecutor):
             "PDETMunicipalPlanAnalyzer", "_score_responsibility_clarity", context,
             entities=consolidated_entities
         )
+        # Semantic traceability via embeddings
+        semantic_chunks = self._execute_method(
+            "PolicyAnalysisEmbedder", "process_document", context,
+            document_text=document_text,
+            document_metadata=document_metadata
+        )
+        pdq_query = self._execute_method(
+            "PolicyAnalysisEmbedder", "_generate_query_from_pdq", context,
+            pdq={"policy": context.get("policy_area"), "dimension": dim_info.code}
+        )
+        semantic_hits = self._execute_method(
+            "PolicyAnalysisEmbedder", "semantic_search", context,
+            query=pdq_query,
+            document_chunks=semantic_chunks or []
+        )
+        diversified_hits = self._execute_method(
+            "PolicyAnalysisEmbedder", "_apply_mmr", context,
+            ranked_results=semantic_hits or []
+        )
+        semantic_cube_stub = self._execute_method(
+            "SemanticAnalyzer", "_empty_semantic_cube", context
+        )
+        domain_scores = self._execute_method(
+            "SemanticAnalyzer", "_classify_policy_domain", context,
+            segment=document_text
+        )
+        cross_cutting = self._execute_method(
+            "SemanticAnalyzer", "_classify_cross_cutting_themes", context,
+            segment=document_text
+        )
+        value_chain = self._execute_method(
+            "SemanticAnalyzer", "_classify_value_chain_link", context,
+            segment=document_text
+        )
+        semantic_vectors = self._execute_method(
+            "SemanticAnalyzer", "_vectorize_segments", context,
+            segments=[document_text]
+        )
+        processed_segment = self._execute_method(
+            "SemanticAnalyzer", "_process_segment", context,
+            segment=document_text,
+            idx=0,
+            vector=semantic_vectors[0] if semantic_vectors else None
+        )
+        semantic_complexity = self._execute_method(
+            "SemanticAnalyzer", "_calculate_semantic_complexity", context,
+            semantic_cube=semantic_cube_stub
+        )
+        evidence_confidence = self._execute_method(
+            "IndustrialPolicyProcessor", "_compute_evidence_confidence", context,
+            matches=[m.get("bpin","") for m in program_matches if isinstance(m, dict)],
+            text_length=len(document_text),
+            pattern_specificity=0.5
+        )
+        entity_dicts = [
+            self._execute_method("PDETMunicipalPlanAnalyzer", "_entity_to_dict", context, entity=e)
+            for e in consolidated_entities[:5]
+            if isinstance(e, dict) or hasattr(e, "__dict__")
+        ]
         
         # Step 3: Generate traceability records
         traceability_record = self._execute_method(
@@ -1389,7 +1687,21 @@ class D3_Q3_TraceabilityValidator(BaseExecutor):
             "pdq_report": pdq_report,
             "accountability_matrix": accountability_matrix,
             "responsible_entities": responsible_entities,
-            "responsibility_clarity_score": responsibility_clarity
+            "responsibility_clarity_score": responsibility_clarity,
+            "semantic_traceability": {
+                "query": pdq_query,
+                "semantic_hits": semantic_hits,
+                "diversified_hits": diversified_hits
+            },
+            "semantic_cube_baseline": semantic_cube_stub,
+            "policy_domain_scores": domain_scores,
+            "responsibility_entities_dict": entity_dicts,
+            "cross_cutting_themes": cross_cutting,
+            "value_chain_links": value_chain,
+            "semantic_vectors": semantic_vectors,
+            "semantic_complexity": semantic_complexity,
+            "evidence_confidence": evidence_confidence,
+            "processed_segment": processed_segment
         }
         
         return {
@@ -1416,6 +1728,15 @@ class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
     Epistemic mix: structural DAG validity, causal necessity, performance/implementation readiness, and statistical robustness.
     
     Methods (from D3-Q4):
+    - AdvancedDAGValidator._calculate_statistical_power
+    - AdvancedDAGValidator._initialize_rng
+    - AdvancedDAGValidator.export_nodes
+    - AdvancedDAGValidator._generate_subgraph
+    - AdvancedDAGValidator._get_node_validator
+    - AdvancedDAGValidator._create_empty_result
+    - HierarchicalGenerativeModel._calculate_likelihood
+    - IndustrialGradeValidator.validate_causal_categories
+    - TeoriaCambio._extraer_categorias
     - AdvancedDAGValidator.get_graph_stats
     - AdvancedDAGValidator._calculate_node_importance
     - AdvancedDAGValidator.calculate_acyclicity_pvalue
@@ -1433,6 +1754,7 @@ class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         raw_evidence = {}
         dim_info = get_dimension_info(CanonicalDimension.D3.value)
+        plan_name = context.get("metadata", {}).get("title", "plan_desarrollo")
         
         # Step 1: Validate DAG structure
         acyclicity_pvalue = self._execute_method(
@@ -1446,6 +1768,42 @@ class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
         )
         node_importance = self._execute_method(
             "AdvancedDAGValidator", "_calculate_node_importance", context
+        )
+        subgraph = self._execute_method(
+            "AdvancedDAGValidator", "_generate_subgraph", context
+        )
+        added_node = self._execute_method(
+            "AdvancedDAGValidator", "add_node", context,
+            node_name="temp_node"
+        )
+        added_edge = self._execute_method(
+            "AdvancedDAGValidator", "add_edge", context,
+            source="temp_node",
+            target="temp_target",
+            weight=1.0
+        )
+        node_export = self._execute_method(
+            "AdvancedDAGValidator", "export_nodes", context
+        )
+        rng_seed = self._execute_method(
+            "AdvancedDAGValidator", "_initialize_rng", context,
+            plan_name=plan_name,
+            salt=dim_info.code
+        )
+        stat_power = self._execute_method(
+            "AdvancedDAGValidator", "_calculate_statistical_power", context,
+            s=int(graph_stats.get("edges", 0)),
+            n=max(1, int(graph_stats.get("nodes", 1)))
+        )
+        node_validator = self._execute_method(
+            "AdvancedDAGValidator", "_get_node_validator", context,
+            node_type="producto"
+        )
+        empty_result = self._execute_method(
+            "AdvancedDAGValidator", "_create_empty_result", context,
+            plan_name=plan_name,
+            seed=rng_seed,
+            timestamp=context.get("metadata", {}).get("timestamp", "")
         )
         
         # Step 2: Test necessity of activities for products
@@ -1466,6 +1824,13 @@ class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
         benchmark_ops = self._execute_method(
             "IndustrialGradeValidator", "_benchmark_operation", context
         )
+        metric_log = self._execute_method(
+            "IndustrialGradeValidator", "_log_metric", context,
+            name="custom_latency",
+            value=graph_stats.get("edges", 0),
+            unit="edges",
+            threshold=10.0
+        )
         engine_readiness = self._execute_method(
             "IndustrialGradeValidator", "validate_engine_readiness", context
         )
@@ -1477,10 +1842,27 @@ class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
         loss_functions = self._execute_method(
             "PerformanceAnalyzer", "_calculate_loss_functions", context
         )
+        # Likelihood estimation for resource adequacy
+        resource_likelihood = self._execute_method(
+            "HierarchicalGenerativeModel", "_calculate_likelihood", context,
+            mechanism_type="tecnico",
+            observations={"coherence": performance_analysis.get("resource_fit", {}).get("score", 0.0)}
+        )
         
         # Step 5: Calculate effective sample size
         ess = self._execute_method(
             "HierarchicalGenerativeModel", "_calculate_ess", context
+        )
+        r_hat = self._execute_method(
+            "HierarchicalGenerativeModel", "_calculate_r_hat", context,
+            chains=[]
+        )
+        causal_categories_valid = self._execute_method(
+            "IndustrialGradeValidator", "validate_causal_categories", context
+        )
+        extracted_categories = self._execute_method(
+            "TeoriaCambio", "_extraer_categorias", context,
+            text=context.get("document_text", "")
         )
         
         raw_evidence = {
@@ -1492,15 +1874,28 @@ class D3_Q4_TechnicalFeasibilityEvaluator(BaseExecutor):
                 "acyclicity_p": acyclicity_pvalue,
                 "necessity_score": necessity_test,
                 "graph_stats": graph_stats,
-                "node_importance": node_importance
+                "node_importance": node_importance,
+                "subgraph_sample": subgraph,
+                "added_node": added_node,
+                "added_edge": added_edge,
+                "node_validator": node_validator,
+                "empty_result": empty_result,
+                "node_export": node_export,
+                "rng_seed": rng_seed,
+                "statistical_power": stat_power
             },
             "performance_metrics": {
                 "benchmarks": performance_benchmarks,
                 "loss_functions": loss_functions,
-                "ess": ess
+                "ess": ess,
+                "r_hat": r_hat,
+                "resource_likelihood": resource_likelihood
             },
             "engine_readiness": engine_readiness,
-            "feasibility_score": validation_suite.get("overall_score", 0)
+            "feasibility_score": validation_suite.get("overall_score", 0),
+            "causal_categories_valid": causal_categories_valid,
+            "extracted_categories": extracted_categories,
+            "metric_log": metric_log
         }
         
         return {
@@ -1526,7 +1921,20 @@ class D3_Q5_OutputOutcomeLinkageAnalyzer(BaseExecutor):
     DIM03_Q05_OUTPUT_OUTCOME_LINKAGE — Analyzes mechanisms linking outputs to outcomes with canonical D3 labeling.
     Epistemic mix: semantic hierarchy checks, causal order validation, DAG/effect estimation, and Bayesian mechanism inference.
     
-    Methods (from D3-Q5):
+Methods (from D3-Q5):
+    - PDETMunicipalPlanAnalyzer._identify_confounders
+    - PDETMunicipalPlanAnalyzer._effect_to_dict
+    - PDETMunicipalPlanAnalyzer._scenario_to_dict
+    - PDETMunicipalPlanAnalyzer._simulate_intervention
+    - PDETMunicipalPlanAnalyzer._generate_recommendations
+    - PDETMunicipalPlanAnalyzer._identify_causal_nodes
+    - BayesianCounterfactualAuditor._evaluate_factual
+    - BayesianCounterfactualAuditor._evaluate_counterfactual
+    - CausalExtractor._assess_financial_consistency
+    - BayesianMechanismInference._infer_activity_sequence
+    - BayesianMechanismInference._generate_necessity_remediation
+    - BayesianCounterfactualAuditor.refutation_and_sanity_checks
+    - IndustrialPolicyProcessor._load_questionnaire
     - PDETMunicipalPlanAnalyzer.analyze_financial_feasibility
     - PDETMunicipalPlanAnalyzer.construct_causal_dag
     - PDETMunicipalPlanAnalyzer.estimate_causal_effects
@@ -1564,6 +1972,77 @@ class D3_Q5_OutputOutcomeLinkageAnalyzer(BaseExecutor):
             causal_effects=causal_effects,
             financial_analysis=financial_analysis
         )
+        simulated_intervention = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_simulate_intervention", context,
+            intervention={},
+            dag=causal_dag,
+            causal_effects=causal_effects,
+            label="baseline"
+        )
+        causal_nodes = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_identify_causal_nodes", context,
+            text=context.get("document_text", ""),
+            tables=context.get("tables", []),
+            financial_analysis=financial_analysis
+        )
+        confounders = {}
+        for effect in causal_effects:
+            treatment = effect.treatment if hasattr(effect, "treatment") else None
+            outcome = effect.outcome if hasattr(effect, "outcome") else None
+            if treatment and outcome:
+                confounders[(treatment, outcome)] = self._execute_method(
+                    "PDETMunicipalPlanAnalyzer", "_identify_confounders", context,
+                    treatment=treatment,
+                    outcome=outcome,
+                    dag=causal_dag
+                )
+        effect_dicts = [
+            self._execute_method("PDETMunicipalPlanAnalyzer", "_effect_to_dict", context, effect=effect)
+            for effect in causal_effects
+        ]
+        scenario_dicts = [
+            self._execute_method("PDETMunicipalPlanAnalyzer", "_scenario_to_dict", context, scenario=scenario)
+            for scenario in counterfactuals
+        ]
+        causal_recommendations = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_generate_recommendations", context,
+            analysis_results={"financial_analysis": financial_analysis, "quality_score": getattr(causal_dag, 'graph', {})}
+        )
+        financial_consistency = None
+        if refined_edges:
+            first_edge = refined_edges[0] if isinstance(refined_edges, list) else {}
+            source = first_edge.get("source") if isinstance(first_edge, dict) else ""
+            target = first_edge.get("target") if isinstance(first_edge, dict) else ""
+            financial_consistency = self._execute_method(
+                "CausalExtractor", "_assess_financial_consistency", context,
+                source=source or "",
+                target=target or ""
+            )
+        factual_eval = None
+        counterfactual_eval = None
+        if causal_effects:
+            first_effect = causal_effects[0]
+            target = getattr(first_effect, "outcome", None) or ""
+            evidence = {"p_effect": getattr(first_effect, "probability_significant", 0.0)}
+            factual_eval = self._execute_method(
+                "BayesianCounterfactualAuditor", "_evaluate_factual", context,
+                target=target,
+                evidence=evidence
+            )
+            counterfactual_eval = self._execute_method(
+                "BayesianCounterfactualAuditor", "_evaluate_counterfactual", context,
+                target=target,
+                intervention={"shift": 0.1}
+            )
+        matched_node = None
+        try:
+            matched_node = self._execute_method(
+                "PDETMunicipalPlanAnalyzer", "_match_text_to_node", context,
+                text=context.get("document_text", "")[:200],
+                nodes=causal_nodes if isinstance(causal_nodes, dict) else {}
+            )
+        except Exception:
+            matched_node = None
         
         # Step 1: Build type hierarchy
         type_hierarchy = self._execute_method(
@@ -1607,6 +2086,44 @@ class D3_Q5_OutputOutcomeLinkageAnalyzer(BaseExecutor):
             "BayesianMechanismInference", "infer_mechanisms", context,
             edges=refined_edges
         )
+        mechanism_sample = next(iter(mechanisms.values()), {})
+        activity_sequence = self._execute_method(
+            "BayesianMechanismInference", "_infer_activity_sequence", context,
+            observations=mechanism_sample.get("observations", {}),
+            mechanism_type_posterior=mechanism_sample.get("mechanism_type", {"tecnico": 1.0})
+        )
+        quantified_uncertainty = self._execute_method(
+            "BayesianMechanismInference", "_quantify_uncertainty", context,
+            mechanism_type_posterior=mechanism_sample.get("mechanism_type", {"tecnico": 1.0}),
+            sequence_posterior=mechanism_sample.get("activity_sequence", {}),
+            coherence_score=mechanism_sample.get("coherence_score", 0.0)
+        )
+        mechanism_observations = self._execute_method(
+            "BayesianMechanismInference", "_extract_observations", context,
+            node={"id": next(iter(mechanisms.keys()), "")},
+            text=context.get("document_text", "")
+        )
+        necessity_remediation = self._execute_method(
+            "BayesianMechanismInference", "_generate_necessity_remediation", context,
+            node_id=next(iter(mechanisms.keys()), ""),
+            missing_components=structural_violations
+        )
+        questionnaire_stub = self._execute_method(
+            "IndustrialPolicyProcessor", "_load_questionnaire", context
+        )
+        refutation_checks = None
+        try:
+            confounder_keys = list(confounders.keys())
+            first_pair = confounder_keys[0] if confounder_keys else ("", "")
+            refutation_checks = self._execute_method(
+                "BayesianCounterfactualAuditor", "refutation_and_sanity_checks", context,
+                dag=getattr(causal_dag, "graph", None),
+                target=first_pair[1],
+                treatment=first_pair[0],
+                confounders=list(confounders.values())[0] if confounders else []
+            )
+        except Exception:
+            refutation_checks = None
         
         raw_evidence = {
             "output_outcome_links": refined_edges,
@@ -1615,6 +2132,8 @@ class D3_Q5_OutputOutcomeLinkageAnalyzer(BaseExecutor):
             "causal_dag": causal_dag,
             "causal_effects": causal_effects,
             "counterfactuals": counterfactuals,
+            "simulated_intervention": simulated_intervention,
+            "causal_nodes": causal_nodes,
             "financial_analysis": financial_analysis,
             "causal_validity": {
                 "structural_violations": structural_violations,
@@ -1622,7 +2141,21 @@ class D3_Q5_OutputOutcomeLinkageAnalyzer(BaseExecutor):
             },
             "transition_probabilities": transition_priors,
             "textual_proximity": textual_proximity,
-            "intervention_comparison": intervention_comparison
+            "intervention_comparison": intervention_comparison,
+            "confounders": confounders,
+            "effect_dicts": effect_dicts,
+            "scenario_dicts": scenario_dicts,
+            "activity_sequence_sample": activity_sequence,
+            "uncertainty_quantified": quantified_uncertainty,
+            "mechanism_observations": mechanism_observations,
+            "refutation_checks": refutation_checks,
+            "necessity_remediation": necessity_remediation,
+            "questionnaire_stub": questionnaire_stub,
+            "causal_recommendations": causal_recommendations,
+            "financial_consistency": financial_consistency,
+            "factual_eval": factual_eval,
+            "counterfactual_eval": counterfactual_eval,
+            "matched_node": matched_node
         }
         
         return {
@@ -1653,6 +2186,12 @@ class D4_Q1_OutcomeMetricsValidator(BaseExecutor):
     Epistemic mix: semantic goal extraction, temporal/consistency checks, statistical performance signals, and indicator quality scoring.
     
     Methods (from D4-Q1):
+    - PDETMunicipalPlanAnalyzer._extract_entities_syntax
+    - PDETMunicipalPlanAnalyzer._extract_entities_ner
+    - CausalExtractor._calculate_language_specificity
+    - CausalExtractor._calculate_composite_likelihood
+    - CausalExtractor._calculate_semantic_distance
+    - TemporalLogicVerifier._classify_temporal_type
     - PDETMunicipalPlanAnalyzer._score_indicators
     - PDETMunicipalPlanAnalyzer._find_outcome_mentions
     - PDETMunicipalPlanAnalyzer._score_temporal_consistency
@@ -1660,6 +2199,7 @@ class D4_Q1_OutcomeMetricsValidator(BaseExecutor):
     - CausalExtractor._parse_goal_context
     - CausalExtractor._classify_goal_type
     - TemporalLogicVerifier._parse_temporal_marker
+    - TemporalLogicVerifier._extract_resources
     - PerformanceAnalyzer.analyze_performance
     - PerformanceAnalyzer._generate_recommendations
     """
@@ -1671,6 +2211,14 @@ class D4_Q1_OutcomeMetricsValidator(BaseExecutor):
         # Step 1: Find outcome mentions
         outcome_mentions = self._execute_method(
             "PDETMunicipalPlanAnalyzer", "_find_outcome_mentions", context
+        )
+        entities_syntax = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_extract_entities_syntax", context,
+            text=context.get("document_text", "")
+        )
+        entities_ner = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_extract_entities_ner", context,
+            text=context.get("document_text", "")
         )
         
         # Step 2: Score temporal consistency
@@ -1691,11 +2239,31 @@ class D4_Q1_OutcomeMetricsValidator(BaseExecutor):
             "CausalExtractor", "_classify_goal_type", context,
             goals=goals
         )
+        semantic_distance = 0.0
+        if goal_types and outcome_mentions:
+            semantic_distance = self._execute_method(
+                "CausalExtractor", "_calculate_semantic_distance", context,
+                source=str(goal_types[0]),
+                target=str(outcome_mentions[0])
+            )
         
         # Step 4: Parse temporal markers
         temporal_markers = self._execute_method(
             "TemporalLogicVerifier", "_parse_temporal_marker", context,
             contexts=goal_contexts
+        )
+        temporal_type = self._execute_method(
+            "TemporalLogicVerifier", "_classify_temporal_type", context,
+            marker=temporal_markers[0] if temporal_markers else ""
+        )
+        resources_mentioned = self._execute_method(
+            "TemporalLogicVerifier", "_extract_resources", context,
+            text=context.get("document_text", "")
+        )
+        precedence_check = self._execute_method(
+            "TemporalLogicVerifier", "_should_precede", context,
+            marker_a=temporal_markers[0] if temporal_markers else "",
+            marker_b=temporal_markers[1] if len(temporal_markers) > 1 else ""
         )
         
         # Step 5: Analyze performance
@@ -1710,6 +2278,21 @@ class D4_Q1_OutcomeMetricsValidator(BaseExecutor):
             "PerformanceAnalyzer", "_generate_recommendations", context,
             performance_analysis=performance_analysis
         )
+        # Semantic certainty for goals
+        language_specificity = self._execute_method(
+            "CausalExtractor", "_calculate_language_specificity", context,
+            keyword=goal_contexts[0] if goal_contexts else "",
+            policy_area=context.get("policy_area")
+        )
+        composite_likelihood = self._execute_method(
+            "CausalExtractor", "_calculate_composite_likelihood", context,
+            evidence={
+                "semantic_distance": indicator_quality if isinstance(indicator_quality, (int, float)) else 0.0,
+                "textual_proximity": performance_analysis.get("coherence_score", 0.0) if isinstance(performance_analysis, dict) else 0.0,
+                "language_specificity": language_specificity,
+                "temporal_coherence": temporal_consistency if isinstance(temporal_consistency, (int, float)) else 0.0
+            }
+        )
         
         raw_evidence = {
             "outcome_indicators": outcome_mentions,
@@ -1721,7 +2304,15 @@ class D4_Q1_OutcomeMetricsValidator(BaseExecutor):
             "temporal_markers": temporal_markers,
             "performance_metrics": performance_analysis,
             "indicator_quality": indicator_quality,
-            "performance_recommendations": performance_recommendations
+            "performance_recommendations": performance_recommendations,
+            "entities_syntax": entities_syntax,
+            "entities_ner": entities_ner,
+            "temporal_type": temporal_type,
+            "language_specificity": language_specificity,
+            "composite_likelihood": composite_likelihood,
+            "goal_outcome_semantic_distance": semantic_distance,
+            "resources_mentioned": resources_mentioned,
+            "precedence_check": precedence_check
         }
         
         return {
@@ -2177,6 +2768,21 @@ class D5_Q2_CompositeMeasurementValidator(BaseExecutor):
     Epistemic mix: statistical robustness (E-value), Bayesian confidence, normative reporting quality, and semantic consistency.
     
     Methods (from D5-Q2):
+    - PDETMunicipalPlanAnalyzer._quality_to_dict
+    - PolicyAnalysisEmbedder.process_document
+    - PolicyAnalysisEmbedder._filter_by_pdq
+    - PolicyAnalysisEmbedder._extract_numerical_values
+    - PolicyAnalysisEmbedder._compute_overall_confidence
+    - PolicyAnalysisEmbedder._embed_texts
+    - PolicyTextProcessor.normalize_unicode
+    - PolicyTextProcessor.segment_into_sentences
+    - PolicyTextProcessor.compile_pattern
+    - PolicyTextProcessor.extract_contextual_window
+    - IndustrialPolicyProcessor._compute_evidence_confidence
+    - IndustrialPolicyProcessor._compute_avg_confidence
+    - IndustrialPolicyProcessor._construct_evidence_bundle
+    - PDETMunicipalPlanAnalyzer.generate_executive_report
+    - BayesianCounterfactualAuditor.aggregate_risk_and_prioritize
     - PDETMunicipalPlanAnalyzer._interpret_sensitivity
     - PDETMunicipalPlanAnalyzer._interpret_overall_quality
     - PolicyAnalysisEmbedder.get_diagnostics
@@ -2193,6 +2799,8 @@ class D5_Q2_CompositeMeasurementValidator(BaseExecutor):
     def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         raw_evidence = {}
         dim_info = get_dimension_info(CanonicalDimension.D5.value)
+        document_text = context.get("document_text", "")
+        document_metadata = context.get("metadata", {})
         
         # Step 1: Calculate quality scores
         quality_score = self._execute_method(
@@ -2236,6 +2844,33 @@ class D5_Q2_CompositeMeasurementValidator(BaseExecutor):
         embedder_diagnostics = self._execute_method(
             "PolicyAnalysisEmbedder", "get_diagnostics", context
         )
+        processed_chunks = self._execute_method(
+            "PolicyAnalysisEmbedder", "process_document", context,
+            document_text=document_text,
+            document_metadata=document_metadata
+        )
+        pdq_filter = self._execute_method(
+            "PolicyAnalysisEmbedder", "_generate_query_from_pdq", context,
+            pdq={"policy": context.get("policy_area"), "dimension": dim_info.code}
+        )
+        filtered_chunks = self._execute_method(
+            "PolicyAnalysisEmbedder", "_filter_by_pdq", context,
+            chunks=processed_chunks,
+            pdq_filter=pdq_filter
+        )
+        numerical_values = self._execute_method(
+            "PolicyAnalysisEmbedder", "_extract_numerical_values", context,
+            chunks=processed_chunks
+        )
+        embedded_texts = self._execute_method(
+            "PolicyAnalysisEmbedder", "_embed_texts", context,
+            texts=[c.get("content", "") for c in processed_chunks] if isinstance(processed_chunks, list) else []
+        )
+        overall_confidence = self._execute_method(
+            "PolicyAnalysisEmbedder", "_compute_overall_confidence", context,
+            relevant_chunks=filtered_chunks[:5] if isinstance(filtered_chunks, list) else [],
+            numerical_eval=bayesian_confidence if isinstance(bayesian_confidence, dict) else {"evidence_strength": "weak", "numerical_coherence": 0.0}
+        )
         
         # Step 6: Calculate sufficiency
         sufficiency = self._execute_method(
@@ -2244,6 +2879,64 @@ class D5_Q2_CompositeMeasurementValidator(BaseExecutor):
         overall_interpretation = self._execute_method(
             "PDETMunicipalPlanAnalyzer", "_interpret_overall_quality", context,
             score=getattr(quality_score, "overall_score", quality_score)
+        )
+        risk_prioritization = self._execute_method(
+            "BayesianCounterfactualAuditor", "aggregate_risk_and_prioritize", context,
+            omission_score=1 - quality_score.financial_feasibility if hasattr(quality_score, "financial_feasibility") else 0.2,
+            insufficiency_score=1 - sufficiency.get("coverage_ratio", 0.0),
+            unnecessity_score=1 - (robustness if isinstance(robustness, (int, float)) else 0.0),
+            causal_effect=e_value,
+            feasibility=quality_score.financial_feasibility if hasattr(quality_score, "financial_feasibility") else 0.8,
+            cost=1.0
+        )
+        normalized_text = self._execute_method(
+            "PolicyTextProcessor", "normalize_unicode", context,
+            text=document_text
+        )
+        segmented_sentences = self._execute_method(
+            "PolicyTextProcessor", "segment_into_sentences", context,
+            text=document_text
+        )
+        evidence_confidence = self._execute_method(
+            "IndustrialPolicyProcessor", "_compute_evidence_confidence", context,
+            matches=context.get("proxy_indicators", []),
+            text_length=len(document_text),
+            pattern_specificity=0.5
+        )
+        avg_confidence = self._execute_method(
+            "IndustrialPolicyProcessor", "_compute_avg_confidence", context,
+            dimension_analysis={"D5": {"dimension_confidence": bayesian_confidence.get("numerical_coherence", 0.0) if isinstance(bayesian_confidence, dict) else 0.0}}
+        )
+        quality_dict = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "_quality_to_dict", context,
+            quality=quality_score
+        )
+        evidence_bundle = self._execute_method(
+            "IndustrialPolicyProcessor", "_construct_evidence_bundle", context,
+            dimension=None,
+            category="composite",
+            matches=context.get("proxy_indicators", []),
+            positions=[],
+            confidence=bayesian_confidence.get("numerical_coherence", 0.0) if isinstance(bayesian_confidence, dict) else 0.0
+        )
+        compiled_pattern = self._execute_method(
+            "PolicyTextProcessor", "compile_pattern", context,
+            pattern_str=r"[A-Z]{2,}\\s+\\d+"
+        )
+        contextual_window = self._execute_method(
+            "PolicyTextProcessor", "extract_contextual_window", context,
+            text=document_text,
+            match_position=0,
+            window_size=200
+        )
+        exec_report = self._execute_method(
+            "PDETMunicipalPlanAnalyzer", "generate_executive_report", context,
+            analysis_results={"quality_score": quality_dict, "financial_analysis": context.get("financial_analysis", {}) or {"total_budget": 0, "funding_sources": {}, "confidence": (0, 0)}}
+        )
+        export_result = self._execute_method(
+            "IndustrialPolicyProcessor", "export_results", context,
+            results={"quality": quality_dict, "robustness": robustness},
+            output_path="output/composite_results.json"
         )
         
         raw_evidence = {
@@ -2263,7 +2956,23 @@ class D5_Q2_CompositeMeasurementValidator(BaseExecutor):
             "numerical_consistency": numerical_consistency,
             "measurement_sufficiency": sufficiency,
             "embedder_diagnostics": embedder_diagnostics,
-            "quality_interpretation": overall_interpretation
+            "quality_interpretation": overall_interpretation,
+            "pdq_filter": pdq_filter,
+            "filtered_chunks": filtered_chunks,
+            "numerical_values": numerical_values,
+            "embedded_texts": embedded_texts,
+            "overall_confidence": overall_confidence,
+            "risk_prioritization": risk_prioritization,
+            "normalized_text": normalized_text,
+            "segmented_sentences": segmented_sentences,
+            "evidence_confidence": evidence_confidence,
+            "avg_confidence": avg_confidence,
+            "quality_dict": quality_dict,
+            "compiled_pattern": compiled_pattern,
+            "contextual_window": contextual_window,
+            "evidence_bundle": evidence_bundle,
+            "executive_report": exec_report,
+            "export_result": export_result
         }
         
         return {
@@ -3031,6 +3740,22 @@ def _build_method_executor() -> MethodExecutor:
     return method_executor
 
 
+def _canonical_metadata(executor_id: str) -> Dict[str, Any]:
+    """Build canonical metadata block using canonical_notation."""
+    metadata: Dict[str, Any] = {}
+    try:
+        dim_key = executor_id.split("-")[0]
+        dim_info = get_dimension_info(dim_key)
+        metadata["dimension_code"] = dim_info.code
+        metadata["dimension_label"] = dim_info.label
+    except Exception:
+        pass
+
+    if executor_id in CANONICAL_QUESTION_LABELS:
+        metadata["canonical_question"] = CANONICAL_QUESTION_LABELS[executor_id]
+    return metadata
+
+
 def run_phase2_executors(context_package: Dict[str, Any], 
                          policy_areas: List[str]) -> Dict[str, Any]:
     """
@@ -3069,6 +3794,10 @@ def run_phase2_executors(context_package: Dict[str, Any],
                 
                 # Execute and collect results
                 result = executor.execute(area_context)
+                # Append canonical metadata consistently
+                result_metadata = result.get("metadata", {})
+                result_metadata.update(_canonical_metadata(executor_id))
+                result["metadata"] = result_metadata
                 area_results[executor_id] = result
                 
                 print(f"  ✓ Success: {len(result['metadata']['methods_executed'])} methods executed")

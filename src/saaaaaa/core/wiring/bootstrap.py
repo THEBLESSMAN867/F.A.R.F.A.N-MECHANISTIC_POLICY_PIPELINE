@@ -670,7 +670,7 @@ class WiringBootstrap:
         canonical_count = 0
         alias_count = 0
 
-        for area_id, meta in sorted(CANONICAL_POLICY_AREA_DEFINITIONS.items()):
+        for area_id, meta in CANONICAL_POLICY_AREA_DEFINITIONS.items():
             pack = self._build_signal_pack(provider, area_id, meta)
             self._register_signal_pack(memory_source, registry, pack)
             canonical_count += 1

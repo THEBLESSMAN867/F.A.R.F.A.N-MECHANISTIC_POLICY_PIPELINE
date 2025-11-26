@@ -177,6 +177,10 @@ class CalibrationOrchestrator:
         """
         self.config = config or DEFAULT_CALIBRATION_CONFIG
 
+        # ZERO TOLERANCE: Load penalty values from JSON
+        from .config_loaders import PenaltyLoader
+        self.penalty_loader = PenaltyLoader.get_instance()
+
         # Load default paths from config
         default_paths = _load_default_paths()
 
@@ -438,26 +442,29 @@ class CalibrationOrchestrator:
                         rationale=f"Policy compatibility for {context.policy_area}"
                     )
             else:
-                # No compatibility data - use penalties for required layers only
+                # ZERO TOLERANCE: Load penalties from JSON, not hardcoded
                 if needs_q:
+                    q_penalty = self.penalty_loader.get_contextual_layer_penalty("no_compatibility_data_question")
                     layer_scores[LayerID.QUESTION] = LayerScore(
                         layer=LayerID.QUESTION,
-                        score=0.1,
-                        rationale="No compatibility data - penalty applied",
+                        score=q_penalty,
+                        rationale=f"No compatibility data - penalty applied (loaded from JSON: {q_penalty})",
                         metadata={"penalty": True}
                     )
                 if needs_d:
+                    d_penalty = self.penalty_loader.get_contextual_layer_penalty("no_compatibility_data_dimension")
                     layer_scores[LayerID.DIMENSION] = LayerScore(
                         layer=LayerID.DIMENSION,
-                        score=0.1,
-                        rationale="No compatibility data - penalty applied",
+                        score=d_penalty,
+                        rationale=f"No compatibility data - penalty applied (loaded from JSON: {d_penalty})",
                         metadata={"penalty": True}
                     )
                 if needs_p:
+                    p_penalty = self.penalty_loader.get_contextual_layer_penalty("no_compatibility_data_policy")
                     layer_scores[LayerID.POLICY] = LayerScore(
                         layer=LayerID.POLICY,
-                        score=0.1,
-                        rationale="No compatibility data - penalty applied",
+                        score=p_penalty,
+                        rationale=f"No compatibility data - penalty applied (loaded from JSON: {p_penalty})",
                         metadata={"penalty": True}
                     )
 

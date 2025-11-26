@@ -426,11 +426,10 @@ class BaseExecutorWithContract(ABC):
                         exc_info=True,
                     )
                     # Store error in trace for debugging
-                    self._set_nested_value(
-                        method_outputs,
-                        f"_errors.{provides}",
-                        {"error": str(exc), "method": f"{class_name}.{method_name}"},
-                    )
+                    # Store error in a flat structure under _errors[provides]
+                    if "_errors" not in method_outputs or not isinstance(method_outputs["_errors"], dict):
+                        method_outputs["_errors"] = {}
+                    method_outputs["_errors"][provides] = {"error": str(exc), "method": f"{class_name}.{method_name}"}
                     # Re-raise if error_handling policy requires it
                     error_handling = contract.get("error_handling", {})
                     on_method_failure = error_handling.get("on_method_failure", "propagate_with_trace")

@@ -68,7 +68,16 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any
+from typing import Any, Optional
+
+from saaaaaa.core.runtime_config import RuntimeConfig, get_runtime_config
+from saaaaaa.core.contracts.runtime_contracts import (
+    LanguageTier,
+    LanguageDetectionInfo,
+    FallbackCategory,
+)
+from saaaaaa.core.observability.structured_logging import log_fallback, get_logger
+from saaaaaa.core.observability.metrics import increment_fallback
 
 from schemas.preprocessed_document import (
 
@@ -620,8 +629,8 @@ class PreprocessingEngine:
         # PASO 6: Construir índices
         indexes = self._build_document_indexes(sentences_tuple, table_annotations)
 
-        # PASO 7: Detectar idioma
-        language = self.detect_language(normalized_text)
+        # PASO 7: Detectar idioma con runtime config
+        language, language_detection_info = self.detect_language(text=normalized_text)
 
         metadata_dict: MutableMapping[str, Any] = {
             'num_sentences': len(sentences_tuple),
@@ -632,6 +641,11 @@ class PreprocessingEngine:
             'file_hash': raw_doc.file_hash,
             'file_name': raw_doc.file_name,
             'page_count': raw_doc.num_pages,
+            'language_detection_info': {
+                'tier': language_detection_info.tier.value,
+                'detected_language': language_detection_info.detected_language,
+                'reason': language_detection_info.reason,
+            },
         }
 
         preprocessed_doc = PreprocessedDocument(
@@ -670,18 +684,33 @@ class PreprocessingEngine:
             import unicodedata
             return unicodedata.normalize('NFC', text)
 
-    def detect_language(self, *, text: str) -> str:
+    def detect_language(
+        self,
+        *,
+        text: str,
+        runtime_config: Optional[RuntimeConfig] = None,
+    ) -> tuple[str, LanguageDetectionInfo]:
         """
-        MÉTODO 9: Detecta el idioma del documento.
+        MÉTODO 9: Detecta el idioma del documento con runtime config integration.
 
         Args:
             text: Texto a analizar
+            runtime_config: Optional runtime configuration (uses global if None)
 
         Returns:
-            Código ISO del idioma ('es', 'en', etc.)
+            Tuple of (language_code, LanguageDetectionInfo manifest)
         """
+        if runtime_config is None:
+            runtime_config = get_runtime_config()
+        
         if not text or len(text.strip()) < 20:
-            return 'unknown'
+            # Not enough text to detect language
+            lang_info = LanguageDetectionInfo(
+                tier=LanguageTier.WARN_DEFAULT_ES,
+                detected_language='es',
+                reason='Insufficient text for detection (< 20 chars)'
+            )
+            return 'es', lang_info
 
         try:
             # Usar muestra del texto
@@ -689,15 +718,72 @@ class PreprocessingEngine:
             detected_lang = detect(sample)
 
             self.logger.info(f"✓ Idioma detectado: {detected_lang}")
-            return detected_lang
+            
+            # Successful detection
+            lang_info = LanguageDetectionInfo(
+                tier=LanguageTier.NORMAL,
+                detected_language=detected_lang,
+                reason=None
+            )
+            return detected_lang, lang_info
 
-        except LangDetectException:
+        except LangDetectException as e:
+            # Category B fallback: Quality degradation but acceptable
             self.logger.warning("No se pudo detectar idioma, asumiendo español")
-            return 'es'
+            
+            lang_info = LanguageDetectionInfo(
+                tier=LanguageTier.WARN_DEFAULT_ES,
+                detected_language='es',
+                reason=f'LangDetectException: {str(e)}'
+            )
+            
+            # Emit structured log and metrics
+            log_fallback(
+                component='language_detection',
+                subsystem='document_ingestion',
+                fallback_category=FallbackCategory.B,
+                fallback_mode='warn_default_es',
+                reason=f'LangDetectException: {str(e)}',
+                runtime_mode=runtime_config.mode,
+            )
+            
+            increment_fallback(
+                component='language_detection',
+                fallback_category=FallbackCategory.B,
+                fallback_mode='warn_default_es',
+                runtime_mode=runtime_config.mode,
+            )
+            
+            return 'es', lang_info
 
         except Exception as e:
+            # Category B fallback: Unexpected error
             self.logger.error(f"Error detectando idioma: {e}")
-            return 'unknown'
+            
+            lang_info = LanguageDetectionInfo(
+                tier=LanguageTier.FAIL,
+                detected_language='unknown',
+                reason=f'Unexpected error: {str(e)}'
+            )
+            
+            # Emit structured log and metrics
+            log_fallback(
+                component='language_detection',
+                subsystem='document_ingestion',
+                fallback_category=FallbackCategory.B,
+                fallback_mode='fail',
+                reason=f'Unexpected error: {str(e)}',
+                runtime_mode=runtime_config.mode,
+            )
+            
+            increment_fallback(
+                component='language_detection',
+                fallback_category=FallbackCategory.B,
+                fallback_mode='fail',
+                runtime_mode=runtime_config.mode,
+            )
+            
+            return 'unknown', lang_info
 
     def _build_document_indexes(
         self,

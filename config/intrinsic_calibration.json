@@ -3637,12 +3637,4 @@
     "b_impl": 0.9,
     "generated_by": "populate_script"
   },
-  "saaaaaa.api.api_server.DataService.get_evidence_stream": {
-    "intrinsic_score": 0.85,
-    "layer": "utility",
-    "calibration_status": "initialized",
-    "b_theory": 0.8,
-    "b_impl": 0.9,
-    "generated_by": "populate_script"
-  }
-}
+  "saaaaaa.api.api_server.DataService.get_evidence_stream": {}

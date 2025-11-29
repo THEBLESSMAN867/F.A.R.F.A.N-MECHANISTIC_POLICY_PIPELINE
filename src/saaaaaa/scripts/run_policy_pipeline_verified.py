@@ -846,15 +846,26 @@ def cli() -> None:
             "chunk_types": {},
             "chunk_routing": {},
             "graph_metrics": {},
-            "execution_savings": {}
+            "execution_savings": {},
+            "provenance_coverage": 0.0
         }
         
-        # Count chunk types
+        # Count chunk types and provenance
+        chunks_with_provenance = 0
         for chunk in chunks:
             chunk_type = getattr(chunk, 'chunk_type', 'unknown')
             chunk_metrics["chunk_types"][chunk_type] = \
                 chunk_metrics["chunk_types"].get(chunk_type, 0) + 1
-        
+                
+            # Check provenance
+            if hasattr(chunk, 'provenance') and chunk.provenance:
+                # Strict check: must have page_number
+                if getattr(chunk.provenance, 'page_number', None) is not None:
+                    chunks_with_provenance += 1
+                    
+        if len(chunks) > 0:
+            chunk_metrics["provenance_coverage"] = round(chunks_with_provenance / len(chunks), 4)
+            
         # Calculate graph metrics if networkx available
         try:
             import networkx as nx
@@ -1017,11 +1028,27 @@ def cli() -> None:
 
             # === PHASE 2 HARDENING: STRICT SPC INVARIANTS ===
             # Enforce exactly 60 chunks and chunked mode for SPC ingestion
-            # This ensures we catch any degradation that happened in the adapter
             if chunk_metrics.get("processing_mode") != "chunked":
-                hostile_failures.append(f"SPC invariant violation: Document degraded to '{chunk_metrics.get('processing_mode')}' mode (expected 'chunked')")
-            elif chunk_metrics.get("total_chunks") != 60:
-                hostile_failures.append(f"SPC invariant violation: Cardinality mismatch (expected 60 chunks, found {chunk_metrics.get('total_chunks')})")
+                hostile_failures.append(f"Invalid processing_mode: {chunk_metrics.get('processing_mode')} != chunked")
+            
+            if chunk_metrics.get("total_chunks") != 60:
+                hostile_failures.append(f"Invalid total_chunks: {chunk_metrics.get('total_chunks')} != 60")
+
+            # Enforce Provenance Coverage using Calibrated Threshold
+            # SOTA: No hardcoded values. Use centralized calibration.
+            from saaaaaa import get_parameter_loader
+            param_loader = get_parameter_loader()
+            
+            # Fetch threshold for this specific method
+            method_key = "saaaaaa.scripts.run_policy_pipeline_verified.VerifiedPipelineRunner.generate_verification_manifest"
+            calibrated_params = param_loader.get(method_key)
+            
+            # Default to 1.0 (strict) if not found, but log warning if falling back
+            required_coverage = calibrated_params.get("provenance_coverage_threshold", 1.0)
+            
+            provenance_coverage = chunk_metrics.get("provenance_coverage", 0.0)
+            if provenance_coverage < required_coverage:
+                hostile_failures.append(f"Provenance coverage violation: {provenance_coverage} < {required_coverage} (Threshold from {method_key})")
 
 
         phase2_entry = {

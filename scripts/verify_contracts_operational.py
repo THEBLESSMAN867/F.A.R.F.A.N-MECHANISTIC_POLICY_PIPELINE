@@ -25,11 +25,11 @@ from pathlib import Path
 import json
 import numpy as np
 
-from saaaaaa.utils.contract_io import ContractEnvelope
-from saaaaaa.utils.determinism_helpers import deterministic
-from saaaaaa.utils.json_logger import get_json_logger, log_io_event
-from saaaaaa.utils.domain_errors import DataContractError, SystemContractError
-from saaaaaa.utils.flow_adapters import wrap_payload, unwrap_payload
+from farfan_core.utils.contract_io import ContractEnvelope
+from farfan_core.utils.determinism_helpers import deterministic
+from farfan_core.utils.json_logger import get_json_logger, log_io_event
+from farfan_core.utils.domain_errors import DataContractError, SystemContractError
+from farfan_core.utils.flow_adapters import wrap_payload, unwrap_payload
 
 
 def test_1_envelope_wrapping():

@@ -245,7 +245,7 @@ for question in micro_questions:
 
         # Update traceability
         contract["traceability"]["json_path"] = f"blocks.micro_questions[{question.get('question_global', 0) - 1}]"
-        contract["traceability"]["method_source"] = f"src/saaaaaa/core/orchestrator/executors.py:{executor_class}"
+        contract["traceability"]["method_source"] = f"src/farfan_core/core/orchestrator/executors.py:{executor_class}"
 
         # Write contract
         output_path = output_dir / f"{base_slot}.v3.json"

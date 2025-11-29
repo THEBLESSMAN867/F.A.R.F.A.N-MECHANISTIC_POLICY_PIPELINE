@@ -9,7 +9,7 @@ This document summarizes the implementation of the empirical calibration testing
 All requirements from the problem statement have been successfully implemented:
 
 ### 1. ✅ Calibration Registry Module
-**File**: `src/saaaaaa/core/orchestrator/calibration_registry.py` (226 lines)
+**File**: `src/farfan_core/core/orchestrator/calibration_registry.py` (226 lines)
 
 **Implemented:**
 - [x] `MethodCalibration` dataclass with all required fields:
@@ -24,7 +24,7 @@ All requirements from the problem statement have been successfully implemented:
 - [x] Default fallback calibration for unconfigured methods
 
 ### 2. ✅ Calibration Context Module
-**File**: `src/saaaaaa/core/orchestrator/calibration_context.py` (339 lines)
+**File**: `src/farfan_core/core/orchestrator/calibration_context.py` (339 lines)
 
 **Implemented:**
 - [x] `CalibrationContext` dataclass with immutable update methods
@@ -194,7 +194,7 @@ The implementation includes several improvements beyond the original specificati
 ### Basic Usage
 
 ```python
-from saaaaaa.core.orchestrator.calibration_registry import resolve_calibration
+from farfan_core.core.orchestrator.calibration_registry import resolve_calibration
 
 # Get base calibration
 calibration = resolve_calibration("SemanticAnalyzer", "extract_entities")
@@ -204,7 +204,7 @@ print(f"Evidence: {calibration.min_evidence_snippets}-{calibration.max_evidence_
 ### Context-Aware Usage
 
 ```python
-from saaaaaa.core.orchestrator.calibration_registry import resolve_calibration_with_context
+from farfan_core.core.orchestrator.calibration_registry import resolve_calibration_with_context
 
 # Get calibration with D1Q1 context
 calibration = resolve_calibration_with_context(
@@ -227,7 +227,7 @@ python scripts/test_calibration_empirically.py --plan data/plans/Plan_1.pdf
 ## 📁 File Structure
 
 ```
-src/saaaaaa/core/orchestrator/
+src/farfan_core/core/orchestrator/
 ├── calibration_registry.py     (226 lines) ✅
 └── calibration_context.py      (339 lines) ✅
 

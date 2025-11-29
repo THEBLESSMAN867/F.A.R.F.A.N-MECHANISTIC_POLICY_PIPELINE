@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from saaaaaa.core.orchestrator.base_executor_with_contract import BaseExecutorWithContract
-from saaaaaa.core.orchestrator.core import MethodExecutor, PreprocessedDocument
-from saaaaaa.core.orchestrator.executors_contract import D1Q1_Executor_Contract
+from farfan_core.core.orchestrator.base_executor_with_contract import BaseExecutorWithContract
+from farfan_core.core.orchestrator.core import MethodExecutor, PreprocessedDocument
+from farfan_core.core.orchestrator.executors_contract import D1Q1_Executor_Contract
 
 
 def _doc() -> PreprocessedDocument:
@@ -80,7 +80,7 @@ def test_invalid_contract_raises(monkeypatch, tmp_path: Path):
     bad_contract = contracts_dir / "D1-Q1.json"
     bad_contract.write_text(json.dumps({"base_slot": "D1-Q1"}), encoding="utf-8")
 
-    from saaaaaa.core.orchestrator import base_executor_with_contract as mod
+    from farfan_core.core.orchestrator import base_executor_with_contract as mod
 
     monkeypatch.setattr(mod, "PROJECT_ROOT", tmp_path)
     D1Q1_Executor_Contract._contract_cache.clear()

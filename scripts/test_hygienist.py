@@ -183,15 +183,15 @@ class TestHygienist:
 
     def _check_import(self, module_name: str, metrics: TestMetrics) -> None:
         """Check if an import is valid."""
-        # Check if it's a saaaaaa module
-        if module_name.startswith("saaaaaa."):
-            # Extract the part after "saaaaaa."
-            module_path = module_name[8:]  # Remove "saaaaaa."
+        # Check if it's a farfan_core module
+        if module_name.startswith("farfan_core."):
+            # Extract the part after "farfan_core."
+            module_path = module_name[8:]  # Remove "farfan_core."
 
             # Check if this module exists
             if module_path not in self.source_modules:
                 # Check if it's a package (directory with __init__.py)
-                possible_path = self.src_dir / "saaaaaa" / module_path.replace(".", "/")
+                possible_path = self.src_dir / "farfan_core" / module_path.replace(".", "/")
                 if not (possible_path.exists() or (possible_path.parent / "__init__.py").exists()):
                     metrics.missing_imports.append(module_name)
                     metrics.imports_valid = False

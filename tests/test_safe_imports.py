@@ -2,7 +2,7 @@
 
 import pytest
 
-from saaaaaa.compat import try_import, OptionalDependencyError
+from farfan_core.compat import try_import, OptionalDependencyError
 
 
 def test_try_import_missing_optional():

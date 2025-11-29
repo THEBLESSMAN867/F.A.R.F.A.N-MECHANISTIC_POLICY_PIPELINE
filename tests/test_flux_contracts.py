@@ -18,7 +18,7 @@ from hypothesis import given, strategies as st
 from pydantic import ValidationError
 
 # project
-from saaaaaa.flux.configs import (
+from farfan_core.flux.configs import (
     AggregateConfig,
     ChunkConfig,
     IngestConfig,
@@ -27,7 +27,7 @@ from saaaaaa.flux.configs import (
     ScoreConfig,
     SignalsConfig,
 )
-from saaaaaa.flux.models import (
+from farfan_core.flux.models import (
     AggregateDeliverable,
     AggregateExpectation,
     ChunkDeliverable,
@@ -43,7 +43,7 @@ from saaaaaa.flux.models import (
     SignalsDeliverable,
     SignalsExpectation,
 )
-from saaaaaa.flux.phases import (
+from farfan_core.flux.phases import (
     CompatibilityError,
     PostconditionError,
     PreconditionError,
@@ -426,7 +426,7 @@ class TestPhaseOutcomes:
 
     def test_phase_outcome_immutable(self) -> None:
         """PhaseOutcome is immutable."""
-        from saaaaaa.flux.models import PhaseOutcome
+        from farfan_core.flux.models import PhaseOutcome
 
         outcome = PhaseOutcome(
             ok=True,
@@ -440,7 +440,7 @@ class TestPhaseOutcomes:
 
     def test_phase_outcome_valid_phases(self) -> None:
         """PhaseOutcome only accepts valid phase names."""
-        from saaaaaa.flux.models import PhaseOutcome
+        from farfan_core.flux.models import PhaseOutcome
 
         valid_phases = [
             "ingest",

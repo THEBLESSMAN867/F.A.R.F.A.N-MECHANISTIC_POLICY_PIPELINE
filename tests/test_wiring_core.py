@@ -9,24 +9,24 @@ from pathlib import Path
 
 import pytest
 
-from saaaaaa.core.orchestrator.signals import SignalClient, SignalRegistry
-from saaaaaa.core.wiring.bootstrap import (
+from farfan_core.core.orchestrator.signals import SignalClient, SignalRegistry
+from farfan_core.core.wiring.bootstrap import (
     CANONICAL_POLICY_AREA_DEFINITIONS,
     WiringBootstrap,
 )
-from saaaaaa.core.wiring.contracts import (
+from farfan_core.core.wiring.contracts import (
     CPPDeliverable,
     SPCDeliverable,
     PreprocessedDocumentDeliverable,
     SignalPackDeliverable,
 )
-from saaaaaa.core.wiring.errors import (
+from farfan_core.core.wiring.errors import (
     WiringContractError,
     WiringInitializationError,
     MissingDependencyError,
 )
-from saaaaaa.core.wiring.feature_flags import WiringFeatureFlags
-from saaaaaa.core.wiring.validation import WiringValidator
+from farfan_core.core.wiring.feature_flags import WiringFeatureFlags
+from farfan_core.core.wiring.validation import WiringValidator
 
 
 class TestWiringContracts:
@@ -354,14 +354,14 @@ class TestWiringObservability:
     
     def test_has_otel_flag(self):
         """Test HAS_OTEL flag availability."""
-        from saaaaaa.core.wiring.observability import HAS_OTEL
+        from farfan_core.core.wiring.observability import HAS_OTEL
         
         # Should be bool
         assert isinstance(HAS_OTEL, bool)
     
     def test_trace_wiring_link_context(self):
         """Test trace_wiring_link context manager."""
-        from saaaaaa.core.wiring.observability import trace_wiring_link
+        from farfan_core.core.wiring.observability import trace_wiring_link
         
         attrs = None
         with trace_wiring_link("test_link", document_id="doc123") as dynamic_attrs:
@@ -374,7 +374,7 @@ class TestWiringObservability:
     
     def test_trace_wiring_init_context(self):
         """Test trace_wiring_init context manager."""
-        from saaaaaa.core.wiring.observability import trace_wiring_init
+        from farfan_core.core.wiring.observability import trace_wiring_init
         
         attrs = None
         with trace_wiring_init("test_phase", component="TestComponent") as dynamic_attrs:

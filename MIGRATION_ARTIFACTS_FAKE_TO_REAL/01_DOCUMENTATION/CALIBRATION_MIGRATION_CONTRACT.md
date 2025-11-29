@@ -129,7 +129,7 @@ Parameterization defines **WHAT** can be configured. Calibration defines **HOW W
 ### 3.1 What is "FAKE"?
 
 **FAKE executors** are the OLD implementation in:
-- **File**: `src/saaaaaa/core/orchestrator/executors.py` (3,929 lines)
+- **File**: `src/farfan_core/core/orchestrator/executors.py` (3,929 lines)
 - **Architecture**: Hardcoded `execute()` methods, manual method invocation
 - **Classes**: 30 executors inheriting from `BaseExecutor`:
   - `D1_Q1_QuantitativeBaselineExtractor`
@@ -147,7 +147,7 @@ Parameterization defines **WHAT** can be configured. Calibration defines **HOW W
 ### 3.2 What is "REAL"?
 
 **REAL executors** are the NEW implementation in:
-- **File**: `src/saaaaaa/core/orchestrator/executors_contract.py` (216 lines)
+- **File**: `src/farfan_core/core/orchestrator/executors_contract.py` (216 lines)
 - **Architecture**: Contract-driven routing through `MethodExecutor`
 - **Classes**: 30 executors inheriting from `BaseExecutorWithContract`:
   - `D1Q1_Executor_Contract` (aliased as `D1Q1_Executor`)

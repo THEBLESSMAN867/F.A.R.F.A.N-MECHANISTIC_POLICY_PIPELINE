@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://saaaaaa.policy.analysis/schemas/questionnaire_monolith.schema.json",
+  "$id": "https://farfan_core.policy.analysis/schemas/questionnaire_monolith.schema.json",
   "title": "Questionnaire Monolith Schema",
   "description": "Comprehensive schema for questionnaire_monolith.json - the canonical source of truth for 305 questions (300 micro + 4 meso + 1 macro) with complete metadata, patterns, validations, and method references.",
   "type": "object",

@@ -20,12 +20,12 @@ import sys
 from pathlib import Path
 
 # Add parent directory to path for imports
-from saaaaaa.utils.validation.schema_validator import MonolithSchemaValidator, SchemaInitializationError
+from farfan_core.utils.validation.schema_validator import MonolithSchemaValidator, SchemaInitializationError
 
 # Try to import orchestrator, but make it optional
 try:
-    from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
-    from saaaaaa.core.orchestrator import get_questionnaire_provider
+    from farfan_core.core.orchestrator.questionnaire import load_questionnaire
+    from farfan_core.core.orchestrator import get_questionnaire_provider
     HAS_ORCHESTRATOR = True
 except ImportError:
     HAS_ORCHESTRATOR = False

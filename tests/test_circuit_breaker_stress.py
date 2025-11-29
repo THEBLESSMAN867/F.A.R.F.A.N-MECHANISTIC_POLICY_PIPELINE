@@ -10,7 +10,7 @@ import pytest
 import sys
 from pathlib import Path
 
-from saaaaaa.core.orchestrator.signals import (
+from farfan_core.core.orchestrator.signals import (
     SignalClient,
     SignalPack,
     CircuitBreakerError,

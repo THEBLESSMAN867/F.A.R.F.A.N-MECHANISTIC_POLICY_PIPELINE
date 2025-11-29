@@ -149,10 +149,10 @@ fi
 # Check if required files exist
 print_info "Checking required files..."
 REQUIRED_FILES=(
-    "src/saaaaaa/api/api_server.py"
-    "src/saaaaaa/core/orchestrator/core.py"
-    "src/saaaaaa/api/static/js/atroz-data-service.js"
-    "src/saaaaaa/api/static/js/atroz-dashboard-integration.js"
+    "src/farfan_core/api/api_server.py"
+    "src/farfan_core/core/orchestrator/core.py"
+    "src/farfan_core/api/static/js/atroz-data-service.js"
+    "src/farfan_core/api/static/js/atroz-dashboard-integration.js"
 )
 
 for file in "${REQUIRED_FILES[@]}"; do
@@ -169,8 +169,8 @@ python3 -c "
 import sys
 sys.path.append('src')
 try:
-    from saaaaaa.api.api_server import app
-    from saaaaaa.core.orchestrator.core import Orchestrator
+    from farfan_core.api.api_server import app
+    from farfan_core.core.orchestrator.core import Orchestrator
     print('✓ All modules imported successfully')
 except ImportError as e:
     print(f'✗ Import error: {e}')
@@ -186,7 +186,7 @@ if [ "$MODE" == "dev" ]; then
     
     # Start API server in background
     print_info "Starting API server on port $PORT..."
-    export FLASK_APP=src/saaaaaa/api/api_server.py
+    export FLASK_APP=src/farfan_core/api/api_server.py
     flask run --port=$PORT > logs/api_server.log 2>&1 &
     API_PID=$!
     echo $API_PID > logs/api_server.pid

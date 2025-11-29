@@ -10,8 +10,8 @@ import pytest
 
 # Import the components we're testing
 try:
-    from saaaaaa.core.orchestrator.core import ChunkData, PreprocessedDocument
-    from saaaaaa.core.orchestrator.chunk_router import ChunkRouter
+    from farfan_core.core.orchestrator.core import ChunkData, PreprocessedDocument
+    from farfan_core.core.orchestrator.chunk_router import ChunkRouter
     HAS_IMPORTS = True
 except ImportError:
     HAS_IMPORTS = False
@@ -158,7 +158,7 @@ class TestSPCCausalBridge:
     def test_spc_causal_bridge_initialization(self):
         """Test SPCCausalBridge initializes correctly."""
         try:
-            from saaaaaa.analysis.spc_causal_bridge import SPCCausalBridge
+            from farfan_core.analysis.spc_causal_bridge import SPCCausalBridge
             
             bridge = SPCCausalBridge()
             assert bridge is not None
@@ -170,7 +170,7 @@ class TestSPCCausalBridge:
     def test_causal_weight_mapping(self):
         """Test that edge types map to appropriate causal weights."""
         try:
-            from saaaaaa.analysis.spc_causal_bridge import SPCCausalBridge
+            from farfan_core.analysis.spc_causal_bridge import SPCCausalBridge
             
             bridge = SPCCausalBridge()
             
@@ -189,7 +189,7 @@ class TestSPCCausalBridge:
     def test_build_causal_graph_from_spc(self):
         """Test building causal graph from chunk graph."""
         try:
-            from saaaaaa.analysis.spc_causal_bridge import SPCCausalBridge
+            from farfan_core.analysis.spc_causal_bridge import SPCCausalBridge
             import networkx as nx
             
             bridge = SPCCausalBridge()

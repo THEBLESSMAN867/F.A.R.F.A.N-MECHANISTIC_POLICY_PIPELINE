@@ -12,7 +12,7 @@ This script checks:
 import sys
 from pathlib import Path
 
-from saaaaaa.config.paths import PROJECT_ROOT
+from farfan_core.config.paths import PROJECT_ROOT
 
 repo_root = PROJECT_ROOT
 
@@ -22,7 +22,7 @@ def check_init_files():
     print("CHECKING __init__.py FILES")
     print("=" * 70)
     
-    src_dir = repo_root / "src" / "saaaaaa"
+    src_dir = repo_root / "src" / "farfan_core"
     
     # Find all directories that should be packages
     package_dirs = []
@@ -57,21 +57,21 @@ def check_major_imports():
     
     imports_to_test = [
         # Core modules
-        ("saaaaaa.core.orchestrator", "Orchestrator"),
-        ("saaaaaa.core.orchestrator.core", "Evidence"),
-        ("saaaaaa.core.orchestrator.evidence_registry", "EvidenceRegistry"),
+        ("farfan_core.core.orchestrator", "Orchestrator"),
+        ("farfan_core.core.orchestrator.core", "Evidence"),
+        ("farfan_core.core.orchestrator.evidence_registry", "EvidenceRegistry"),
         
         # Analysis modules
-        ("saaaaaa.analysis.scoring.scoring", "apply_scoring"),
-        ("saaaaaa.analysis.bayesian_multilevel_system", "MultiLevelBayesianOrchestrator"),
+        ("farfan_core.analysis.scoring.scoring", "apply_scoring"),
+        ("farfan_core.analysis.bayesian_multilevel_system", "MultiLevelBayesianOrchestrator"),
         
         # Processing modules
-        ("saaaaaa.processing.document_ingestion", "RawDocument"),
-        ("saaaaaa.processing.aggregation", "AreaPolicyAggregator"),
+        ("farfan_core.processing.document_ingestion", "RawDocument"),
+        ("farfan_core.processing.aggregation", "AreaPolicyAggregator"),
         
         # Utilities
-        ("saaaaaa.utils.contracts", "validate_contract"),
-        ("saaaaaa.concurrency.concurrency", "WorkerPool"),
+        ("farfan_core.utils.contracts", "validate_contract"),
+        ("farfan_core.concurrency.concurrency", "WorkerPool"),
         
         # Compatibility wrappers
         ("orchestrator", "Orchestrator"),
@@ -104,14 +104,14 @@ def check_package_structure():
     print("=" * 70)
     
     required_dirs = [
-        "src/saaaaaa",
-        "src/saaaaaa/core",
-        "src/saaaaaa/core/orchestrator",
-        "src/saaaaaa/analysis",
-        "src/saaaaaa/analysis/scoring",
-        "src/saaaaaa/processing",
-        "src/saaaaaa/utils",
-        "src/saaaaaa/concurrency",
+        "src/farfan_core",
+        "src/farfan_core/core",
+        "src/farfan_core/core/orchestrator",
+        "src/farfan_core/analysis",
+        "src/farfan_core/analysis/scoring",
+        "src/farfan_core/processing",
+        "src/farfan_core/utils",
+        "src/farfan_core/concurrency",
     ]
     
     all_ok = True

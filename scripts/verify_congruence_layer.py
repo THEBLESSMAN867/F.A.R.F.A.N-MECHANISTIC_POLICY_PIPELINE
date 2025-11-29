@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from saaaaaa.core.calibration.congruence_layer import CongruenceLayerEvaluator
+from farfan_core.core.calibration.congruence_layer import CongruenceLayerEvaluator
 import json
 
 def test_congruence_differentiation():

@@ -15,7 +15,7 @@ pytestmark = pytest.mark.skip(reason="Runtime contracts now in test_contracts_co
 
 from pydantic import ValidationError
 
-from saaaaaa.utils.contracts_runtime import (
+from farfan_core.utils.contracts_runtime import (
     CDAFFrameworkInputModel,
     CDAFFrameworkOutputModel,
     ContradictionDetectorInputModel,

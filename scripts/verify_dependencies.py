@@ -6,7 +6,7 @@ Verifies that all required dependencies are installed and that the class registr
 can successfully load all 22 classes mentioned in the import resolution documentation.
 
 This script validates the fixes described in the import resolution problem statement:
-1. All class paths use absolute imports with saaaaaa. prefix
+1. All class paths use absolute imports with farfan_core. prefix
 2. All required external dependencies are available
 3. SpaCy models are installed
 """
@@ -16,21 +16,21 @@ from importlib import import_module
 from pathlib import Path
 
 def check_class_registry_paths():
-    """Verify all class paths have saaaaaa. prefix."""
+    """Verify all class paths have farfan_core. prefix."""
     print("=" * 70)
     print("1. Checking Class Registry Paths")
     print("=" * 70)
 
     try:
-        from saaaaaa.core.orchestrator.class_registry import get_class_paths
+        from farfan_core.core.orchestrator.class_registry import get_class_paths
 
         paths = get_class_paths()
         print(f"✓ Found {len(paths)} registered classes")
 
-        # Verify all paths start with saaaaaa.
+        # Verify all paths start with farfan_core.
         invalid_paths = []
         for class_name, import_path in paths.items():
-            if not import_path.startswith("saaaaaa."):
+            if not import_path.startswith("farfan_core."):
                 invalid_paths.append((class_name, import_path))
 
         if invalid_paths:
@@ -39,7 +39,7 @@ def check_class_registry_paths():
                 print(f"  - {name}: {path}")
             return False
 
-        print("✓ All paths use absolute imports with saaaaaa. prefix")
+        print("✓ All paths use absolute imports with farfan_core. prefix")
 
         # Verify count matches expected (22 classes)
         if len(paths) != 22:
@@ -167,7 +167,7 @@ def check_class_registry_loading():
     print("=" * 70)
 
     try:
-        from saaaaaa.core.orchestrator.class_registry import (
+        from farfan_core.core.orchestrator.class_registry import (
             ClassRegistryError,
             build_class_registry,
         )
@@ -232,7 +232,7 @@ def main():
     if all(results):
         print("\n✓ All checks passed! The system is properly configured.")
         print("\nThe import resolution fixes are in place:")
-        print("  ✓ All 22 classes use absolute imports with saaaaaa. prefix")
+        print("  ✓ All 22 classes use absolute imports with farfan_core. prefix")
         print("  ✓ All required dependencies are installed")
         print("  ✓ Class registry can load all modules successfully")
         return 0

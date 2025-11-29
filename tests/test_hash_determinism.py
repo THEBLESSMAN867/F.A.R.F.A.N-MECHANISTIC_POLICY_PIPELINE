@@ -9,7 +9,7 @@ import pytest
 import sys
 from pathlib import Path
 
-from saaaaaa.core.orchestrator.factory import (
+from farfan_core.core.orchestrator.factory import (
     compute_monolith_hash,
     validate_questionnaire_structure,
 )

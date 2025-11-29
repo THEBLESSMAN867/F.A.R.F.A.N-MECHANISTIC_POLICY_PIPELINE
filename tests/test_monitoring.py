@@ -10,7 +10,7 @@ from pathlib import Path
 import warnings
 warnings.filterwarnings("ignore")
 
-from saaaaaa.core.orchestrator.core import Orchestrator
+from farfan_core.core.orchestrator.core import Orchestrator
 
 
 def test_get_system_health():

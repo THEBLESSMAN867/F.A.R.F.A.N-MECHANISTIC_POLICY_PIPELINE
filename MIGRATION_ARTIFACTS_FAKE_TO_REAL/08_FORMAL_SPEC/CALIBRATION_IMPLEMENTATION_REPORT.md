@@ -32,12 +32,12 @@ Successfully implemented the core calibration system integration that centralize
    - Global quality level definitions
    - Validation thresholds by role type
 
-2. **`src/saaaaaa/core/calibration/parameter_loader.py`** (10.4KB)
+2. **`src/farfan_core/core/calibration/parameter_loader.py`** (10.4KB)
    - Thread-safe loader for method parameters
    - Singleton pattern with lazy initialization
    - Methods for accessing executor thresholds, quality levels, role-based thresholds
 
-3. **`src/saaaaaa/core/calibration/validator.py`** (16.7KB)
+3. **`src/farfan_core/core/calibration/validator.py`** (16.7KB)
    - Automatic validation using calibration scores
    - PASS/FAIL decision logic
    - Failure analysis and recommendations
@@ -50,7 +50,7 @@ Successfully implemented the core calibration system integration that centralize
 
 ### Files Modified
 
-1. **`src/saaaaaa/core/calibration/orchestrator.py`**
+1. **`src/farfan_core/core/calibration/orchestrator.py`**
    - **Fixed:** Removed duplicate `intrinsic_calibration_path` parameter
    - **Added:** Initialization of `IntrinsicScoreLoader`
    - **Added:** Initialization of `LayerRequirementsResolver`
@@ -113,7 +113,7 @@ Successfully implemented the core calibration system integration that centralize
 
 ### 1. Intrinsic Calibration Integration
 
-**File:** `src/saaaaaa/core/calibration/intrinsic_loader.py` (existing, verified working)
+**File:** `src/farfan_core/core/calibration/intrinsic_loader.py` (existing, verified working)
 
 **Functionality:**
 - Loads `config/intrinsic_calibration.json` (6.9MB, 1,995 methods)
@@ -128,7 +128,7 @@ Successfully implemented the core calibration system integration that centralize
 
 ### 2. Layer Requirements System
 
-**File:** `src/saaaaaa/core/calibration/layer_requirements.py` (existing, verified working)
+**File:** `src/farfan_core/core/calibration/layer_requirements.py` (existing, verified working)
 
 **Role → Layers Mapping:**
 
@@ -192,7 +192,7 @@ Successfully implemented the core calibration system integration that centralize
 
 ### 4. Validation System
 
-**File:** `src/saaaaaa/core/calibration/validator.py`
+**File:** `src/farfan_core/core/calibration/validator.py`
 
 **Key Classes:**
 
@@ -321,9 +321,9 @@ TestEndToEndFlow:
 ### For Method Validation
 
 ```python
-from src.saaaaaa.core.calibration.orchestrator import CalibrationOrchestrator
-from src.saaaaaa.core.calibration.parameter_loader import MethodParameterLoader
-from src.saaaaaa.core.calibration.validator import CalibrationValidator
+from src.farfan_core.core.calibration.orchestrator import CalibrationOrchestrator
+from src.farfan_core.core.calibration.parameter_loader import MethodParameterLoader
+from src.farfan_core.core.calibration.validator import CalibrationValidator
 
 # Initialize system
 orchestrator = CalibrationOrchestrator(
@@ -376,7 +376,7 @@ with open("validation_report.json", "w") as f:
 ### For Loading Thresholds/Parameters
 
 ```python
-from src.saaaaaa.core.calibration.parameter_loader import MethodParameterLoader
+from src.farfan_core.core.calibration.parameter_loader import MethodParameterLoader
 
 loader = MethodParameterLoader()
 
@@ -521,7 +521,7 @@ print(f"Similarity threshold: {param}")  # 0.80
 
 - `config/intrinsic_calibration.json` - Re-generate when code changes
 - `config/method_parameters.json` - Update thresholds as system matures
-- `src/saaaaaa/core/calibration/orchestrator.py` - Core integration point
+- `src/farfan_core/core/calibration/orchestrator.py` - Core integration point
 
 ### Debugging Tips
 

@@ -92,7 +92,7 @@ class ConfigConsistencyValidator:
         sys.path.insert(0, str(self.repo_root))
 
         try:
-            from src.saaaaaa.core.calibration.config import DEFAULT_CALIBRATION_CONFIG
+            from src.farfan_core.core.calibration.config import DEFAULT_CALIBRATION_CONFIG
             return DEFAULT_CALIBRATION_CONFIG
         except ImportError as e:
             raise FileNotFoundError(f"Could not import config.py: {e}")

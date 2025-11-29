@@ -4,8 +4,8 @@ Test MethodConfigLoader integration with actual codebase modules.
 Verifies that modules can successfully load parameters from the canonical spec.
 """
 import pytest
-from src.saaaaaa.utils.method_config_loader import MethodConfigLoader
-from src.saaaaaa.analysis.Analyzer_one import SemanticAnalyzer, MunicipalOntology
+from src.farfan_core.utils.method_config_loader import MethodConfigLoader
+from src.farfan_core.analysis.Analyzer_one import SemanticAnalyzer, MunicipalOntology
 
 
 class TestMethodConfigLoaderIntegration:

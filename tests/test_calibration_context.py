@@ -2,12 +2,12 @@
 
 import pytest
 
-from src.saaaaaa.core.orchestrator.calibration_registry import (
+from src.farfan_core.core.orchestrator.calibration_registry import (
     MethodCalibration,
     resolve_calibration,
     resolve_calibration_with_context,
 )
-from src.saaaaaa.core.orchestrator.calibration_context import (
+from src.farfan_core.core.orchestrator.calibration_context import (
     CalibrationContext,
     CalibrationModifier,
     PolicyArea,

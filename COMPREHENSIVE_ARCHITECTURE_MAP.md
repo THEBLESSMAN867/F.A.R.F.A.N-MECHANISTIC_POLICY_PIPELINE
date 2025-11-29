@@ -17,7 +17,7 @@ The SPC system performs a 15-phase analysis:
 6. Quality validation and strategic ranking
 
 ### SPC Ingestion Module
-- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/processing/spc_ingestion/`
+- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/processing/spc_ingestion/`
 - **Files**:
   - `__init__.py` - CPPIngestionPipeline wrapper
   - `converter.py` (21KB) - SmartChunkConverter class
@@ -27,7 +27,7 @@ The SPC system performs a 15-phase analysis:
 ### Key SPC Components
 
 #### SmartChunkConverter Class
-- **File**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/processing/spc_ingestion/converter.py`
+- **File**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/processing/spc_ingestion/converter.py`
 - **Purpose**: Converts SmartPolicyChunk → CanonPolicyPackage format
 - **Mapping**: 8 ChunkTypes → ChunkResolution levels:
   - DIAGNOSTICO → MESO
@@ -41,18 +41,18 @@ The SPC system performs a 15-phase analysis:
   - IntegrityIndex (verification scores)
 
 #### CPPIngestionPipeline Class
-- **File**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/processing/spc_ingestion/__init__.py`
+- **File**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/processing/spc_ingestion/__init__.py`
 - **Async Method**: `async process(document_path, document_id, title, max_chunks)`
 - **Returns**: CanonPolicyPackage (orchestrator-ready)
 
 ### SPC Canonical Producers
-Located in `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/processing/`:
+Located in `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/processing/`:
 - `embedding_policy.py` - EmbeddingPolicyProducer (BGE-M3 2024 SOTA)
 - `semantic_chunking_policy.py` - SemanticChunkingProducer
 - `policy_processor.py` - create_policy_processor()
 
 ### SPC to Orchestrator Bridge
-- **File**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/utils/spc_adapter.py`
+- **File**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/utils/spc_adapter.py`
 - **Class**: SPCAdapter (alias for CPPAdapter)
 - **Function**: `adapt_spc_to_orchestrator(spc_package) -> PreprocessedDocument`
 - **Purpose**: Converts SPC CanonPolicyPackage to orchestrator PreprocessedDocument
@@ -65,7 +65,7 @@ Located in `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/proce
 The system uses **compatibility shims** for backward compatibility while consolidating the canonical implementation:
 
 #### Real Implementation Location
-- **Directory**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/core/orchestrator/`
+- **Directory**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/core/orchestrator/`
 - **Files** (30+ Python modules):
   - `core.py` - Main orchestrator logic & data models
   - `choreographer.py` - Single micro-question execution
@@ -82,12 +82,12 @@ The system uses **compatibility shims** for backward compatibility while consoli
 
 #### Compatibility Shim Layer
 - **Directory**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/orchestrator/`
-- **Files**: Thin wrappers redirecting to real implementation in `src/saaaaaa/core/orchestrator/`
+- **Files**: Thin wrappers redirecting to real implementation in `src/farfan_core/core/orchestrator/`
 
 ### Core Orchestrator Classes
 
 #### Orchestrator (Main)
-- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/core/orchestrator/core.py`
+- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/core/orchestrator/core.py`
 - **Data Models**:
   - `PreprocessedDocument` - Input document with chunks and metadata
   - `PhaseResult` - Result from each orchestration phase
@@ -95,7 +95,7 @@ The system uses **compatibility shims** for backward compatibility while consoli
   - `AbortSignal` / `AbortRequested` - Execution control
 
 #### Choreographer (Micro-Question Executor)
-- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/core/orchestrator/choreographer.py`
+- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/core/orchestrator/choreographer.py`
 - **Key Classes**:
   - `Choreographer` - Facade exposing micro-question orchestration helpers
   - `FlowController` - Deterministic execution plan construction
@@ -113,7 +113,7 @@ The system uses **compatibility shims** for backward compatibility while consoli
 - **Method**: `identify_parallel_branches(plan) -> List[List[DAGNode]]`
 
 ### Advanced Executors
-- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/core/orchestrator/executors.py`
+- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/core/orchestrator/executors.py`
 - **Features** (Advanced Paradigms):
   1. Quantum Optimization - Path selection when num_methods >= 3
   2. Neuromorphic Computing - Adaptive data flow processing
@@ -126,7 +126,7 @@ The system uses **compatibility shims** for backward compatibility while consoli
   9. Probabilistic Programming - Uncertainty quantification
 
 ### Argument Routing
-- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/core/orchestrator/arg_router.py`
+- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/core/orchestrator/arg_router.py`
 - **Class**: `ExtendedArgRouter`
 - **Features**:
   - 30+ special route handlers for common methods
@@ -139,7 +139,7 @@ The system uses **compatibility shims** for backward compatibility while consoli
 ## 3. QUESTIONNAIRE STRUCTURE & INTEGRITY
 
 ### Questionnaire Integrity Module
-- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/core/orchestrator/questionnaire.py`
+- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/core/orchestrator/questionnaire.py`
 - **Canonical Loader**: `load_questionnaire() -> CanonicalQuestionnaire`
 - **Integrity Rules** (Enforcement Protocol):
   1. **ONE PATH**: questionnaire_monolith.json at `/data/questionnaire_monolith.json`
@@ -174,13 +174,13 @@ Each question contains:
     - `priority`: Priority level (CRITICO=3, IMPORTANTE=2, COMPLEMENTARIO=1)
 
 ### Signal Extraction & Loading
-- **File**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/core/orchestrator/signal_loader.py`
+- **File**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/core/orchestrator/signal_loader.py`
 - **Purpose**: Extract ~2200 patterns from 300 micro_questions
 - **Grouping**: By policy_area_id (PA01-PA10)
 - **Output**: SignalPack objects with fingerprints
 
 ### Signal Consumption Tracking
-- **File**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/core/orchestrator/signal_consumption.py`
+- **File**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/core/orchestrator/signal_consumption.py`
 - **Class**: `SignalConsumptionProof`
 - **Features**:
   - Hash chain tracking of pattern matches
@@ -193,36 +193,36 @@ Each question contains:
 ## 4. EXECUTORS & EXECUTOR DISCOVERY
 
 ### Class Registry (Dynamic Loader)
-- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/core/orchestrator/class_registry.py`
+- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/core/orchestrator/class_registry.py`
 - **Function**: `build_class_registry() -> dict[str, type[object]]`
 - **Discovers** 38 executor classes from:
-  - `saaaaaa.processing.*` (policy processors, analyzers)
-  - `saaaaaa.analysis.*` (semantic, causal, financial analyzers)
+  - `farfan_core.processing.*` (policy processors, analyzers)
+  - `farfan_core.analysis.*` (semantic, causal, financial analyzers)
 
 ### Registered Executor Classes (Sample)
 ```python
 _CLASS_PATHS = {
     # Processing module
-    "IndustrialPolicyProcessor": "saaaaaa.processing.policy_processor...",
-    "BayesianEvidenceScorer": "saaaaaa.processing.policy_processor...",
-    "AdvancedSemanticChunker": "saaaaaa.processing.embedding_policy...",
+    "IndustrialPolicyProcessor": "farfan_core.processing.policy_processor...",
+    "BayesianEvidenceScorer": "farfan_core.processing.policy_processor...",
+    "AdvancedSemanticChunker": "farfan_core.processing.embedding_policy...",
     
     # Analysis module
-    "PolicyContradictionDetector": "saaaaaa.analysis.contradiction_deteccion...",
-    "CausalExtractor": "saaaaaa.analysis.dereck_beach...",
-    "TeoriaCambio": "saaaaaa.analysis.teoria_cambio...",
-    "SemanticAnalyzer": "saaaaaa.analysis.Analyzer_one...",
+    "PolicyContradictionDetector": "farfan_core.analysis.contradiction_deteccion...",
+    "CausalExtractor": "farfan_core.analysis.dereck_beach...",
+    "TeoriaCambio": "farfan_core.analysis.teoria_cambio...",
+    "SemanticAnalyzer": "farfan_core.analysis.Analyzer_one...",
     # ... 30+ more
 }
 ```
 
 ### Executor Configuration
-- **File**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/core/orchestrator/executor_config.py`
+- **File**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/core/orchestrator/executor_config.py`
 - **Class**: `ExecutorConfig`
 - **Default**: `CONSERVATIVE_CONFIG` for safe execution
 
 ### Chunk Routing
-- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/saaaaaa/core/orchestrator/chunk_router.py`
+- **Location**: `/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/src/farfan_core/core/orchestrator/chunk_router.py`
 - **Class**: `ChunkRouter`
 - **Routing Table** (ChunkType → Executor slots):
   - `diagnostic` → [D1Q1, D1Q2, D1Q5]
@@ -272,7 +272,7 @@ _CLASS_PATHS = {
 ┌─────────────────────────────────────────────────────────────────┐
 │     CONVERSION: SmartChunk → CanonPolicyPackage                │
 │                                                                  │
-│  SmartChunkConverter (src/saaaaaa/processing/spc_ingestion/)   │
+│  SmartChunkConverter (src/farfan_core/processing/spc_ingestion/)   │
 │  Method: convert_to_canon_package()                            │
 │                                                                  │
 │  Transformation:                                               │
@@ -294,7 +294,7 @@ _CLASS_PATHS = {
 │      ADAPTATION: CanonPolicyPackage → PreprocessedDocument     │
 │                                                                  │
 │  SPCAdapter / adapt_spc_to_orchestrator()                      │
-│  Location: src/saaaaaa/utils/spc_adapter.py                   │
+│  Location: src/farfan_core/utils/spc_adapter.py                   │
 │                                                                  │
 │  Transforms for orchestrator consumption:                      │
 │  - Orders chunks by text_span.start (deterministic)           │
@@ -313,7 +313,7 @@ _CLASS_PATHS = {
 │           PHASE 2: ORCHESTRATOR INITIALIZATION                  │
 │                                                                  │
 │  Orchestrator.__init__(document: PreprocessedDocument)         │
-│  Location: src/saaaaaa/core/orchestrator/core.py              │
+│  Location: src/farfan_core/core/orchestrator/core.py              │
 │                                                                  │
 │  Setup:                                                        │
 │  1. Load questionnaire_monolith.json via load_questionnaire() │
@@ -442,7 +442,7 @@ ExtendedArgRouter.route_arguments(payload, method_spec)
 ### Root Level Organization
 ```
 /home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE/
-├── src/saaaaaa/                          [CANONICAL IMPLEMENTATION]
+├── src/farfan_core/                          [CANONICAL IMPLEMENTATION]
 │   ├── core/
 │   │   ├── orchestrator/                 [30+ orchestrator modules]
 │   │   │   ├── core.py                   (orchestrator main logic)
@@ -626,7 +626,7 @@ class QuestionResult:
 ### 1. Deterministic Execution (Quantum-Inspired)
 - **Purpose**: Reproducible results for same (policy_unit_id, correlation_id)
 - **Implementation**: DeterministicSeeds with numpy + Python random seeding
-- **Location**: src/saaaaaa/core/orchestrator/executors.py (QuantumState class)
+- **Location**: src/farfan_core/core/orchestrator/executors.py (QuantumState class)
 
 ### 2. Circuit Breaker Pattern
 - **Purpose**: Fault isolation in concurrent execution
@@ -641,7 +641,7 @@ class QuestionResult:
 ### 4. Evidence Registry
 - **Purpose**: Track all collected evidence from methods
 - **Feature**: Hash chain and Merkle tree verification
-- **Location**: src/saaaaaa/core/orchestrator/evidence_registry.py
+- **Location**: src/farfan_core/core/orchestrator/evidence_registry.py
 
 ### 5. Signal Pattern Matching
 - **Type**: ~2200 regex patterns from questionnaire
@@ -780,13 +780,13 @@ tests/
 ## QUICK REFERENCE: Key Files to Know
 
 1. **SPC Entry**: `scripts/smart_policy_chunks_canonic_phase_one.py`
-2. **SPC Conversion**: `src/saaaaaa/processing/spc_ingestion/converter.py`
-3. **SPC→Orchestrator**: `src/saaaaaa/utils/spc_adapter.py`
-4. **Orchestrator Core**: `src/saaaaaa/core/orchestrator/core.py`
-5. **Question Executor**: `src/saaaaaa/core/orchestrator/choreographer.py`
-6. **Questionnaire**: `src/saaaaaa/core/orchestrator/questionnaire.py`
-7. **Executor Registry**: `src/saaaaaa/core/orchestrator/class_registry.py`
-8. **Argument Router**: `src/saaaaaa/core/orchestrator/arg_router.py`
-9. **Chunk Router**: `src/saaaaaa/core/orchestrator/chunk_router.py`
-10. **Causal Bridge**: `src/saaaaaa/analysis/spc_causal_bridge.py`
+2. **SPC Conversion**: `src/farfan_core/processing/spc_ingestion/converter.py`
+3. **SPC→Orchestrator**: `src/farfan_core/utils/spc_adapter.py`
+4. **Orchestrator Core**: `src/farfan_core/core/orchestrator/core.py`
+5. **Question Executor**: `src/farfan_core/core/orchestrator/choreographer.py`
+6. **Questionnaire**: `src/farfan_core/core/orchestrator/questionnaire.py`
+7. **Executor Registry**: `src/farfan_core/core/orchestrator/class_registry.py`
+8. **Argument Router**: `src/farfan_core/core/orchestrator/arg_router.py`
+9. **Chunk Router**: `src/farfan_core/core/orchestrator/chunk_router.py`
+10. **Causal Bridge**: `src/farfan_core/analysis/spc_causal_bridge.py`
 

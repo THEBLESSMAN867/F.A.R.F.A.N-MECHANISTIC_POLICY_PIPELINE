@@ -19,12 +19,12 @@ import pytest
 pytestmark = pytest.mark.skip(reason="obsolete - calibration_registry API refactored, see tests/calibration/")
 
 # Old imports (no longer valid):
-# from saaaaaa.core.orchestrator.calibration_registry import (
+# from farfan_core.core.orchestrator.calibration_registry import (
 #     get_calibration_hash,
 #     CALIBRATION_VERSION,
 #     resolve_calibration,
 # )
-# from saaaaaa.core.orchestrator.executor_config import ExecutorConfig
+# from farfan_core.core.orchestrator.executor_config import ExecutorConfig
 
 
 class TestCalibrationVersioning:
@@ -145,7 +145,7 @@ class TestCalibrationStability:
     
     def test_calibration_immutability(self):
         """Verify MethodCalibration is immutable (frozen dataclass)."""
-        from saaaaaa.core.orchestrator.calibration_registry import MethodCalibration
+        from farfan_core.core.orchestrator.calibration_registry import MethodCalibration
         
         calib = MethodCalibration(
             score_min=0.0,
@@ -171,7 +171,7 @@ class TestCalibrationContextDeterminism:
     
     def test_context_resolution_deterministic(self):
         """Verify context-aware calibration resolution is deterministic."""
-        from saaaaaa.core.orchestrator.calibration_registry import resolve_calibration_with_context
+        from farfan_core.core.orchestrator.calibration_registry import resolve_calibration_with_context
         
         # Same inputs should yield same calibration
         calib1 = resolve_calibration_with_context(
@@ -199,7 +199,7 @@ class TestCalibrationContextDeterminism:
     
     def test_context_changes_yield_different_calibrations(self):
         """Verify different contexts yield different calibrations."""
-        from saaaaaa.core.orchestrator.calibration_registry import resolve_calibration_with_context
+        from farfan_core.core.orchestrator.calibration_registry import resolve_calibration_with_context
         
         # D1 vs D9 should have different modifiers
         calib_d1 = resolve_calibration_with_context(
@@ -225,7 +225,7 @@ class TestCalibrationDocumentation:
     
     def test_calibration_context_has_document_type(self):
         """Verify CalibrationContext includes document_type dimension."""
-        from saaaaaa.core.orchestrator.calibration_context import CalibrationContext, DocumentType
+        from farfan_core.core.orchestrator.calibration_context import CalibrationContext, DocumentType
         
         context = CalibrationContext(
             question_id="D1Q1",
@@ -238,7 +238,7 @@ class TestCalibrationDocumentation:
     
     def test_document_type_enum_exists(self):
         """Verify DocumentType enum is defined."""
-        from saaaaaa.core.orchestrator.calibration_context import DocumentType
+        from farfan_core.core.orchestrator.calibration_context import DocumentType
         
         # Verify expected document types
         assert hasattr(DocumentType, "PLAN_DESARROLLO_MUNICIPAL")
@@ -247,7 +247,7 @@ class TestCalibrationDocumentation:
     
     def test_document_type_modifiers_exist(self):
         """Verify document type modifiers are defined."""
-        from saaaaaa.core.orchestrator import calibration_context
+        from farfan_core.core.orchestrator import calibration_context
         
         # Internal variable should exist
         assert hasattr(calibration_context, "_DOCUMENT_TYPE_MODIFIERS")

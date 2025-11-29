@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from saaaaaa.core.orchestrator.arg_router import ExtendedArgRouter
+from farfan_core.core.orchestrator.arg_router import ExtendedArgRouter
 from scripts.report_routing_metrics import format_metrics_report, report_metrics
 
 
@@ -138,7 +138,7 @@ def test_metrics_json_roundtrip():
 def test_method_executor_metrics_integration():
     """Test that MethodExecutor exposes metrics from ExtendedArgRouter."""
     try:
-        from saaaaaa.core.orchestrator.core import MethodExecutor
+        from farfan_core.core.orchestrator.core import MethodExecutor
     except (ImportError, SystemExit) as e:
         pytest.skip(f"MethodExecutor import failed (missing dependencies): {e}")
     

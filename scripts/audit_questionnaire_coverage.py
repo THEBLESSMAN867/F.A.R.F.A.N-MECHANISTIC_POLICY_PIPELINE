@@ -28,7 +28,7 @@ sys.path.append(str(Path(__file__).parent.parent / "src"))
 PROJECT_ROOT = Path(__file__).parent.parent.resolve()
 MONOLITH_PATH = PROJECT_ROOT / "data" / "questionnaire_monolith.json"
 CONTRACTS_DIR = PROJECT_ROOT / "config" / "executor_contracts"
-CLASS_REGISTRY_PATH = PROJECT_ROOT / "src" / "saaaaaa" / "core" / "orchestrator" / "class_registry.py"
+CLASS_REGISTRY_PATH = PROJECT_ROOT / "src" / "farfan_core" / "core" / "orchestrator" / "class_registry.py"
 OUTPUT_DIR = PROJECT_ROOT / "artifacts" / "audit"
 AUDIT_MANIFEST_PATH = OUTPUT_DIR / "audit_manifest.json"
 

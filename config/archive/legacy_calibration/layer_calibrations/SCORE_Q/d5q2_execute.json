@@ -8,7 +8,7 @@
     "warning": "These are placeholder scores. Must be replaced with actual computed values via CalibrationOrchestrator."
   },
   "role": "SCORE_Q",
-  "canonical_name": "src.saaaaaa.core.orchestrator.executors.D5Q2_Executor.execute",
+  "canonical_name": "src.farfan_core.core.orchestrator.executors.D5Q2_Executor.execute",
   "required_layers": [
     "@b",
     "@u",

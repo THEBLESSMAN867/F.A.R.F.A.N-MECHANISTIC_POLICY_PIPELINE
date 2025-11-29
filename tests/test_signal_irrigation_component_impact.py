@@ -22,8 +22,8 @@ from typing import Any
 
 import pytest
 
-from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
-from saaaaaa.core.orchestrator.signal_registry import create_signal_registry
+from farfan_core.core.orchestrator.questionnaire import load_questionnaire
+from farfan_core.core.orchestrator.signal_registry import create_signal_registry
 
 # Sample policy texts for each component
 POLICY_TEXT_CHUNKING = """

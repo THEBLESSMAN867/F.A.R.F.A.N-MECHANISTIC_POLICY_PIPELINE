@@ -32,8 +32,8 @@ SmartPolicyChunk {
 
 | Step | Class | Location | Transforms To |
 |------|-------|----------|----------------|
-| 1 | `SmartChunkConverter` | `src/saaaaaa/processing/spc_ingestion/converter.py` | `CanonPolicyPackage` |
-| 2 | `SPCAdapter` | `src/saaaaaa/utils/spc_adapter.py` | `PreprocessedDocument` |
+| 1 | `SmartChunkConverter` | `src/farfan_core/processing/spc_ingestion/converter.py` | `CanonPolicyPackage` |
+| 2 | `SPCAdapter` | `src/farfan_core/utils/spc_adapter.py` | `PreprocessedDocument` |
 
 ### Chunk Type → Resolution Mapping
 - DIAGNOSTICO, NORMATIVO, EVALUACION, MIXTO → **MESO**
@@ -46,10 +46,10 @@ SmartPolicyChunk {
 
 | Component | Purpose | Location |
 |-----------|---------|----------|
-| **Orchestrator** | Main engine | `src/saaaaaa/core/orchestrator/core.py` |
+| **Orchestrator** | Main engine | `src/farfan_core/core/orchestrator/core.py` |
 | **(Deprecated) Choreographer** | Legacy facade REMOVED in Q4 2025 | _removed_ |
-| **FlowController** | DAG builder (handled inside orchestrator executors) | `src/saaaaaa/core/orchestrator/executors.py` |
-| **ExtendedArgRouter** | Method invoker | `src/saaaaaa/core/orchestrator/arg_router.py` |
+| **FlowController** | DAG builder (handled inside orchestrator executors) | `src/farfan_core/core/orchestrator/executors.py` |
+| **ExtendedArgRouter** | Method invoker | `src/farfan_core/core/orchestrator/arg_router.py` |
 
 ### Execution Flow per Question (305 total)
 ```
@@ -107,8 +107,8 @@ Return QuestionResult
 
 | Registry | Location | Count |
 |----------|----------|-------|
-| **Class Registry** | `src/saaaaaa/core/orchestrator/class_registry.py` | 38+ classes |
-| **Configuration** | `src/saaaaaa/core/orchestrator/executor_config.py` | CONSERVATIVE_CONFIG |
+| **Class Registry** | `src/farfan_core/core/orchestrator/class_registry.py` | 38+ classes |
+| **Configuration** | `src/farfan_core/core/orchestrator/executor_config.py` | CONSERVATIVE_CONFIG |
 
 ### Sample Registered Executors
 - `IndustrialPolicyProcessor` - Policy analysis
@@ -117,7 +117,7 @@ Return QuestionResult
 - `TeoriaCambio` - Theory of change analysis
 - `SemanticAnalyzer` - Semantic analysis
 - `PolicyContradictionDetector` - Contradiction detection
-- (30+ more from `saaaaaa.processing` and `saaaaaa.analysis`)
+- (30+ more from `farfan_core.processing` and `farfan_core.analysis`)
 
 ---
 
@@ -163,7 +163,7 @@ Return QuestionResult
 ## Directory Map (Canonical Locations)
 
 ```
-src/saaaaaa/core/orchestrator/          [30+ modules - THE REAL IMPLEMENTATION]
+src/farfan_core/core/orchestrator/          [30+ modules - THE REAL IMPLEMENTATION]
   ├── core.py                            Main orchestrator
   ├── choreographer.py                   Question execution
   ├── executors.py                       Advanced executors
@@ -174,19 +174,19 @@ src/saaaaaa/core/orchestrator/          [30+ modules - THE REAL IMPLEMENTATION]
   ├── class_registry.py                  Executor discovery
   └── [20+ supporting modules]
 
-src/saaaaaa/processing/spc_ingestion/   [SPC conversion layer]
+src/farfan_core/processing/spc_ingestion/   [SPC conversion layer]
   ├── __init__.py                        CPPIngestionPipeline
   ├── converter.py                       SmartChunkConverter
   ├── quality_gates.py
   └── structural.py
 
-src/saaaaaa/utils/                       [Adapters & utilities]
+src/farfan_core/utils/                       [Adapters & utilities]
   ├── spc_adapter.py                     SPC→PreprocessedDocument
   ├── cpp_adapter.py                     Backward compatibility
 
 orchestrator/                            [COMPATIBILITY SHIMS - Not the real thing!]
   ├── __init__.py
-  └── [Thin wrappers to src/saaaaaa/core/orchestrator/]
+  └── [Thin wrappers to src/farfan_core/core/orchestrator/]
 ```
 
 ---
@@ -223,7 +223,7 @@ Final Assessment Report
 
 ### 1. Questionnaire Loading
 ```python
-from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
+from farfan_core.core.orchestrator.questionnaire import load_questionnaire
 
 q = load_questionnaire()  # ONLY way to load
 # Returns CanonicalQuestionnaire with:
@@ -234,8 +234,8 @@ q = load_questionnaire()  # ONLY way to load
 
 ### 2. Executing a Question
 ```python
-from saaaaaa.core.orchestrator.core import Orchestrator
-from saaaaaa.processing.document_ingestion import ingest_document
+from farfan_core.core.orchestrator.core import Orchestrator
+from farfan_core.processing.document_ingestion import ingest_document
 
 doc = ingest_document(pdf_path="plan.pdf")
 orchestrator = Orchestrator()
@@ -245,7 +245,7 @@ results = orchestrator.process_development_plan(doc)
 
 ### 3. Routing Arguments to Method
 ```python
-from saaaaaa.core.orchestrator.arg_router import ExtendedArgRouter
+from farfan_core.core.orchestrator.arg_router import ExtendedArgRouter
 
 router = ExtendedArgRouter()
 router.route_arguments(
@@ -257,7 +257,7 @@ router.route_arguments(
 
 ### 4. Routing Chunks to Executors
 ```python
-from saaaaaa.core.orchestrator.chunk_router import ChunkRouter
+from farfan_core.core.orchestrator.chunk_router import ChunkRouter
 
 router = ChunkRouter()
 route = router.route_chunk(chunk)
@@ -271,16 +271,16 @@ route = router.route_chunk(chunk)
 ### Must-Read (In Order)
 1. `PROJECT_STRUCTURE.md` - Repository organization
 2. `ARCHITECTURE_REFACTORING.md` - Hexagonal architecture principles
-3. `src/saaaaaa/core/orchestrator/questionnaire.py` - Questionnaire integrity
-4. `src/saaaaaa/core/orchestrator/choreographer.py` - Question execution
-5. `src/saaaaaa/processing/spc_ingestion/converter.py` - SPC→Canon conversion
-6. `src/saaaaaa/utils/spc_adapter.py` - Canon→Orchestrator adaptation
+3. `src/farfan_core/core/orchestrator/questionnaire.py` - Questionnaire integrity
+4. `src/farfan_core/core/orchestrator/choreographer.py` - Question execution
+5. `src/farfan_core/processing/spc_ingestion/converter.py` - SPC→Canon conversion
+6. `src/farfan_core/utils/spc_adapter.py` - Canon→Orchestrator adaptation
 
 ### Advanced Topics
-- `src/saaaaaa/core/orchestrator/executors.py` - Advanced paradigms
-- `src/saaaaaa/core/orchestrator/arg_router.py` - Argument routing (30+ routes)
-- `src/saaaaaa/analysis/spc_causal_bridge.py` - SPC causal analysis
-- `src/saaaaaa/core/orchestrator/class_registry.py` - Executor discovery
+- `src/farfan_core/core/orchestrator/executors.py` - Advanced paradigms
+- `src/farfan_core/core/orchestrator/arg_router.py` - Argument routing (30+ routes)
+- `src/farfan_core/analysis/spc_causal_bridge.py` - SPC causal analysis
+- `src/farfan_core/core/orchestrator/class_registry.py` - Executor discovery
 
 ---
 
@@ -288,9 +288,9 @@ route = router.route_chunk(chunk)
 
 ```python
 # Minimal test
-from saaaaaa.processing.spc_ingestion import StrategicChunkingSystem
-from saaaaaa.utils.spc_adapter import adapt_spc_to_orchestrator
-from saaaaaa.core.orchestrator import Orchestrator
+from farfan_core.processing.spc_ingestion import StrategicChunkingSystem
+from farfan_core.utils.spc_adapter import adapt_spc_to_orchestrator
+from farfan_core.core.orchestrator import Orchestrator
 
 # Phase 1: Chunk
 scs = StrategicChunkingSystem()

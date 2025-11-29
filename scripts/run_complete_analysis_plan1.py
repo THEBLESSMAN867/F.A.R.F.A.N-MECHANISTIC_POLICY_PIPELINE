@@ -23,13 +23,13 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from saaaaaa.utils.paths import data_dir
-from saaaaaa.processing.spc_ingestion import CPPIngestionPipeline  # Updated to SPC ingestion
-from saaaaaa.utils.spc_adapter import SPCAdapter
-from saaaaaa.core.orchestrator import Orchestrator
-from saaaaaa.core.orchestrator.factory import build_processor
-from saaaaaa.processing.cpp_ingestion.models import CanonPolicyPackage
-from saaaaaa.utils.proof_generator import (
+from farfan_core.utils.paths import data_dir
+from farfan_core.processing.spc_ingestion import CPPIngestionPipeline  # Updated to SPC ingestion
+from farfan_core.utils.spc_adapter import SPCAdapter
+from farfan_core.core.orchestrator import Orchestrator
+from farfan_core.core.orchestrator.factory import build_processor
+from farfan_core.processing.cpp_ingestion.models import CanonPolicyPackage
+from farfan_core.utils.proof_generator import (
     ProofData,
     compute_code_signatures,
     compute_dict_hash,
@@ -38,9 +38,9 @@ from saaaaaa.utils.proof_generator import (
     generate_proof,
     collect_artifacts_manifest,
 )
-from saaaaaa.core.runtime_config import RuntimeConfig
-from saaaaaa.core.boot_checks import run_boot_checks, get_boot_check_summary, BootCheckError
-from saaaaaa.core.observability.structured_logging import log_runtime_config_loaded
+from farfan_core.core.runtime_config import RuntimeConfig
+from farfan_core.core.boot_checks import run_boot_checks, get_boot_check_summary, BootCheckError
+from farfan_core.core.observability.structured_logging import log_runtime_config_loaded
 
 
 def load_cpp_from_directory(cpp_dir: Path) -> CanonPolicyPackage:
@@ -56,7 +56,7 @@ def load_cpp_from_directory(cpp_dir: Path) -> CanonPolicyPackage:
     import json
     import pyarrow as pa
     import pyarrow.ipc as ipc
-    from saaaaaa.processing.cpp_ingestion.models import (
+    from farfan_core.processing.cpp_ingestion.models import (
         CanonPolicyPackage,
         ChunkGraph,
         IntegrityIndex,
@@ -116,7 +116,7 @@ def load_cpp_from_directory(cpp_dir: Path) -> CanonPolicyPackage:
     
     # Create chunks from content stream
     # Since chunk_graph isn't saved separately, we reconstruct minimal chunks from content_stream
-    from saaaaaa.processing.cpp_ingestion.models import (
+    from farfan_core.processing.cpp_ingestion.models import (
         Chunk, ChunkResolution, TextSpan, Confidence,
         PolicyFacet, TimeFacet, GeoFacet
     )
@@ -404,7 +404,7 @@ async def main():
                 print("  🔄 Collecting proof data...")
                 
                 # Compute code signatures
-                src_root = Path(__file__).parent / "src" / "saaaaaa"
+                src_root = Path(__file__).parent / "src" / "farfan_core"
                 code_signatures = compute_code_signatures(src_root)
                 print(f"  ✅ Code signatures: {list(code_signatures.keys())}")
                 

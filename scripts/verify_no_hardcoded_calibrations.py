@@ -62,7 +62,7 @@ EXCLUDE_FILES = [
 
 # Directories to scan
 SCAN_DIRS = [
-    PROJECT_ROOT / "src" / "saaaaaa" / "core" / "calibration"
+    PROJECT_ROOT / "src" / "farfan_core" / "core" / "calibration"
 ]
 
 

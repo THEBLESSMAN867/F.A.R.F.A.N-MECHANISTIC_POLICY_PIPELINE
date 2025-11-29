@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 from enum import Enum
 
-from saaaaaa.processing.cpp_ingestion.models import (
+from farfan_core.processing.cpp_ingestion.models import (
     CanonPolicyPackage,
     ChunkGraph,
     Chunk,
@@ -27,8 +27,8 @@ from saaaaaa.processing.cpp_ingestion.models import (
     GeoFacet,
     Confidence,
 )
-from saaaaaa.processing.spc_ingestion.converter import SmartChunkConverter
-from saaaaaa.core.orchestrator.core import PreprocessedDocument
+from farfan_core.processing.spc_ingestion.converter import SmartChunkConverter
+from farfan_core.core.orchestrator.core import PreprocessedDocument
 
 
 # Mock SmartPolicyChunk for testing (simplified version)

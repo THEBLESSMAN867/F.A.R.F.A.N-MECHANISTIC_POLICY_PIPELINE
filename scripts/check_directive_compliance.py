@@ -64,7 +64,7 @@ class DirectiveComplianceChecker:
     
     def _load_calibration_registry(self) -> str:
         """Load calibration registry source code."""
-        registry_path = self.repo_root / "src" / "saaaaaa" / "core" / "orchestrator" / "calibration_registry.py"
+        registry_path = self.repo_root / "src" / "farfan_core" / "core" / "orchestrator" / "calibration_registry.py"
         if not registry_path.exists():
             return ""
         

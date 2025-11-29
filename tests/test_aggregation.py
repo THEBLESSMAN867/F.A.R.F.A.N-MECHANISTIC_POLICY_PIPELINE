@@ -23,7 +23,7 @@ from typing import Any
 
 import pytest
 
-from saaaaaa.core.aggregation import (
+from farfan_core.core.aggregation import (
     AreaPolicyAggregator,
     AreaScore,
     ClusterAggregator,
@@ -164,7 +164,7 @@ def _build_weighted_monolith() -> dict[str, Any]:
 # VALIDATION TESTS
 # ============================================================================
 
-from saaaaaa.processing.aggregation import validate_scored_results, ValidationError, run_aggregation_pipeline
+from farfan_core.processing.aggregation import validate_scored_results, ValidationError, run_aggregation_pipeline
 
 def test_run_aggregation_pipeline(minimal_monolith):
     """Test the high-level aggregation pipeline orchestrator."""

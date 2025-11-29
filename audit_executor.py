@@ -2,14 +2,14 @@
 import ast
 import json
 import re
-from src.saaaaaa.core.orchestrator.method_source_validator import MethodSourceValidator
+from src.farfan_core.core.orchestrator.method_source_validator import MethodSourceValidator
 
 def audit_executor_methods(executor_class_name: str):
     """
     Parses the docstring of an executor class, validates its declared methods,
     and prints a report.
     """
-    with open("src/saaaaaa/core/orchestrator/executors.py", "r", encoding="utf-8") as f:
+    with open("src/farfan_core/core/orchestrator/executors.py", "r", encoding="utf-8") as f:
         source_code = f.read()
 
     tree = ast.parse(source_code)

@@ -5,7 +5,7 @@ import pytest
 
 def test_dimension_aggregator_without_monolith():
     """Test DimensionAggregator can be instantiated without monolith."""
-    from saaaaaa.processing.aggregation import DimensionAggregator
+    from farfan_core.processing.aggregation import DimensionAggregator
     
     # Should not raise error
     aggregator = DimensionAggregator(monolith=None)
@@ -15,7 +15,7 @@ def test_dimension_aggregator_without_monolith():
 
 def test_area_policy_aggregator_without_monolith():
     """Test AreaPolicyAggregator can be instantiated without monolith."""
-    from saaaaaa.processing.aggregation import AreaPolicyAggregator
+    from farfan_core.processing.aggregation import AreaPolicyAggregator
     
     # Should not raise error
     aggregator = AreaPolicyAggregator(monolith=None)
@@ -25,7 +25,7 @@ def test_area_policy_aggregator_without_monolith():
 
 def test_cluster_aggregator_without_monolith():
     """Test ClusterAggregator can be instantiated without monolith."""
-    from saaaaaa.processing.aggregation import ClusterAggregator
+    from farfan_core.processing.aggregation import ClusterAggregator
     
     # Should not raise error
     aggregator = ClusterAggregator(monolith=None)
@@ -35,7 +35,7 @@ def test_cluster_aggregator_without_monolith():
 
 def test_macro_aggregator_without_monolith():
     """Test MacroAggregator can be instantiated without monolith."""
-    from saaaaaa.processing.aggregation import MacroAggregator
+    from farfan_core.processing.aggregation import MacroAggregator
     
     # Should not raise error
     aggregator = MacroAggregator(monolith=None)
@@ -45,7 +45,7 @@ def test_macro_aggregator_without_monolith():
 
 def test_aggregators_with_monolith():
     """Test aggregators work with monolith provided."""
-    from saaaaaa.processing.aggregation import DimensionAggregator
+    from farfan_core.processing.aggregation import DimensionAggregator
     
     # Minimal monolith structure
     monolith = {

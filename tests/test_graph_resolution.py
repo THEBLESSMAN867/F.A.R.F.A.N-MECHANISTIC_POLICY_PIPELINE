@@ -15,8 +15,8 @@ except ImportError:
 @pytest.mark.skipif(not HAS_NETWORKX, reason="NetworkX not installed")
 def test_create_empty_graph():
     """Test that _create_empty_graph returns a DiGraph."""
-    from saaaaaa.core.orchestrator.executors import AdvancedDataFlowExecutor
-    from saaaaaa.core.orchestrator.core import MethodExecutor
+    from farfan_core.core.orchestrator.executors import AdvancedDataFlowExecutor
+    from farfan_core.core.orchestrator.core import MethodExecutor
     
     executor = MethodExecutor()
     adv_executor = AdvancedDataFlowExecutor(executor)
@@ -31,8 +31,8 @@ def test_create_empty_graph():
 @pytest.mark.skipif(not HAS_NETWORKX, reason="NetworkX not installed")
 def test_graph_resolution_when_absent():
     """Test that graph resolution returns empty DiGraph when graph is absent."""
-    from saaaaaa.core.orchestrator.executors import AdvancedDataFlowExecutor
-    from saaaaaa.core.orchestrator.core import MethodExecutor
+    from farfan_core.core.orchestrator.executors import AdvancedDataFlowExecutor
+    from farfan_core.core.orchestrator.core import MethodExecutor
     
     executor = MethodExecutor()
     adv_executor = AdvancedDataFlowExecutor(executor)
@@ -60,8 +60,8 @@ def test_graph_resolution_when_absent():
 @pytest.mark.skipif(not HAS_NETWORKX, reason="NetworkX not installed")
 def test_graph_resolution_when_present():
     """Test that graph resolution returns existing graph when present in context."""
-    from saaaaaa.core.orchestrator.executors import AdvancedDataFlowExecutor
-    from saaaaaa.core.orchestrator.core import MethodExecutor
+    from farfan_core.core.orchestrator.executors import AdvancedDataFlowExecutor
+    from farfan_core.core.orchestrator.core import MethodExecutor
     
     executor = MethodExecutor()
     adv_executor = AdvancedDataFlowExecutor(executor)
@@ -95,8 +95,8 @@ def test_create_empty_graph_no_networkx():
     if HAS_NETWORKX:
         pytest.skip("NetworkX is installed")
     
-    from saaaaaa.core.orchestrator.executors import AdvancedDataFlowExecutor
-    from saaaaaa.core.orchestrator.core import MethodExecutor
+    from farfan_core.core.orchestrator.executors import AdvancedDataFlowExecutor
+    from farfan_core.core.orchestrator.core import MethodExecutor
     
     executor = MethodExecutor()
     adv_executor = AdvancedDataFlowExecutor(executor)

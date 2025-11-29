@@ -21,7 +21,7 @@ from collections import defaultdict
 # Add src to path
 repo_root = Path(__file__).parent.parent
 
-from saaaaaa.core.orchestrator.calibration_registry import CALIBRATIONS
+from farfan_core.core.orchestrator.calibration_registry import CALIBRATIONS
 
 
 def main():

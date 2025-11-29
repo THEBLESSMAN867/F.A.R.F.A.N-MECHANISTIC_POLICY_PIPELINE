@@ -22,7 +22,7 @@ from typing import Any
 # Add src to path to import internal modules
 sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
 
-from saaaaaa.utils.validation.schema_validator import MonolithSchemaValidator, SchemaInitializationError
+from farfan_core.utils.validation.schema_validator import MonolithSchemaValidator, SchemaInitializationError
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger("validate_monolith")

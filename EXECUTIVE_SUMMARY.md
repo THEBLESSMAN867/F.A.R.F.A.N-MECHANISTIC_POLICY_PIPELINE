@@ -78,33 +78,33 @@ except SystemContractError as e:  # Bad config
 
 ### Infrastructure Created (5 files, 886 lines)
 
-1. `src/saaaaaa/utils/contract_io.py` (220 lines)
+1. `src/farfan_core/utils/contract_io.py` (220 lines)
    - ContractEnvelope with SHA-256 digests
    - Used by ALL 7 phases
 
-2. `src/saaaaaa/utils/determinism_helpers.py` (175 lines)
+2. `src/farfan_core/utils/determinism_helpers.py` (175 lines)
    - Centralized seed management
    - Used by ALL 7 phases + executor
 
-3. `src/saaaaaa/utils/json_logger.py` (218 lines)
+3. `src/farfan_core/utils/json_logger.py` (218 lines)
    - Structured JSON logging
    - Used by ALL 7 phases
 
-4. `src/saaaaaa/utils/domain_errors.py` (114 lines)
+4. `src/farfan_core/utils/domain_errors.py` (114 lines)
    - Exception hierarchy (Data/System)
    - Available for use
 
-5. `src/saaaaaa/utils/flow_adapters.py` (159 lines)
+5. `src/farfan_core/utils/flow_adapters.py` (159 lines)
    - Compatibility helpers
    - Available for use
 
 ### Production Code Modified (2 files, +400 lines)
 
-1. `src/saaaaaa/flux/phases.py` (+268/-80 lines)
+1. `src/farfan_core/flux/phases.py` (+268/-80 lines)
    - ALL 7 phases integrated
    - 100% phase coverage
 
-2. `src/saaaaaa/core/orchestrator/executors.py` (+132/-73 lines)
+2. `src/farfan_core/core/orchestrator/executors.py` (+132/-73 lines)
    - Executor now deterministic
    - All methods reproducible
 
@@ -172,8 +172,8 @@ except SystemContractError as e:  # Bad config
 ## Usage Example
 
 ```python
-from saaaaaa.flux.phases import run_normalize, run_chunk
-from saaaaaa.flux.configs import NormalizeConfig, ChunkConfig
+from farfan_core.flux.phases import run_normalize, run_chunk
+from farfan_core.flux.configs import NormalizeConfig, ChunkConfig
 
 # Initialize with correlation tracking
 policy_unit_id = "Plan-001"

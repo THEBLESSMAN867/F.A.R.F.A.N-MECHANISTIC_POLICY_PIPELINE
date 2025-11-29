@@ -8,7 +8,7 @@ and precedence rules for PROD/DEV/EXPLORATORY modes.
 import os
 import pytest
 
-from saaaaaa.core.runtime_config import (
+from farfan_core.core.runtime_config import (
     RuntimeConfig,
     RuntimeMode,
     ConfigurationError,

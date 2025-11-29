@@ -34,7 +34,7 @@
     {
       "name": "ANALYZER.SemanticAnalyzer.extract_semantic_cube",
       "canonical_id": "ANLZ.SA.extract_cube_v1",
-      "location": "src/saaaaaa/analysis/Analyzer_one.py:148",
+      "location": "src/farfan_core/analysis/Analyzer_one.py:148",
       "role": "inferential",
       "epistemic_nature": "exploratory_diagnostic",
       "description": "Extracts semantic cube from document segments using TF-IDF vectorization and thresholded similarity",
@@ -105,7 +105,7 @@
     {
       "name": "ANALYZER.PerformanceAnalyzer.detect_bottlenecks",
       "canonical_id": "ANLZ.PA.detect_bottleneck_v1",
-      "location": "src/saaaaaa/analysis/Analyzer_one.py:442",
+      "location": "src/farfan_core/analysis/Analyzer_one.py:442",
       "role": "decision",
       "epistemic_nature": "diagnostic_thresholded",
       "description": "Detects bottlenecks in value chain by comparing segment density to threshold",
@@ -161,7 +161,7 @@
     {
       "name": "BAYES.BayesianUpdater.update",
       "canonical_id": "BAYES.BU.update_v1",
-      "location": "src/saaaaaa/analysis/bayesian_multilevel_system.py:270",
+      "location": "src/farfan_core/analysis/bayesian_multilevel_system.py:270",
       "role": "inferential",
       "epistemic_nature": "confirmatory_bayesian",
       "description": "Bayesian belief update using probative test evidence",
@@ -217,7 +217,7 @@
     {
       "name": "BAYES.DispersionEngine.calculate_dispersion_penalty",
       "canonical_id": "BAYES.DE.calc_disp_penalty_v1",
-      "location": "src/saaaaaa/analysis/bayesian_multilevel_system.py:439",
+      "location": "src/farfan_core/analysis/bayesian_multilevel_system.py:439",
       "role": "decision",
       "epistemic_nature": "diagnostic_aggregation",
       "description": "Calculates dispersion penalty from score heterogeneity using CV, max gap, and Gini coefficient",
@@ -288,7 +288,7 @@
     {
       "name": "BAYES.PeerCalibrator.compare_to_peers",
       "canonical_id": "BAYES.PC.compare_peers_v1",
-      "location": "src/saaaaaa/analysis/bayesian_multilevel_system.py:506",
+      "location": "src/farfan_core/analysis/bayesian_multilevel_system.py:506",
       "role": "inferential",
       "epistemic_nature": "comparative_diagnostic",
       "description": "Compares target score to peer distribution using z-score and percentile",
@@ -359,7 +359,7 @@
     {
       "name": "BAYES.BayesianRollUp.aggregate_micro_to_meso",
       "canonical_id": "BAYES.BRU.agg_micro_meso_v1",
-      "location": "src/saaaaaa/analysis/bayesian_multilevel_system.py:628",
+      "location": "src/farfan_core/analysis/bayesian_multilevel_system.py:628",
       "role": "inferential",
       "epistemic_nature": "confirmatory_aggregation",
       "description": "Aggregates micro-level Bayesian analyses to meso-level using weighted mean with penalties",
@@ -430,7 +430,7 @@
     {
       "name": "BAYES.ContradictionScanner.scan_micro_meso",
       "canonical_id": "BAYES.CS.scan_mm_v1",
-      "location": "src/saaaaaa/analysis/bayesian_multilevel_system.py:729",
+      "location": "src/farfan_core/analysis/bayesian_multilevel_system.py:729",
       "role": "diagnostic",
       "epistemic_nature": "coherence_validation",
       "description": "Scans for contradictions between micro and meso levels by detecting large discrepancies",
@@ -486,7 +486,7 @@
     {
       "name": "SCORE.TYPE_A.compute_bayesian_score",
       "canonical_id": "SCORE.TYPE_A.compute_v1",
-      "location": "src/saaaaaa/analysis/scoring/scoring.py:200-300 (estimated)",
+      "location": "src/farfan_core/analysis/scoring/scoring.py:200-300 (estimated)",
       "role": "inferential",
       "epistemic_nature": "confirmatory_scoring",
       "description": "TYPE_A modality: Counts 4 expected evidence elements and assigns score 0-3 based on count",
@@ -557,7 +557,7 @@
     {
       "name": "CALIBR.CalibrationOrchestrator.calibrate",
       "canonical_id": "CALIBR.CO.calibrate_v1",
-      "location": "src/saaaaaa/core/calibration/orchestrator.py:126",
+      "location": "src/farfan_core/core/calibration/orchestrator.py:126",
       "role": "inferential",
       "epistemic_nature": "confirmatory_calibration",
       "description": "Top-level calibration orchestrator integrating 7 layers with Choquet aggregation",
@@ -658,7 +658,7 @@
     {
       "name": "EXEC.QuantumPathOptimizer.optimize_execution_path",
       "canonical_id": "EXEC.QPO.optimize_path_v1",
-      "location": "src/saaaaaa/core/orchestrator/executors.py:500-700 (estimated)",
+      "location": "src/farfan_core/core/orchestrator/executors.py:500-700 (estimated)",
       "role": "utility",
       "epistemic_nature": "computational_optimization",
       "description": "Quantum-inspired optimization for selecting execution paths based on method dependencies",
@@ -714,7 +714,7 @@
     {
       "name": "CAUSAL.CausalExtractor.extract_causal_hierarchy",
       "canonical_id": "CAUSAL.EXTR.extract_hier_v2.1",
-      "location": "src/saaaaaa/analysis/dereck_beach.py:972",
+      "location": "src/farfan_core/analysis/dereck_beach.py:972",
       "role": "inferential",
       "epistemic_nature": "exploratory_extraction",
       "description": "Extracts causal hierarchy (Insumos→Actividades→Productos→Resultados→Impactos) from text using pattern matching",
@@ -807,7 +807,7 @@
     {
       "name": "CAUSAL.BayesianMechanismInference.infer_mechanisms",
       "canonical_id": "CAUSAL.BMI.infer_mech_v1",
-      "location": "src/saaaaaa/analysis/dereck_beach.py:2950-3200 (estimated)",
+      "location": "src/farfan_core/analysis/dereck_beach.py:2950-3200 (estimated)",
       "role": "inferential",
       "epistemic_nature": "confirmatory_causal_inference",
       "description": "Infers causal mechanisms using Bayesian evidential tests (Derek Beach framework)",

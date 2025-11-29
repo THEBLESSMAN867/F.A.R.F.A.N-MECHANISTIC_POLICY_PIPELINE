@@ -315,8 +315,8 @@ def main():
     print()
 
     # Directories to scan
-    calibration_dir = Path("src/saaaaaa/core/calibration")
-    executors_dir = Path("src/saaaaaa/core/orchestrator/executors")
+    calibration_dir = Path("src/farfan_core/core/calibration")
+    executors_dir = Path("src/farfan_core/core/orchestrator/executors")
 
     # Scan
     print("Scanning calibration module...")

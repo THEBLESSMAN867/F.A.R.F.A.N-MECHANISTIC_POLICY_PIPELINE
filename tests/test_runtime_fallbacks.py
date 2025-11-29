@@ -8,8 +8,8 @@ with proper observability (logs and metrics).
 import pytest
 from unittest.mock import patch, MagicMock, call
 
-from saaaaaa.core.runtime_config import RuntimeConfig, RuntimeMode
-from saaaaaa.core.contracts.runtime_contracts import (
+from farfan_core.core.runtime_config import RuntimeConfig, RuntimeMode
+from farfan_core.core.contracts.runtime_contracts import (
     LanguageTier,
     LanguageDetectionInfo,
     SegmentationMethod,
@@ -23,7 +23,7 @@ class TestLanguageDetectionFallbacks:
     
     def test_successful_language_detection(self):
         """Test successful language detection with no fallback."""
-        from saaaaaa.processing.document_ingestion import PreprocessingEngine
+        from farfan_core.processing.document_ingestion import PreprocessingEngine
         
         engine = PreprocessingEngine()
         text = "Este es un documento de prueba en español con suficiente texto para detectar el idioma correctamente."
@@ -37,7 +37,7 @@ class TestLanguageDetectionFallbacks:
     
     def test_insufficient_text_fallback(self):
         """Test fallback when text is too short."""
-        from saaaaaa.processing.document_ingestion import PreprocessingEngine
+        from farfan_core.processing.document_ingestion import PreprocessingEngine
         
         engine = PreprocessingEngine()
         text = "Hola"  # Too short
@@ -49,19 +49,19 @@ class TestLanguageDetectionFallbacks:
         assert lang_info.tier == LanguageTier.WARN_DEFAULT_ES
         assert "Insufficient text" in lang_info.reason
     
-    @patch('saaaaaa.processing.document_ingestion.detect')
+    @patch('farfan_core.processing.document_ingestion.detect')
     def test_langdetect_exception_fallback(self, mock_detect):
         """Test fallback when langdetect raises exception."""
-        from saaaaaa.processing.document_ingestion import PreprocessingEngine
-        from saaaaaa.processing.document_ingestion import LangDetectException
+        from farfan_core.processing.document_ingestion import PreprocessingEngine
+        from farfan_core.processing.document_ingestion import LangDetectException
         
         engine = PreprocessingEngine()
         mock_detect.side_effect = LangDetectException("Detection failed", [])
         
         text = "Some text that will fail detection"
         
-        with patch('saaaaaa.core.observability.structured_logging.log_fallback') as mock_log, \
-             patch('saaaaaa.core.observability.metrics.increment_fallback') as mock_metric:
+        with patch('farfan_core.core.observability.structured_logging.log_fallback') as mock_log, \
+             patch('farfan_core.core.observability.metrics.increment_fallback') as mock_metric:
             
             language, lang_info = engine.detect_language(text=text)
             
@@ -79,17 +79,17 @@ class TestLanguageDetectionFallbacks:
             # Should emit metric
             mock_metric.assert_called_once()
     
-    @patch('saaaaaa.processing.document_ingestion.detect')
+    @patch('farfan_core.processing.document_ingestion.detect')
     def test_unexpected_error_fallback(self, mock_detect):
         """Test fallback on unexpected error."""
-        from saaaaaa.processing.document_ingestion import PreprocessingEngine
+        from farfan_core.processing.document_ingestion import PreprocessingEngine
         
         engine = PreprocessingEngine()
         mock_detect.side_effect = RuntimeError("Unexpected error")
         
         text = "Some text"
         
-        with patch('saaaaaa.core.observability.structured_logging.log_fallback') as mock_log:
+        with patch('farfan_core.core.observability.structured_logging.log_fallback') as mock_log:
             language, lang_info = engine.detect_language(text=text)
             
             # Should fall back to unknown
@@ -104,7 +104,7 @@ class TestLanguageDetectionFallbacks:
 class TestSpacySegmentationFallbacks:
     """Test spaCy segmentation fallback chain."""
     
-    @patch('saaaaaa.flux.phases.spacy')
+    @patch('farfan_core.flux.phases.spacy')
     def test_successful_lg_model(self, mock_spacy_module):
         """Test successful segmentation with LG model."""
         # Mock spaCy with LG model available
@@ -125,14 +125,14 @@ class TestSpacySegmentationFallbacks:
         mock_doc.sents = [mock_sent]
         mock_nlp.return_value = mock_doc
         
-        from saaaaaa.flux.phases import run_normalize
-        from saaaaaa.flux.configs import NormalizeConfig
-        from saaaaaa.flux.models import IngestDeliverable
+        from farfan_core.flux.phases import run_normalize
+        from farfan_core.flux.configs import NormalizeConfig
+        from farfan_core.flux.models import IngestDeliverable
         
         config = NormalizeConfig(unicode_form="NFC", keep_diacritics=True)
         ingest = IngestDeliverable(raw_text="Test sentence.")
         
-        with patch('saaaaaa.core.observability.metrics.increment_segmentation_method') as mock_metric:
+        with patch('farfan_core.core.observability.metrics.increment_segmentation_method') as mock_metric:
             result = run_normalize(config, ingest)
             
             # Should use LG model
@@ -144,7 +144,7 @@ class TestSpacySegmentationFallbacks:
             call_kwargs = mock_metric.call_args[1]
             assert call_kwargs['method'] == SegmentationMethod.SPACY_LG
     
-    @patch('saaaaaa.flux.phases.spacy')
+    @patch('farfan_core.flux.phases.spacy')
     def test_downgrade_to_md_model(self, mock_spacy_module):
         """Test downgrade from LG to MD model."""
         # LG fails, MD succeeds
@@ -161,15 +161,15 @@ class TestSpacySegmentationFallbacks:
         
         mock_spacy_module.load.side_effect = load_side_effect
         
-        from saaaaaa.flux.phases import run_normalize
-        from saaaaaa.flux.configs import NormalizeConfig
-        from saaaaaa.flux.models import IngestDeliverable
+        from farfan_core.flux.phases import run_normalize
+        from farfan_core.flux.configs import NormalizeConfig
+        from farfan_core.flux.models import IngestDeliverable
         
         config = NormalizeConfig(unicode_form="NFC", keep_diacritics=True)
         ingest = IngestDeliverable(raw_text="Test text.")
         
-        with patch('saaaaaa.core.observability.structured_logging.log_fallback') as mock_log, \
-             patch('saaaaaa.core.observability.metrics.increment_fallback') as mock_fallback_metric:
+        with patch('farfan_core.core.observability.structured_logging.log_fallback') as mock_log, \
+             patch('farfan_core.core.observability.metrics.increment_fallback') as mock_fallback_metric:
             
             result = run_normalize(config, ingest)
             
@@ -185,21 +185,21 @@ class TestSpacySegmentationFallbacks:
             # Should emit fallback metric
             mock_fallback_metric.assert_called()
     
-    @patch('saaaaaa.flux.phases.spacy')
+    @patch('farfan_core.flux.phases.spacy')
     def test_fallback_to_regex(self, mock_spacy_module):
         """Test fallback to regex when all spaCy models fail."""
         # All spaCy models fail
         mock_spacy_module.load.side_effect = OSError("No models available")
         
-        from saaaaaa.flux.phases import run_normalize
-        from saaaaaa.flux.configs import NormalizeConfig
-        from saaaaaa.flux.models import IngestDeliverable
+        from farfan_core.flux.phases import run_normalize
+        from farfan_core.flux.configs import NormalizeConfig
+        from farfan_core.flux.models import IngestDeliverable
         
         config = NormalizeConfig(unicode_form="NFC", keep_diacritics=True)
         ingest = IngestDeliverable(raw_text="First sentence. Second sentence.")
         
-        with patch('saaaaaa.core.observability.structured_logging.log_fallback') as mock_log, \
-             patch('saaaaaa.core.observability.metrics.increment_segmentation_method') as mock_metric:
+        with patch('farfan_core.core.observability.structured_logging.log_fallback') as mock_log, \
+             patch('farfan_core.core.observability.metrics.increment_segmentation_method') as mock_metric:
             
             result = run_normalize(config, ingest)
             
@@ -223,10 +223,10 @@ class TestFallbackObservability:
     
     def test_fallback_emits_structured_log(self):
         """Test that fallbacks emit structured logs."""
-        from saaaaaa.core.observability.structured_logging import log_fallback
-        from saaaaaa.core.runtime_config import RuntimeMode
+        from farfan_core.core.observability.structured_logging import log_fallback
+        from farfan_core.core.runtime_config import RuntimeMode
         
-        with patch('saaaaaa.core.observability.structured_logging.get_logger') as mock_get_logger:
+        with patch('farfan_core.core.observability.structured_logging.get_logger') as mock_get_logger:
             mock_logger = MagicMock()
             mock_get_logger.return_value = mock_logger
             
@@ -244,8 +244,8 @@ class TestFallbackObservability:
     
     def test_fallback_emits_metric(self):
         """Test that fallbacks emit Prometheus metrics."""
-        from saaaaaa.core.observability.metrics import increment_fallback
-        from saaaaaa.core.runtime_config import RuntimeMode
+        from farfan_core.core.observability.metrics import increment_fallback
+        from farfan_core.core.runtime_config import RuntimeMode
         
         # This will increment the actual counter
         increment_fallback(
@@ -256,7 +256,7 @@ class TestFallbackObservability:
         )
         
         # Verify counter exists (actual value check would require Prometheus client inspection)
-        from saaaaaa.core.observability.metrics import fallback_activations_total
+        from farfan_core.core.observability.metrics import fallback_activations_total
         assert fallback_activations_total is not None
 
 

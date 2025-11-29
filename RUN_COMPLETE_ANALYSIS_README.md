@@ -313,8 +313,8 @@ logging.basicConfig(level=logging.DEBUG)
 ## Related Documentation
 
 - `OPERATIONAL_GUIDE.md`: Current operational/install guide (replaces legacy manual)
-- `src/saaaaaa/processing/cpp_ingestion/README.md`: CPP ingestion pipeline documentation
-- `src/saaaaaa/core/orchestrator/`: Orchestrator implementation
+- `src/farfan_core/processing/cpp_ingestion/README.md`: CPP ingestion pipeline documentation
+- `src/farfan_core/core/orchestrator/`: Orchestrator implementation
 - `ORCHESTRATION_ARCHITECTURE_ANALYSIS.md`: Orchestration architecture details
 
 ## Support

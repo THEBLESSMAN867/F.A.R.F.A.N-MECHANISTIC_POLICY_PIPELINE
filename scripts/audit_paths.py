@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from saaaaaa.config.paths import PROJECT_ROOT as REPO_ROOT
+    from farfan_core.config.paths import PROJECT_ROOT as REPO_ROOT
 except Exception:  # pragma: no cover - fallback when package not installed
     REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -159,7 +159,7 @@ class PathAuditor:
                 category="absolute_path",
                 severity="high",
                 message="Absolute Unix path detected",
-                fix_suggestion="Use proj_root() or data_dir() from saaaaaa.utils.paths"
+                fix_suggestion="Use proj_root() or data_dir() from farfan_core.utils.paths"
             ))
         
         # Absolute paths (Windows-style)
@@ -171,7 +171,7 @@ class PathAuditor:
                 category="absolute_path",
                 severity="high",
                 message="Absolute Windows path detected",
-                fix_suggestion="Use proj_root() or data_dir() from saaaaaa.utils.paths"
+                fix_suggestion="Use proj_root() or data_dir() from farfan_core.utils.paths"
             ))
         
         # __file__ usage for paths
@@ -228,7 +228,7 @@ class PathAuditor:
                 category="cwd_usage",
                 severity="medium",
                 message="Current working directory usage - fragile in different execution contexts",
-                fix_suggestion="Use proj_root() or explicit paths from saaaaaa.utils.paths"
+                fix_suggestion="Use proj_root() or explicit paths from farfan_core.utils.paths"
             ))
         
         # HOME environment variable
@@ -252,7 +252,7 @@ class PathAuditor:
                 category="temp_hardcode",
                 severity="high",
                 message="Hardcoded temp directory path",
-                fix_suggestion="Use tmp_dir() from saaaaaa.utils.paths or tempfile module"
+                fix_suggestion="Use tmp_dir() from farfan_core.utils.paths or tempfile module"
             ))
     
     def _check_ast(self, rel_path: Path, tree: ast.AST, lines: list[str]) -> None:
@@ -369,7 +369,7 @@ class PathAuditor:
             "## Recommendations",
             "",
             "1. **Eliminate sys.path manipulation**: Use proper package imports",
-            "2. **Remove absolute paths**: Use `proj_root()`, `data_dir()`, etc. from `saaaaaa.utils.paths`",
+            "2. **Remove absolute paths**: Use `proj_root()`, `data_dir()`, etc. from `farfan_core.utils.paths`",
             "3. **Replace os.path with pathlib.Path**: More portable and Pythonic",
             "4. **Use resources() for packaged data**: Ensures compatibility with wheels/sdist",
             "5. **Validate all path operations**: Use `validate_read_path()` and `validate_write_path()`",

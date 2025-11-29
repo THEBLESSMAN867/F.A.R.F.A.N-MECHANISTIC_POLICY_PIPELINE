@@ -209,7 +209,7 @@ def validate_orchestrator() -> bool:
     """Validate Orchestrator modular implementation"""
     print_header("VALIDATING ORCHESTRATOR (MODULAR)")
 
-    orchestrator_path = Path("src/saaaaaa/core/orchestrator")
+    orchestrator_path = Path("src/farfan_core/core/orchestrator")
 
     if not orchestrator_path.exists():
         print_error(f"{orchestrator_path} not found")
@@ -280,10 +280,10 @@ def validate_integration() -> bool:
     print(f"{Colors.BOLD}1. Checking core analysis modules...{Colors.RESET}")
     
     analysis_modules = [
-        "src/saaaaaa/analysis",
-        "src/saaaaaa/processing",
-        "src/saaaaaa/core",
-        "src/saaaaaa/utils"
+        "src/farfan_core/analysis",
+        "src/farfan_core/processing",
+        "src/farfan_core/core",
+        "src/farfan_core/utils"
     ]
     
     for module_path in analysis_modules:
@@ -296,7 +296,7 @@ def validate_integration() -> bool:
     # Check package structure
     print(f"\n{Colors.BOLD}2. Checking package structure...{Colors.RESET}")
     package_files = [
-        "src/saaaaaa/__init__.py",
+        "src/farfan_core/__init__.py",
         "setup.py",
         "pyproject.toml"
     ]

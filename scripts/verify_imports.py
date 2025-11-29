@@ -80,7 +80,7 @@ def verify_file(filepath: Path) -> Tuple[bool, List[str]]:
         is_wrapper = any(f'/{d}/' in str(filepath) or str(filepath).endswith(f'/{d}/__init__.py') 
                         for d in wrapper_dirs)
         
-        if verifier.has_relative and '/src/saaaaaa/' not in str(filepath) and not is_wrapper:
+        if verifier.has_relative and '/src/farfan_core/' not in str(filepath) and not is_wrapper:
             issues.append(f"Relative imports at lines: {verifier.relative_lines}")
         
         return len(issues) == 0, issues
@@ -134,13 +134,13 @@ def main():
     print("2️⃣  Testing core module imports...")
     
     import_tests = [
-        ('saaaaaa', 'Main package'),
-        ('saaaaaa.core.orchestrator', 'Core orchestrator'),
-        ('saaaaaa.core.ports', 'Core ports'),
-        ('saaaaaa.analysis.bayesian_multilevel_system', 'Bayesian analysis'),
-        ('saaaaaa.processing.document_ingestion', 'Document processing'),
-        ('saaaaaa.processing.aggregation', 'Aggregation'),
-        ('saaaaaa.concurrency.concurrency', 'Concurrency'),
+        ('farfan_core', 'Main package'),
+        ('farfan_core.core.orchestrator', 'Core orchestrator'),
+        ('farfan_core.core.ports', 'Core ports'),
+        ('farfan_core.analysis.bayesian_multilevel_system', 'Bayesian analysis'),
+        ('farfan_core.processing.document_ingestion', 'Document processing'),
+        ('farfan_core.processing.aggregation', 'Aggregation'),
+        ('farfan_core.concurrency.concurrency', 'Concurrency'),
     ]
     
     import_failures = []
@@ -154,7 +154,7 @@ def main():
         except ImportError as e:
             error_str = str(e)
             # Check if it's a missing dependency (not our problem) vs import structure issue
-            if 'No module named' in error_str and not 'saaaaaa' in error_str:
+            if 'No module named' in error_str and not 'farfan_core' in error_str:
                 print(f"   ⚠️  {description}: {module_name}")
                 print(f"      Missing dependency: {error_str}")
                 import_warnings.append((module_name, error_str))
@@ -169,10 +169,10 @@ def main():
     print("3️⃣  Verifying package structure...")
     
     required_paths = [
-        src_path / 'saaaaaa' / '__init__.py',
-        src_path / 'saaaaaa' / 'core' / '__init__.py',
-        src_path / 'saaaaaa' / 'analysis' / '__init__.py',
-        src_path / 'saaaaaa' / 'processing' / '__init__.py',
+        src_path / 'farfan_core' / '__init__.py',
+        src_path / 'farfan_core' / 'core' / '__init__.py',
+        src_path / 'farfan_core' / 'analysis' / '__init__.py',
+        src_path / 'farfan_core' / 'processing' / '__init__.py',
         repo_root / 'pyproject.toml',
         repo_root / 'setup.py',
     ]
@@ -199,7 +199,7 @@ def main():
         with open(example, 'r') as f:
             content = f.read()
         
-        if 'Cannot import saaaaaa package' in content or 'import saaaaaa' in content:
+        if 'Cannot import farfan_core package' in content or 'import farfan_core' in content:
             examples_with_check += 1
     
     print(f"   ✅ {examples_with_check}/{len(example_files)} examples have import verification")

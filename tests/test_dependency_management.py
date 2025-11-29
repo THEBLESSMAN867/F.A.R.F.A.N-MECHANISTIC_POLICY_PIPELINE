@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from saaaaaa.config.paths import PROJECT_ROOT
+from farfan_core.config.paths import PROJECT_ROOT
 
 
 class TestDependencyManagement:

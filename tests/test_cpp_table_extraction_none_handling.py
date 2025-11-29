@@ -13,7 +13,7 @@ import pytest
 pytestmark = pytest.mark.skip(reason="obsolete - cpp_ingestion.tables module removed during SPC refactor")
 
 # Old import (no longer valid):
-# from saaaaaa.processing.cpp_ingestion.tables import TableExtractor
+# from farfan_core.processing.cpp_ingestion.tables import TableExtractor
 
 
 class TestTableExtractionNoneHandling:

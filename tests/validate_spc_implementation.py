@@ -18,28 +18,28 @@ def test_imports():
     print("Testing imports...")
     
     try:
-        from saaaaaa.core.orchestrator.core import ChunkData, PreprocessedDocument
+        from farfan_core.core.orchestrator.core import ChunkData, PreprocessedDocument
         print("✓ ChunkData and PreprocessedDocument imported")
     except ImportError as e:
         print(f"✗ Failed to import core types: {e}")
         return False
     
     try:
-        from saaaaaa.core.orchestrator.chunk_router import ChunkRouter, ChunkRoute
+        from farfan_core.core.orchestrator.chunk_router import ChunkRouter, ChunkRoute
         print("✓ ChunkRouter imported")
     except ImportError as e:
         print(f"✗ Failed to import ChunkRouter: {e}")
         return False
     
     try:
-        from saaaaaa.processing.cpp_ingestion.models import CanonPolicyPackage, Chunk
+        from farfan_core.processing.cpp_ingestion.models import CanonPolicyPackage, Chunk
         print("✓ CPP models imported")
     except ImportError as e:
         print(f"✗ Failed to import CPP models: {e}")
         return False
     
     try:
-        from saaaaaa.analysis.spc_causal_bridge import SPCCausalBridge
+        from farfan_core.analysis.spc_causal_bridge import SPCCausalBridge
         print("✓ SPCCausalBridge imported")
     except ImportError as e:
         print(f"✗ Failed to import SPCCausalBridge: {e}")
@@ -53,7 +53,7 @@ def test_chunk_data_creation():
     print("\nTesting ChunkData creation...")
     
     try:
-        from saaaaaa.core.orchestrator.core import ChunkData
+        from farfan_core.core.orchestrator.core import ChunkData
         
         chunk = ChunkData(
             id=1,
@@ -83,8 +83,8 @@ def test_chunk_router():
     print("\nTesting ChunkRouter...")
     
     try:
-        from saaaaaa.core.orchestrator.core import ChunkData
-        from saaaaaa.core.orchestrator.chunk_router import ChunkRouter
+        from farfan_core.core.orchestrator.core import ChunkData
+        from farfan_core.core.orchestrator.chunk_router import ChunkRouter
         
         router = ChunkRouter()
         
@@ -125,7 +125,7 @@ def test_preprocessed_document():
     print("\nTesting PreprocessedDocument...")
     
     try:
-        from saaaaaa.core.orchestrator.core import ChunkData, PreprocessedDocument
+        from farfan_core.core.orchestrator.core import ChunkData, PreprocessedDocument
         
         # Test chunked mode
         chunks = [
@@ -184,7 +184,7 @@ def test_spc_causal_bridge():
     print("\nTesting SPCCausalBridge...")
     
     try:
-        from saaaaaa.analysis.spc_causal_bridge import SPCCausalBridge
+        from farfan_core.analysis.spc_causal_bridge import SPCCausalBridge
         
         bridge = SPCCausalBridge()
         

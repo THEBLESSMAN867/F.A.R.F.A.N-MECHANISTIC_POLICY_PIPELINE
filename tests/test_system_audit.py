@@ -10,9 +10,9 @@ import pytest
 # Shared configuration
 EXCLUDED_DIRS = {'__pycache__', '.git', 'minipdm', '.augment', '.venv'}
 API_SERVER_PATHS = [
-    'src/saaaaaa/api/api_server.py',
+    'src/farfan_core/api/api_server.py',
     'api/api_server.py',
-    'saaaaaa/api/api_server.py',
+    'farfan_core/api/api_server.py',
 ]
 
 class TestCompilation:

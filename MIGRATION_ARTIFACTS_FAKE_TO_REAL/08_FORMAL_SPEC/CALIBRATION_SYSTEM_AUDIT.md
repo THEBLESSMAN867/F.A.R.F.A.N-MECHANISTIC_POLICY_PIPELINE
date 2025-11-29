@@ -25,17 +25,17 @@ This audit validates each claim made in the PR description against actual implem
 
 | Claimed File | Exists | Lines | Status |
 |-------------|--------|-------|--------|
-| `src/saaaaaa/core/calibration/__init__.py` | ✅ | ? | VERIFIED |
-| `src/saaaaaa/core/calibration/data_structures.py` | ✅ | ? | VERIFIED |
-| `src/saaaaaa/core/calibration/config.py` | ✅ | ? | VERIFIED |
-| `src/saaaaaa/core/calibration/pdt_structure.py` | ✅ | ? | VERIFIED |
-| `src/saaaaaa/core/calibration/unit_layer.py` | ✅ | ? | STUB |
-| `src/saaaaaa/core/calibration/compatibility.py` | ✅ | ? | VERIFIED |
-| `src/saaaaaa/core/calibration/congruence_layer.py` | ✅ | ? | STUB |
-| `src/saaaaaa/core/calibration/chain_layer.py` | ✅ | ? | STUB |
-| `src/saaaaaa/core/calibration/meta_layer.py` | ✅ | ? | STUB |
-| `src/saaaaaa/core/calibration/choquet_aggregator.py` | ✅ | ? | VERIFIED |
-| `src/saaaaaa/core/calibration/orchestrator.py` | ✅ | ? | VERIFIED |
+| `src/farfan_core/core/calibration/__init__.py` | ✅ | ? | VERIFIED |
+| `src/farfan_core/core/calibration/data_structures.py` | ✅ | ? | VERIFIED |
+| `src/farfan_core/core/calibration/config.py` | ✅ | ? | VERIFIED |
+| `src/farfan_core/core/calibration/pdt_structure.py` | ✅ | ? | VERIFIED |
+| `src/farfan_core/core/calibration/unit_layer.py` | ✅ | ? | STUB |
+| `src/farfan_core/core/calibration/compatibility.py` | ✅ | ? | VERIFIED |
+| `src/farfan_core/core/calibration/congruence_layer.py` | ✅ | ? | STUB |
+| `src/farfan_core/core/calibration/chain_layer.py` | ✅ | ? | STUB |
+| `src/farfan_core/core/calibration/meta_layer.py` | ✅ | ? | STUB |
+| `src/farfan_core/core/calibration/choquet_aggregator.py` | ✅ | ? | VERIFIED |
+| `src/farfan_core/core/calibration/orchestrator.py` | ✅ | ? | VERIFIED |
 | `data/method_compatibility.json` | ✅ | ? | VERIFIED |
 | `tests/calibration/test_data_structures.py` | ✅ | 231 | VERIFIED |
 | `scripts/pre_deployment_checklist.sh` | ✅ | 151 | VERIFIED |
@@ -117,7 +117,7 @@ $ grep -c "def test_" tests/calibration/test_data_structures.py
 
 **Verification Script**:
 ```python
-from src.saaaaaa.core.calibration.config import DEFAULT_CALIBRATION_CONFIG
+from src.farfan_core.core.calibration.config import DEFAULT_CALIBRATION_CONFIG
 
 choquet = DEFAULT_CALIBRATION_CONFIG.choquet
 linear_sum = sum(choquet.linear_weights.values())
@@ -141,7 +141,7 @@ Actual: [TO BE MEASURED]
 2. Verify all 31 executor constructors pass the parameter
 3. Test if calibration is actually invoked during execution
 
-**File to Check**: `src/saaaaaa/core/orchestrator/executors.py`
+**File to Check**: `src/farfan_core/core/orchestrator/executors.py`
 
 **Status**: ⏳ PENDING VERIFICATION
 

@@ -14,7 +14,7 @@ def verify_executor_structure():
     print("EXECUTOR INTEGRATION STRUCTURE VERIFICATION")
     print("=" * 60)
 
-    executor_file = Path("src/saaaaaa/core/orchestrator/executors.py")
+    executor_file = Path("src/farfan_core/core/orchestrator/executors.py")
 
     # Add error handling for file reading
     try:
@@ -31,7 +31,7 @@ def verify_executor_structure():
 
     # Check 1: ContextTuple import
     print("\n1. Checking imports...")
-    if "from saaaaaa.core.calibration.data_structures import ContextTuple" in content:
+    if "from farfan_core.core.calibration.data_structures import ContextTuple" in content:
         print("   ✅ ContextTuple import found")
         checks.append(True)
     else:

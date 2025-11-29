@@ -8,8 +8,8 @@ import json
 import sys
 
 # Add parent directory to path
-from saaaaaa.analysis.recommendation_engine import load_recommendation_engine
-from saaaaaa.utils.paths import tmp_dir
+from farfan_core.analysis.recommendation_engine import load_recommendation_engine
+from farfan_core.utils.paths import tmp_dir
 
 def test_enhanced_recommendation_engine():
     """Test all 7 enhanced features"""

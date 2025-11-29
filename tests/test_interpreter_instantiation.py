@@ -12,8 +12,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent
 sys.path.append(str(REPO_ROOT / "src"))
 
-from saaaaaa.core.calibration.decorators import calibrated_method, CalibrationError
-from saaaaaa import get_calibration_orchestrator
+from farfan_core.core.calibration.decorators import calibrated_method, CalibrationError
+from farfan_core import get_calibration_orchestrator
 
 class TestMethod:
     @calibrated_method("test.method")

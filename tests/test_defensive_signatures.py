@@ -14,7 +14,7 @@ class TestDefensiveSignatures:
         """Test _is_likely_header accepts and ignores unexpected keyword arguments."""
         # Import late to avoid dependency issues in test environment
         try:
-            from saaaaaa.analysis.financiero_viabilidad_tablas import PDETMunicipalPlanAnalyzer
+            from farfan_core.analysis.financiero_viabilidad_tablas import PDETMunicipalPlanAnalyzer
         except ImportError:
             pytest.skip("financiero_viabilidad_tablas module not available")
 
@@ -29,7 +29,7 @@ class TestDefensiveSignatures:
         try:
             import inspect
 
-            from saaaaaa.analysis.financiero_viabilidad_tablas import PDETMunicipalPlanAnalyzer
+            from farfan_core.analysis.financiero_viabilidad_tablas import PDETMunicipalPlanAnalyzer
 
             # Get the signature
             sig = inspect.signature(PDETMunicipalPlanAnalyzer._is_likely_header)
@@ -47,7 +47,7 @@ class TestDefensiveSignatures:
         try:
             import inspect
 
-            from saaaaaa.processing.policy_processor import IndustrialPolicyProcessor
+            from farfan_core.processing.policy_processor import IndustrialPolicyProcessor
 
             # Get the signature
             sig = inspect.signature(IndustrialPolicyProcessor._analyze_causal_dimensions)
@@ -65,7 +65,7 @@ class TestDefensiveSignatures:
         try:
             import inspect
 
-            from saaaaaa.analysis.derek_beach import BayesianMechanismInference
+            from farfan_core.analysis.derek_beach import BayesianMechanismInference
 
             # Get the signature
             sig = inspect.signature(BayesianMechanismInference.__init__)
@@ -81,7 +81,7 @@ class TestDefensiveSignatures:
     def test_defensive_warning_logging(self, caplog):
         """Test that unexpected arguments trigger warning logs."""
         try:
-            from saaaaaa.analysis.financiero_viabilidad_tablas import PDETMunicipalPlanAnalyzer
+            from farfan_core.analysis.financiero_viabilidad_tablas import PDETMunicipalPlanAnalyzer
 
             # This test would require mocking the entire initialization chain
             # For now, we verify the signature accepts the pattern
@@ -95,7 +95,7 @@ class TestSignatureDocumentation:
     def test_is_likely_header_docstring_mentions_kwargs(self):
         """Verify _is_likely_header docstring explains **kwargs handling."""
         try:
-            from saaaaaa.analysis.financiero_viabilidad_tablas import PDETMunicipalPlanAnalyzer
+            from farfan_core.analysis.financiero_viabilidad_tablas import PDETMunicipalPlanAnalyzer
 
             docstring = PDETMunicipalPlanAnalyzer._is_likely_header.__doc__
             assert docstring is not None, "Method should have a docstring"
@@ -109,7 +109,7 @@ class TestSignatureDocumentation:
     def test_analyze_causal_dimensions_docstring_explains_optional(self):
         """Verify _analyze_causal_dimensions docstring explains optional sentences."""
         try:
-            from saaaaaa.processing.policy_processor import IndustrialPolicyProcessor
+            from farfan_core.processing.policy_processor import IndustrialPolicyProcessor
 
             docstring = IndustrialPolicyProcessor._analyze_causal_dimensions.__doc__
             assert docstring is not None, "Method should have a docstring"
@@ -123,7 +123,7 @@ class TestSignatureDocumentation:
     def test_bayesian_init_docstring_mentions_kwargs(self):
         """Verify BayesianMechanismInference.__init__ docstring explains **kwargs."""
         try:
-            from saaaaaa.analysis.derek_beach import BayesianMechanismInference
+            from farfan_core.analysis.derek_beach import BayesianMechanismInference
 
             docstring = BayesianMechanismInference.__init__.__doc__
             assert docstring is not None, "Method should have a docstring"

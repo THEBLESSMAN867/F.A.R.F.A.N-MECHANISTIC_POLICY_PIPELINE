@@ -4,7 +4,7 @@ Comprehensive import consistency test.
 
 Tests that all import paths work correctly from different locations:
 1. Root-level compatibility shims (orchestrator/, scoring/, etc.)
-2. Direct saaaaaa.* imports
+2. Direct farfan_core.* imports
 3. Root-level .py file imports
 """
 
@@ -16,10 +16,10 @@ from pathlib import Path
 def test_root_level_module_imports():
     """Test that root-level .py files can be imported."""
     # These should all work via compatibility wrappers
-    from saaaaaa.scoring import apply_scoring
-    from saaaaaa.core.orchestrator import Orchestrator
-    from saaaaaa.contracts import SeedFactory
-    from saaaaaa.core.aggregation import AreaPolicyAggregator
+    from farfan_core.scoring import apply_scoring
+    from farfan_core.core.orchestrator import Orchestrator
+    from farfan_core.contracts import SeedFactory
+    from farfan_core.core.aggregation import AreaPolicyAggregator
     
     assert callable(apply_scoring)
     assert Orchestrator is not None
@@ -30,10 +30,10 @@ def test_root_level_module_imports():
 def test_root_level_package_imports():
     """Test that root-level compatibility packages can be imported."""
     # Import from packages (directories with __init__.py)
-    from saaaaaa.scoring.scoring import QualityLevel
-    from saaaaaa.core.orchestrator.core import Evidence
-    from saaaaaa.concurrency.concurrency import WorkerPool
-    from saaaaaa.contracts import validate_contract
+    from farfan_core.scoring.scoring import QualityLevel
+    from farfan_core.core.orchestrator.core import Evidence
+    from farfan_core.concurrency.concurrency import WorkerPool
+    from farfan_core.contracts import validate_contract
     
     assert QualityLevel is not None
     assert Evidence is not None
@@ -41,27 +41,27 @@ def test_root_level_package_imports():
     assert callable(validate_contract)
     print("✓ Root-level package imports work")
 
-def test_saaaaaa_direct_imports():
-    """Test that direct saaaaaa.* imports work."""
+def test_farfan_core_direct_imports():
+    """Test that direct farfan_core.* imports work."""
     # Ensure src is in path
     src_path = Path(__file__).parent.parent / "src"
-    from saaaaaa.analysis.scoring.scoring import apply_scoring as apply_scoring_direct
-    from saaaaaa.core.orchestrator import Orchestrator as OrchestratorDirect
-    from saaaaaa.utils.contracts import validate_contract as validate_contract_direct
-    from saaaaaa.processing.aggregation import AreaPolicyAggregator as AggregatorDirect
+    from farfan_core.analysis.scoring.scoring import apply_scoring as apply_scoring_direct
+    from farfan_core.core.orchestrator import Orchestrator as OrchestratorDirect
+    from farfan_core.utils.contracts import validate_contract as validate_contract_direct
+    from farfan_core.processing.aggregation import AreaPolicyAggregator as AggregatorDirect
     
     assert callable(apply_scoring_direct)
     assert OrchestratorDirect is not None
     assert callable(validate_contract_direct)
     assert AggregatorDirect is not None
-    print("✓ Direct saaaaaa.* imports work")
+    print("✓ Direct farfan_core.* imports work")
 
 def test_import_equivalence():
     """Test that both import paths lead to the same objects."""
     src_path = Path(__file__).parent.parent / "src"
     # Import same thing via different paths
-    from saaaaaa.scoring import apply_scoring as apply_scoring_compat
-    from saaaaaa.analysis.scoring.scoring import apply_scoring as apply_scoring_direct
+    from farfan_core.scoring import apply_scoring as apply_scoring_compat
+    from farfan_core.analysis.scoring.scoring import apply_scoring as apply_scoring_direct
     
     # They should be the same function
     assert apply_scoring_compat is apply_scoring_direct, \
@@ -70,7 +70,7 @@ def test_import_equivalence():
 
 def test_executors_lazy_loading():
     """Test that executors module can be imported (lazy loading)."""
-    from saaaaaa.core.orchestrator import executors
+    from farfan_core.core.orchestrator import executors
     
     assert executors is not None
     print("✓ Executors module lazy loading works")
@@ -127,7 +127,7 @@ def main():
         test_all_compatibility_shims,
         test_root_level_module_imports,
         test_root_level_package_imports,
-        test_saaaaaa_direct_imports,
+        test_farfan_core_direct_imports,
         test_import_equivalence,
         test_executors_lazy_loading,
     ]

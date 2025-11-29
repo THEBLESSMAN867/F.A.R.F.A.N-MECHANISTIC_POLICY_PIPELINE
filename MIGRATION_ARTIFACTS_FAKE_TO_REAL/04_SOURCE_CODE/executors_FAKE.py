@@ -19,9 +19,9 @@ Usage:
 from typing import Dict, List, Any, Optional
 from abc import ABC, abstractmethod
 
-from saaaaaa.core.canonical_notation import CanonicalDimension, get_dimension_info
-from saaaaaa.core.orchestrator.core import MethodExecutor
-from saaaaaa.core.orchestrator.factory import build_processor
+from farfan_core.core.canonical_notation import CanonicalDimension, get_dimension_info
+from farfan_core.core.orchestrator.core import MethodExecutor
+from farfan_core.core.orchestrator.factory import build_processor
 
 # Canonical question labels (only defined when verified in repo)
 CANONICAL_QUESTION_LABELS = {

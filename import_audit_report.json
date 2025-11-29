@@ -34,84 +34,84 @@
         "type": "phantom_import",
         "file": "contracts.py",
         "line": 7,
-        "module": "saaaaaa.utils.contracts",
+        "module": "farfan_core.utils.contracts",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/factory.py",
         "line": 16,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/aggregation.py",
         "line": 30,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/aggregation.py",
         "line": 31,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/aggregation.py",
         "line": 364,
-        "module": "saaaaaa.core.canonical_notation",
+        "module": "farfan_core.core.canonical_notation",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/policy_processor.py",
         "line": 34,
-        "module": "saaaaaa.utils.runtime_error_fixes",
+        "module": "farfan_core.utils.runtime_error_fixes",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/policy_processor.py",
         "line": 113,
-        "module": "saaaaaa.analysis.Analyzer_one",
+        "module": "farfan_core.analysis.Analyzer_one",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/policy_processor.py",
         "line": 120,
-        "module": "saaaaaa.analysis.financiero_viabilidad_tablas",
+        "module": "farfan_core.analysis.financiero_viabilidad_tablas",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/policy_processor.py",
         "line": 121,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/policy_processor.py",
         "line": 122,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/policy_processor.py",
         "line": 37,
-        "module": "saaaaaa.analysis.contradiction_deteccion",
+        "module": "farfan_core.analysis.contradiction_deteccion",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/policy_processor.py",
         "line": 42,
-        "module": "saaaaaa.analysis.contradiction_deteccion",
+        "module": "farfan_core.analysis.contradiction_deteccion",
         "severity": 10
       },
       {
@@ -139,112 +139,112 @@
         "type": "phantom_import",
         "file": "processing/cpp_ingestion/models.py",
         "line": 15,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/cpp_ingestion/models.py",
         "line": 16,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/spc_ingestion/__init__.py",
         "line": 27,
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/spc_ingestion/__init__.py",
         "line": 28,
-        "module": "saaaaaa.processing.cpp_ingestion.models",
+        "module": "farfan_core.processing.cpp_ingestion.models",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/spc_ingestion/__init__.py",
         "line": 29,
-        "module": "saaaaaa.processing.spc_ingestion.converter",
+        "module": "farfan_core.processing.spc_ingestion.converter",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/spc_ingestion/__init__.py",
         "line": 30,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/spc_ingestion/__init__.py",
         "line": 31,
-        "module": "saaaaaa.processing.spc_ingestion.quality_gates",
+        "module": "farfan_core.processing.spc_ingestion.quality_gates",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/spc_ingestion/__init__.py",
         "line": 100,
-        "module": "saaaaaa.core.wiring.validation",
+        "module": "farfan_core.core.wiring.validation",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/spc_ingestion/structural.py",
         "line": 8,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/spc_ingestion/quality_gates.py",
         "line": 13,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "processing/spc_ingestion/quality_gates.py",
         "line": 14,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/boot_checks.py",
         "line": 14,
-        "module": "saaaaaa.core.runtime_config",
+        "module": "farfan_core.core.runtime_config",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/boot_checks.py",
         "line": 48,
-        "module": "saaaaaa.analysis.contradiction_detection",
+        "module": "farfan_core.analysis.contradiction_detection",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/boot_checks.py",
         "line": 75,
-        "module": "saaaaaa.core.wiring.validator",
+        "module": "farfan_core.core.wiring.validator",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/boot_checks.py",
         "line": 204,
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/aggregation.py",
         "line": 8,
-        "module": "saaaaaa.processing.aggregation",
+        "module": "farfan_core.processing.aggregation",
         "severity": 10
       },
       {
@@ -258,7 +258,7 @@
         "type": "phantom_import",
         "file": "core/contracts/__init__.py",
         "line": 11,
-        "module": "saaaaaa.utils.core_contracts",
+        "module": "farfan_core.utils.core_contracts",
         "severity": 10
       },
       {
@@ -349,14 +349,14 @@
         "type": "phantom_import",
         "file": "core/calibration/orchestrator.py",
         "line": 10,
-        "module": "saaaaaa.core.calibration.intrinsic_loader",
+        "module": "farfan_core.core.calibration.intrinsic_loader",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/calibration/orchestrator.py",
         "line": 11,
-        "module": "saaaaaa.core.calibration.layer_requirements",
+        "module": "farfan_core.core.calibration.layer_requirements",
         "severity": 10
       },
       {
@@ -524,42 +524,42 @@
         "type": "phantom_import",
         "file": "core/calibration/engine.py",
         "line": 85,
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/calibration/decorators.py",
         "line": 11,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/executors.py",
         "line": 27,
-        "module": "saaaaaa.core.canonical_notation",
+        "module": "farfan_core.core.canonical_notation",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/executors.py",
         "line": 28,
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/executors.py",
         "line": 29,
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/executors.py",
         "line": 30,
-        "module": "saaaaaa.processing.policy_processor",
+        "module": "farfan_core.processing.policy_processor",
         "severity": 10
       },
       {
@@ -783,14 +783,14 @@
         "type": "phantom_import",
         "file": "core/orchestrator/core.py",
         "line": 1373,
-        "module": "saaaaaa.observability",
+        "module": "farfan_core.observability",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/core.py",
         "line": 1576,
-        "module": "saaaaaa.processing.spc_ingestion",
+        "module": "farfan_core.processing.spc_ingestion",
         "severity": 10
       },
       {
@@ -818,28 +818,28 @@
         "type": "phantom_import",
         "file": "core/orchestrator/core.py",
         "line": 2154,
-        "module": "saaaaaa.processing.spc_ingestion",
+        "module": "farfan_core.processing.spc_ingestion",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/core.py",
         "line": 414,
-        "module": "saaaaaa.utils.spc_adapter",
+        "module": "farfan_core.utils.spc_adapter",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/core.py",
         "line": 2267,
-        "module": "saaaaaa.core.orchestrator.chunk_router",
+        "module": "farfan_core.core.orchestrator.chunk_router",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/core.py",
         "line": 1436,
-        "module": "saaaaaa.core.wiring.validation",
+        "module": "farfan_core.core.wiring.validation",
         "severity": 10
       },
       {
@@ -867,42 +867,42 @@
         "type": "phantom_import",
         "file": "core/orchestrator/base_executor_with_contract.py",
         "line": 9,
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/base_executor_with_contract.py",
         "line": 10,
-        "module": "saaaaaa.core.orchestrator.evidence_assembler",
+        "module": "farfan_core.core.orchestrator.evidence_assembler",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/base_executor_with_contract.py",
         "line": 11,
-        "module": "saaaaaa.core.orchestrator.evidence_validator",
+        "module": "farfan_core.core.orchestrator.evidence_validator",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/base_executor_with_contract.py",
         "line": 12,
-        "module": "saaaaaa.core.orchestrator.evidence_registry",
+        "module": "farfan_core.core.orchestrator.evidence_registry",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/base_executor_with_contract.py",
         "line": 15,
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/base_executor_with_contract.py",
         "line": 44,
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "severity": 10
       },
       {
@@ -916,7 +916,7 @@
         "type": "phantom_import",
         "file": "core/orchestrator/executors_contract.py",
         "line": 3,
-        "module": "saaaaaa.core.orchestrator.base_executor_with_contract",
+        "module": "farfan_core.core.orchestrator.base_executor_with_contract",
         "severity": 10
       },
       {
@@ -965,280 +965,280 @@
         "type": "phantom_import",
         "file": "core/orchestrator/executors_snapshot/executors.py",
         "line": 22,
-        "module": "saaaaaa.core.canonical_notation",
+        "module": "farfan_core.core.canonical_notation",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/executors_snapshot/executors.py",
         "line": 23,
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/orchestrator/executors_snapshot/executors.py",
         "line": 24,
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase0_input_validation.py",
         "line": 63,
-        "module": "saaaaaa.core.phases.phase_protocol",
+        "module": "farfan_core.core.phases.phase_protocol",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase0_input_validation.py",
         "line": 383,
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase1_spc_ingestion_full.py",
         "line": 18,
-        "module": "saaaaaa.core.phases.phase0_input_validation",
+        "module": "farfan_core.core.phases.phase0_input_validation",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase1_spc_ingestion_full.py",
         "line": 19,
-        "module": "saaaaaa.processing.cpp_ingestion.models",
+        "module": "farfan_core.processing.cpp_ingestion.models",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase1_spc_ingestion_full.py",
         "line": 20,
-        "module": "saaaaaa.core.phases.phase1_models",
+        "module": "farfan_core.core.phases.phase1_models",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase1_spc_ingestion_full.py",
         "line": 472,
-        "module": "saaaaaa.processing.cpp_ingestion.models",
+        "module": "farfan_core.processing.cpp_ingestion.models",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase2_models.py",
         "line": 7,
-        "module": "saaaaaa.core.phases.phase1_models",
+        "module": "farfan_core.core.phases.phase1_models",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase2_models.py",
         "line": 8,
-        "module": "saaaaaa.processing.cpp_ingestion.models",
+        "module": "farfan_core.processing.cpp_ingestion.models",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/synthesis.py",
         "line": 17,
-        "module": "saaaaaa.processing.aggregation",
+        "module": "farfan_core.processing.aggregation",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/ingestion.py",
         "line": 18,
-        "module": "saaaaaa.core.phases.phase1_spc_ingestion",
+        "module": "farfan_core.core.phases.phase1_spc_ingestion",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase_orchestrator.py",
         "line": 54,
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase_orchestrator.py",
         "line": 55,
-        "module": "saaaaaa.core.phases.phase_protocol",
+        "module": "farfan_core.core.phases.phase_protocol",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase_orchestrator.py",
         "line": 60,
-        "module": "saaaaaa.core.phases.phase0_input_validation",
+        "module": "farfan_core.core.phases.phase0_input_validation",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase_orchestrator.py",
         "line": 65,
-        "module": "saaaaaa.core.phases.phase1_spc_ingestion",
+        "module": "farfan_core.core.phases.phase1_spc_ingestion",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase_orchestrator.py",
         "line": 68,
-        "module": "saaaaaa.core.phases.phase2_types",
+        "module": "farfan_core.core.phases.phase2_types",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase_orchestrator.py",
         "line": 136,
-        "module": "saaaaaa.core.phases.phase1_to_phase2_adapter",
+        "module": "farfan_core.core.phases.phase1_to_phase2_adapter",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/generation.py",
         "line": 19,
-        "module": "saaaaaa.core.phases.phase2_types",
+        "module": "farfan_core.core.phases.phase2_types",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase1_spc_ingestion.py",
         "line": 75,
-        "module": "saaaaaa.core.phases.phase_protocol",
+        "module": "farfan_core.core.phases.phase_protocol",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase1_spc_ingestion.py",
         "line": 79,
-        "module": "saaaaaa.core.phases.phase0_input_validation",
+        "module": "farfan_core.core.phases.phase0_input_validation",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase1_spc_ingestion.py",
         "line": 80,
-        "module": "saaaaaa.processing.cpp_ingestion.models",
+        "module": "farfan_core.processing.cpp_ingestion.models",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase1_spc_ingestion.py",
         "line": 384,
-        "module": "saaaaaa.processing.spc_ingestion",
+        "module": "farfan_core.processing.spc_ingestion",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase1_to_phase2_adapter/__init__.py",
         "line": 56,
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase1_to_phase2_adapter/__init__.py",
         "line": 57,
-        "module": "saaaaaa.core.phases.phase_protocol",
+        "module": "farfan_core.core.phases.phase_protocol",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase1_to_phase2_adapter/__init__.py",
         "line": 61,
-        "module": "saaaaaa.processing.cpp_ingestion.models",
+        "module": "farfan_core.processing.cpp_ingestion.models",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/phases/phase1_to_phase2_adapter/__init__.py",
         "line": 276,
-        "module": "saaaaaa.utils.spc_adapter",
+        "module": "farfan_core.utils.spc_adapter",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/observability/__init__.py",
         "line": 3,
-        "module": "saaaaaa.core.observability.structured_logging",
+        "module": "farfan_core.core.observability.structured_logging",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/observability/__init__.py",
         "line": 4,
-        "module": "saaaaaa.core.observability.metrics",
+        "module": "farfan_core.core.observability.metrics",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/observability/metrics.py",
         "line": 14,
-        "module": "saaaaaa.core.runtime_config",
+        "module": "farfan_core.core.runtime_config",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/observability/metrics.py",
         "line": 15,
-        "module": "saaaaaa.core.contracts.runtime_contracts",
+        "module": "farfan_core.core.contracts.runtime_contracts",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/observability/structured_logging.py",
         "line": 12,
-        "module": "saaaaaa.core.runtime_config",
+        "module": "farfan_core.core.runtime_config",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/observability/structured_logging.py",
         "line": 13,
-        "module": "saaaaaa.core.contracts.runtime_contracts",
+        "module": "farfan_core.core.contracts.runtime_contracts",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/wiring/bootstrap.py",
         "line": 24,
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/wiring/bootstrap.py",
         "line": 25,
-        "module": "saaaaaa.core.orchestrator.arg_router",
+        "module": "farfan_core.core.orchestrator.arg_router",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/wiring/bootstrap.py",
         "line": 26,
-        "module": "saaaaaa.core.orchestrator.class_registry",
+        "module": "farfan_core.core.orchestrator.class_registry",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/wiring/bootstrap.py",
         "line": 27,
-        "module": "saaaaaa.core.orchestrator.executor_config",
+        "module": "farfan_core.core.orchestrator.executor_config",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/wiring/bootstrap.py",
         "line": 28,
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/wiring/bootstrap.py",
         "line": 29,
-        "module": "saaaaaa.core.orchestrator.signals",
+        "module": "farfan_core.core.orchestrator.signals",
         "severity": 10
       },
       {
@@ -1273,14 +1273,14 @@
         "type": "phantom_import",
         "file": "core/wiring/bootstrap.py",
         "line": 43,
-        "module": "saaaaaa.core.calibration.orchestrator",
+        "module": "farfan_core.core.calibration.orchestrator",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "core/wiring/bootstrap.py",
         "line": 44,
-        "module": "saaaaaa.core.calibration.config",
+        "module": "farfan_core.core.calibration.config",
         "severity": 10
       },
       {
@@ -1294,49 +1294,49 @@
         "type": "phantom_import",
         "file": "scoring/__init__.py",
         "line": 7,
-        "module": "saaaaaa.analysis.scoring.scoring",
+        "module": "farfan_core.analysis.scoring.scoring",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scoring/scoring.py",
         "line": 7,
-        "module": "saaaaaa.analysis.scoring.scoring",
+        "module": "farfan_core.analysis.scoring.scoring",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/graph_metrics_fallback.py",
         "line": 12,
-        "module": "saaaaaa.core.runtime_config",
+        "module": "farfan_core.core.runtime_config",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/graph_metrics_fallback.py",
         "line": 13,
-        "module": "saaaaaa.core.contracts.runtime_contracts",
+        "module": "farfan_core.core.contracts.runtime_contracts",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/graph_metrics_fallback.py",
         "line": 17,
-        "module": "saaaaaa.core.observability.structured_logging",
+        "module": "farfan_core.core.observability.structured_logging",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/graph_metrics_fallback.py",
         "line": 18,
-        "module": "saaaaaa.core.observability.metrics",
+        "module": "farfan_core.core.observability.metrics",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/enhance_recommendation_rules.py",
         "line": 17,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
@@ -1350,14 +1350,14 @@
         "type": "phantom_import",
         "file": "analysis/recommendation_engine.py",
         "line": 30,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/recommendation_engine.py",
         "line": 31,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
@@ -1385,91 +1385,91 @@
         "type": "phantom_import",
         "file": "analysis/recommendation_engine.py",
         "line": 170,
-        "module": "saaaaaa.core.canonical_notation",
+        "module": "farfan_core.core.canonical_notation",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/meso_cluster_analysis.py",
         "line": 27,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/meso_cluster_analysis.py",
         "line": 28,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/macro_prompts.py",
         "line": 24,
-        "module": "saaaaaa.utils.runtime_error_fixes",
+        "module": "farfan_core.utils.runtime_error_fixes",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/macro_prompts.py",
         "line": 25,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/macro_prompts.py",
         "line": 26,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/factory.py",
         "line": 17,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/scoring.py",
         "line": 72,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/scoring.py",
         "line": 73,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/contradiction_deteccion.py",
         "line": 37,
-        "module": "saaaaaa.core.dependency_lockdown",
+        "module": "farfan_core.core.dependency_lockdown",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/contradiction_deteccion.py",
         "line": 40,
-        "module": "saaaaaa.utils.runtime_error_fixes",
+        "module": "farfan_core.utils.runtime_error_fixes",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/contradiction_deteccion.py",
         "line": 41,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/contradiction_deteccion.py",
         "line": 42,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
@@ -1483,7 +1483,7 @@
         "type": "phantom_import",
         "file": "analysis/report_assembly.py",
         "line": 28,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
@@ -1497,28 +1497,28 @@
         "type": "phantom_import",
         "file": "analysis/spc_causal_bridge.py",
         "line": 12,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/spc_causal_bridge.py",
         "line": 13,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/scoring/scoring.py",
         "line": 37,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "analysis/scoring/scoring.py",
         "line": 38,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
@@ -1532,35 +1532,35 @@
         "type": "phantom_import",
         "file": "utils/proof_generator.py",
         "line": 19,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/schema_monitor.py",
         "line": 21,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/schema_monitor.py",
         "line": 22,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/runtime_error_fixes.py",
         "line": 13,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/coverage_gate.py",
         "line": 19,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
@@ -1574,154 +1574,154 @@
         "type": "phantom_import",
         "file": "utils/deterministic_execution.py",
         "line": 33,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/seed_factory.py",
         "line": 10,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/domain_errors.py",
         "line": 1,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/core_contracts.py",
         "line": 20,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/evidence_registry.py",
         "line": 15,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/contract_io.py",
         "line": 25,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/qmcm_hooks.py",
         "line": 14,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/qmcm_hooks.py",
         "line": 15,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/cpp_adapter.py",
         "line": 25,
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/cpp_adapter.py",
         "line": 26,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/cpp_adapter.py",
         "line": 27,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/cpp_adapter.py",
         "line": 59,
-        "module": "saaaaaa.core.wiring.validation",
+        "module": "farfan_core.core.wiring.validation",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/signature_validator.py",
         "line": 25,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/json_contract_loader.py",
         "line": 9,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/paths.py",
         "line": 23,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/validation_engine.py",
         "line": 22,
-        "module": "saaaaaa.utils.validation.predicates",
+        "module": "farfan_core.utils.validation.predicates",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/validation_engine.py",
         "line": 23,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/method_config_loader.py",
         "line": 11,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/method_config_loader.py",
         "line": 12,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/determinism_helpers.py",
         "line": 26,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/contracts_runtime.py",
         "line": 21,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/json_logger.py",
         "line": 22,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
@@ -1749,7 +1749,7 @@
         "type": "phantom_import",
         "file": "utils/determinism/seeds.py",
         "line": 10,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
@@ -1784,35 +1784,35 @@
         "type": "phantom_import",
         "file": "utils/validation/golden_rule.py",
         "line": 7,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/validation/contract_logger.py",
         "line": 29,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/validation/architecture_validator.py",
         "line": 18,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/validation/schema_validator.py",
         "line": 16,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "utils/validation/predicates.py",
         "line": 16,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
@@ -1826,105 +1826,105 @@
         "type": "phantom_import",
         "file": "api/pipeline_connector.py",
         "line": 20,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/pipeline_connector.py",
         "line": 60,
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/pipeline_connector.py",
         "line": 286,
-        "module": "saaaaaa.processing.spc_ingestion",
+        "module": "farfan_core.processing.spc_ingestion",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/pipeline_connector.py",
         "line": 287,
-        "module": "saaaaaa.utils.spc_adapter",
+        "module": "farfan_core.utils.spc_adapter",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/pipeline_connector.py",
         "line": 397,
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/auth_admin.py",
         "line": 12,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/pdet_colombia_data.py",
         "line": 10,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/api_server.py",
         "line": 48,
-        "module": "saaaaaa.analysis.recommendation_engine",
+        "module": "farfan_core.analysis.recommendation_engine",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/api_server.py",
         "line": 49,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/api_server.py",
         "line": 50,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/api_server.py",
         "line": 51,
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/api_server.py",
         "line": 52,
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/signals_service.py",
         "line": 30,
-        "module": "saaaaaa.core.orchestrator.questionnaire",
+        "module": "farfan_core.core.orchestrator.questionnaire",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/signals_service.py",
         "line": 31,
-        "module": "saaaaaa.core.orchestrator.signals",
+        "module": "farfan_core.core.orchestrator.signals",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "api/signals_service.py",
         "line": 32,
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "severity": 10
       },
       {
@@ -1966,14 +1966,14 @@
         "type": "phantom_import",
         "file": "audit/audit_system.py",
         "line": 32,
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "audit/audit_system.py",
         "line": 33,
-        "module": "saaaaaa.core.canonical_notation",
+        "module": "farfan_core.core.canonical_notation",
         "severity": 10
       },
       {
@@ -2001,105 +2001,105 @@
         "type": "phantom_import",
         "file": "devtools/ensure_install.py",
         "line": 13,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "devtools/ensure_install.py",
         "line": 14,
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 44,
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 45,
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 52,
-        "module": "saaaaaa.core.runtime_config",
+        "module": "farfan_core.core.runtime_config",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 53,
-        "module": "saaaaaa.core.boot_checks",
+        "module": "farfan_core.core.boot_checks",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 54,
-        "module": "saaaaaa.core.observability.structured_logging",
+        "module": "farfan_core.core.observability.structured_logging",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 55,
-        "module": "saaaaaa.core.orchestrator.seed_registry",
+        "module": "farfan_core.core.orchestrator.seed_registry",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 56,
-        "module": "saaaaaa.core.orchestrator.verification_manifest",
+        "module": "farfan_core.core.orchestrator.verification_manifest",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 60,
-        "module": "saaaaaa.core.phases.phase2_types",
+        "module": "farfan_core.core.phases.phase2_types",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 61,
-        "module": "saaaaaa.core.orchestrator.versions",
+        "module": "farfan_core.core.orchestrator.versions",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 129,
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 536,
-        "module": "saaaaaa.processing.spc_ingestion",
+        "module": "farfan_core.processing.spc_ingestion",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 570,
-        "module": "saaaaaa.utils.spc_adapter",
+        "module": "farfan_core.utils.spc_adapter",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "scripts/run_policy_pipeline_verified.py",
         "line": 611,
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "severity": 10
       },
       {
@@ -2197,49 +2197,49 @@
         "type": "phantom_import",
         "file": "flux/phases.py",
         "line": 20,
-        "module": "saaaaaa.core.runtime_config",
+        "module": "farfan_core.core.runtime_config",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "flux/phases.py",
         "line": 21,
-        "module": "saaaaaa.core.contracts.runtime_contracts",
+        "module": "farfan_core.core.contracts.runtime_contracts",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "flux/phases.py",
         "line": 26,
-        "module": "saaaaaa.core.observability.structured_logging",
+        "module": "farfan_core.core.observability.structured_logging",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "flux/phases.py",
         "line": 27,
-        "module": "saaaaaa.core.observability.metrics",
+        "module": "farfan_core.core.observability.metrics",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "flux/phases.py",
         "line": 31,
-        "module": "saaaaaa.utils.contract_io",
+        "module": "farfan_core.utils.contract_io",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "flux/phases.py",
         "line": 32,
-        "module": "saaaaaa.utils.json_logger",
+        "module": "farfan_core.utils.json_logger",
         "severity": 10
       },
       {
         "type": "phantom_import",
         "file": "flux/phases.py",
         "line": 33,
-        "module": "saaaaaa.utils.paths",
+        "module": "farfan_core.utils.paths",
         "severity": 10
       },
       {
@@ -2260,7 +2260,7 @@
         "type": "phantom_import",
         "file": "executors/D1Q1_executor.py",
         "line": 2,
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "severity": 10
       }
     ],
@@ -2385,7 +2385,7 @@
     "contracts.py": [
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.contracts",
+        "module": "farfan_core.utils.contracts",
         "names": [
           "MISSING",
           "AnalysisInputV1",
@@ -2552,7 +2552,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -2625,7 +2625,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -2635,7 +2635,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -2656,7 +2656,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.canonical_notation",
+        "module": "farfan_core.core.canonical_notation",
         "names": [
           "get_all_dimensions",
           "get_all_policy_areas"
@@ -2769,7 +2769,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.runtime_error_fixes",
+        "module": "farfan_core.utils.runtime_error_fixes",
         "names": [
           "ensure_list_return"
         ],
@@ -2779,7 +2779,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.analysis.Analyzer_one",
+        "module": "farfan_core.analysis.Analyzer_one",
         "names": [
           "DocumentProcessor",
           "MunicipalAnalyzer",
@@ -2793,7 +2793,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.analysis.financiero_viabilidad_tablas",
+        "module": "farfan_core.analysis.financiero_viabilidad_tablas",
         "names": [
           "PDETAnalysisException",
           "QualityScore"
@@ -2804,7 +2804,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -2814,7 +2814,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -2824,7 +2824,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.analysis.contradiction_deteccion",
+        "module": "farfan_core.analysis.contradiction_deteccion",
         "names": [
           "BayesianConfidenceCalculator",
           "PolicyContradictionDetector",
@@ -2836,7 +2836,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.analysis.contradiction_deteccion",
+        "module": "farfan_core.analysis.contradiction_deteccion",
         "names": [
           "PolicyDimension"
         ],
@@ -2955,7 +2955,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -2965,7 +2965,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -3024,7 +3024,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "names": [
           "QUESTIONNAIRE_FILE"
         ],
@@ -3034,7 +3034,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.cpp_ingestion.models",
+        "module": "farfan_core.processing.cpp_ingestion.models",
         "names": [
           "CanonPolicyPackage"
         ],
@@ -3044,7 +3044,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.spc_ingestion.converter",
+        "module": "farfan_core.processing.spc_ingestion.converter",
         "names": [
           "SmartChunkConverter"
         ],
@@ -3054,7 +3054,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -3064,7 +3064,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.spc_ingestion.quality_gates",
+        "module": "farfan_core.processing.spc_ingestion.quality_gates",
         "names": [
           "SPCQualityGates"
         ],
@@ -3074,7 +3074,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.wiring.validation",
+        "module": "farfan_core.core.wiring.validation",
         "names": [
           "WiringValidator"
         ],
@@ -3105,7 +3105,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -3146,7 +3146,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -3156,7 +3156,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -3206,7 +3206,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.runtime_config",
+        "module": "farfan_core.core.runtime_config",
         "names": [
           "RuntimeConfig",
           "RuntimeMode"
@@ -3217,7 +3217,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.analysis.contradiction_detection",
+        "module": "farfan_core.analysis.contradiction_detection",
         "names": [
           "PolicyContradictionDetector"
         ],
@@ -3227,7 +3227,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.wiring.validator",
+        "module": "farfan_core.core.wiring.validator",
         "names": [
           "WiringValidator"
         ],
@@ -3246,7 +3246,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "names": [
           "Orchestrator"
         ],
@@ -3346,7 +3346,7 @@
     "core/aggregation.py": [
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.aggregation",
+        "module": "farfan_core.processing.aggregation",
         "names": [
           "AreaPolicyAggregator",
           "AreaScore",
@@ -3462,7 +3462,7 @@
     "core/contracts/__init__.py": [
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.core_contracts",
+        "module": "farfan_core.utils.core_contracts",
         "names": [
           "CDAFFrameworkInputContract",
           "CDAFFrameworkOutputContract",
@@ -3742,7 +3742,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.intrinsic_loader",
+        "module": "farfan_core.core.calibration.intrinsic_loader",
         "names": [
           "IntrinsicCalibrationLoader"
         ],
@@ -3752,7 +3752,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.layer_requirements",
+        "module": "farfan_core.core.calibration.layer_requirements",
         "names": [
           "get_required_layers_for_method"
         ],
@@ -4602,7 +4602,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "names": [
           "load_questionnaire"
         ],
@@ -4655,7 +4655,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_calibration_orchestrator",
           "get_parameter_loader"
@@ -4761,7 +4761,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.canonical_notation",
+        "module": "farfan_core.core.canonical_notation",
         "names": [
           "CanonicalDimension",
           "get_dimension_info"
@@ -4772,7 +4772,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "names": [
           "MethodExecutor"
         ],
@@ -4782,7 +4782,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "names": [
           "build_processor"
         ],
@@ -4792,7 +4792,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.policy_processor",
+        "module": "farfan_core.processing.policy_processor",
         "names": [
           "CausalDimension"
         ],
@@ -6457,7 +6457,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.observability",
+        "module": "farfan_core.observability",
         "names": [
           "get_tracer",
           "SpanKind"
@@ -6478,7 +6478,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.spc_ingestion",
+        "module": "farfan_core.processing.spc_ingestion",
         "names": [
           "CPPIngestionPipeline"
         ],
@@ -6575,7 +6575,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.spc_ingestion",
+        "module": "farfan_core.processing.spc_ingestion",
         "names": [
           "CPPIngestionPipeline"
         ],
@@ -6595,7 +6595,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.spc_adapter",
+        "module": "farfan_core.utils.spc_adapter",
         "names": [
           "SPCAdapter"
         ],
@@ -6623,7 +6623,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.chunk_router",
+        "module": "farfan_core.core.orchestrator.chunk_router",
         "names": [
           "ChunkRouter"
         ],
@@ -6652,7 +6652,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.wiring.validation",
+        "module": "farfan_core.core.wiring.validation",
         "names": [
           "WiringValidator"
         ],
@@ -7320,7 +7320,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "names": [
           "PROJECT_ROOT"
         ],
@@ -7330,7 +7330,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.evidence_assembler",
+        "module": "farfan_core.core.orchestrator.evidence_assembler",
         "names": [
           "EvidenceAssembler"
         ],
@@ -7340,7 +7340,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.evidence_validator",
+        "module": "farfan_core.core.orchestrator.evidence_validator",
         "names": [
           "EvidenceValidator"
         ],
@@ -7350,7 +7350,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.evidence_registry",
+        "module": "farfan_core.core.orchestrator.evidence_registry",
         "names": [
           "get_global_registry"
         ],
@@ -7360,7 +7360,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "names": [
           "MethodExecutor",
           "PreprocessedDocument"
@@ -7391,7 +7391,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "names": [
           "MethodExecutor"
         ],
@@ -7502,7 +7502,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.base_executor_with_contract",
+        "module": "farfan_core.core.orchestrator.base_executor_with_contract",
         "names": [
           "BaseExecutorWithContract"
         ],
@@ -7720,7 +7720,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.canonical_notation",
+        "module": "farfan_core.core.canonical_notation",
         "names": [
           "CanonicalDimension",
           "get_dimension_info"
@@ -7731,7 +7731,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "names": [
           "MethodExecutor"
         ],
@@ -7741,7 +7741,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "names": [
           "build_processor"
         ],
@@ -7845,7 +7845,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase_protocol",
+        "module": "farfan_core.core.phases.phase_protocol",
         "names": [
           "ContractValidationResult",
           "PhaseContract"
@@ -7856,7 +7856,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "names": [
           "QUESTIONNAIRE_FILE"
         ],
@@ -7991,7 +7991,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase0_input_validation",
+        "module": "farfan_core.core.phases.phase0_input_validation",
         "names": [
           "CanonicalInput"
         ],
@@ -8001,7 +8001,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.cpp_ingestion.models",
+        "module": "farfan_core.processing.cpp_ingestion.models",
         "names": [
           "CanonPolicyPackage",
           "ChunkGraph",
@@ -8015,7 +8015,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase1_models",
+        "module": "farfan_core.core.phases.phase1_models",
         "names": [
           "LanguageData",
           "PreprocessedDoc",
@@ -8040,7 +8040,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.cpp_ingestion.models",
+        "module": "farfan_core.processing.cpp_ingestion.models",
         "names": [
           "Chunk",
           "ChunkResolution",
@@ -8098,7 +8098,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase1_models",
+        "module": "farfan_core.core.phases.phase1_models",
         "names": [
           "SmartChunk"
         ],
@@ -8108,7 +8108,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.cpp_ingestion.models",
+        "module": "farfan_core.processing.cpp_ingestion.models",
         "names": [
           "CanonPolicyPackage"
         ],
@@ -8120,7 +8120,7 @@
     "core/phases/synthesis.py": [
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.aggregation",
+        "module": "farfan_core.processing.aggregation",
         "names": [
           "DimensionAggregator",
           "AreaPolicyAggregator",
@@ -8136,7 +8136,7 @@
     "core/phases/ingestion.py": [
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase1_spc_ingestion",
+        "module": "farfan_core.core.phases.phase1_spc_ingestion",
         "names": [
           "Phase1SPCIngestionContract",
           "PHASE1_VERSION",
@@ -8203,7 +8203,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "names": [
           "build_processor"
         ],
@@ -8213,7 +8213,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase_protocol",
+        "module": "farfan_core.core.phases.phase_protocol",
         "names": [
           "ContractValidationResult",
           "PhaseManifestBuilder",
@@ -8225,7 +8225,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase0_input_validation",
+        "module": "farfan_core.core.phases.phase0_input_validation",
         "names": [
           "CanonicalInput",
           "Phase0Input",
@@ -8237,7 +8237,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase1_spc_ingestion",
+        "module": "farfan_core.core.phases.phase1_spc_ingestion",
         "names": [
           "Phase1SPCIngestionContract"
         ],
@@ -8247,7 +8247,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase2_types",
+        "module": "farfan_core.core.phases.phase2_types",
         "names": [
           "validate_phase2_result"
         ],
@@ -8257,7 +8257,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase1_to_phase2_adapter",
+        "module": "farfan_core.core.phases.phase1_to_phase2_adapter",
         "names": [
           "AdapterContract"
         ],
@@ -8281,7 +8281,7 @@
     "core/phases/generation.py": [
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase2_types",
+        "module": "farfan_core.core.phases.phase2_types",
         "names": [
           "Phase2QuestionResult",
           "Phase2Result",
@@ -8404,7 +8404,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase_protocol",
+        "module": "farfan_core.core.phases.phase_protocol",
         "names": [
           "ContractValidationResult",
           "PhaseContract"
@@ -8415,7 +8415,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase0_input_validation",
+        "module": "farfan_core.core.phases.phase0_input_validation",
         "names": [
           "CanonicalInput"
         ],
@@ -8425,7 +8425,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.cpp_ingestion.models",
+        "module": "farfan_core.processing.cpp_ingestion.models",
         "names": [
           "CanonPolicyPackage"
         ],
@@ -8435,7 +8435,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.spc_ingestion",
+        "module": "farfan_core.processing.spc_ingestion",
         "names": [
           "CPPIngestionPipeline"
         ],
@@ -8574,7 +8574,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "names": [
           "PreprocessedDocument"
         ],
@@ -8584,7 +8584,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase_protocol",
+        "module": "farfan_core.core.phases.phase_protocol",
         "names": [
           "ContractValidationResult",
           "PhaseContract"
@@ -8595,7 +8595,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.cpp_ingestion.models",
+        "module": "farfan_core.processing.cpp_ingestion.models",
         "names": [
           "CanonPolicyPackage"
         ],
@@ -8605,7 +8605,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.spc_adapter",
+        "module": "farfan_core.utils.spc_adapter",
         "names": [
           "SPCAdapter"
         ],
@@ -8617,7 +8617,7 @@
     "core/observability/__init__.py": [
       {
         "type": "absolute",
-        "module": "saaaaaa.core.observability.structured_logging",
+        "module": "farfan_core.core.observability.structured_logging",
         "names": [
           "log_fallback",
           "get_logger"
@@ -8628,7 +8628,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.observability.metrics",
+        "module": "farfan_core.core.observability.metrics",
         "names": [
           "increment_fallback",
           "increment_segmentation_method",
@@ -8668,7 +8668,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.runtime_config",
+        "module": "farfan_core.core.runtime_config",
         "names": [
           "RuntimeMode"
         ],
@@ -8678,7 +8678,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.contracts.runtime_contracts",
+        "module": "farfan_core.core.contracts.runtime_contracts",
         "names": [
           "FallbackCategory",
           "SegmentationMethod",
@@ -8721,7 +8721,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.runtime_config",
+        "module": "farfan_core.core.runtime_config",
         "names": [
           "RuntimeMode"
         ],
@@ -8731,7 +8731,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.contracts.runtime_contracts",
+        "module": "farfan_core.core.contracts.runtime_contracts",
         "names": [
           "FallbackCategory"
         ],
@@ -8822,7 +8822,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "names": [
           "CONFIG_DIR",
           "DATA_DIR"
@@ -8833,7 +8833,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.arg_router",
+        "module": "farfan_core.core.orchestrator.arg_router",
         "names": [
           "ExtendedArgRouter"
         ],
@@ -8843,7 +8843,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.class_registry",
+        "module": "farfan_core.core.orchestrator.class_registry",
         "names": [
           "build_class_registry"
         ],
@@ -8853,7 +8853,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.executor_config",
+        "module": "farfan_core.core.orchestrator.executor_config",
         "names": [
           "ExecutorConfig"
         ],
@@ -8863,7 +8863,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "names": [
           "CoreModuleFactory"
         ],
@@ -8873,7 +8873,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.signals",
+        "module": "farfan_core.core.orchestrator.signals",
         "names": [
           "InMemorySignalSource",
           "SignalClient",
@@ -8927,7 +8927,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.orchestrator",
+        "module": "farfan_core.core.calibration.orchestrator",
         "names": [
           "CalibrationOrchestrator"
         ],
@@ -8937,7 +8937,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.config",
+        "module": "farfan_core.core.calibration.config",
         "names": [
           "DEFAULT_CALIBRATION_CONFIG"
         ],
@@ -9483,7 +9483,7 @@
     "scoring/__init__.py": [
       {
         "type": "absolute",
-        "module": "saaaaaa.analysis.scoring.scoring",
+        "module": "farfan_core.analysis.scoring.scoring",
         "names": [
           "EvidenceStructureError",
           "ModalityConfig",
@@ -9512,7 +9512,7 @@
     "scoring/scoring.py": [
       {
         "type": "absolute",
-        "module": "saaaaaa.analysis.scoring.scoring",
+        "module": "farfan_core.analysis.scoring.scoring",
         "names": [
           "EvidenceStructureError",
           "ModalityConfig",
@@ -9561,7 +9561,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.runtime_config",
+        "module": "farfan_core.core.runtime_config",
         "names": [
           "RuntimeConfig",
           "get_runtime_config"
@@ -9572,7 +9572,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.contracts.runtime_contracts",
+        "module": "farfan_core.core.contracts.runtime_contracts",
         "names": [
           "GraphMetricsInfo",
           "FallbackCategory"
@@ -9583,7 +9583,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.observability.structured_logging",
+        "module": "farfan_core.core.observability.structured_logging",
         "names": [
           "log_fallback"
         ],
@@ -9593,7 +9593,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.observability.metrics",
+        "module": "farfan_core.core.observability.metrics",
         "names": [
           "increment_graph_metrics_skipped"
         ],
@@ -9661,7 +9661,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -9755,7 +9755,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -9765,7 +9765,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -9806,7 +9806,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.canonical_notation",
+        "module": "farfan_core.core.canonical_notation",
         "names": [
           "get_all_dimensions",
           "get_all_policy_areas"
@@ -9870,7 +9870,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -9880,7 +9880,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -9944,7 +9944,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.runtime_error_fixes",
+        "module": "farfan_core.utils.runtime_error_fixes",
         "names": [
           "ensure_list_return"
         ],
@@ -9954,7 +9954,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -9964,7 +9964,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -10033,7 +10033,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -10157,7 +10157,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -10167,7 +10167,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -10338,7 +10338,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.dependency_lockdown",
+        "module": "farfan_core.core.dependency_lockdown",
         "names": [
           "get_dependency_lockdown"
         ],
@@ -10348,7 +10348,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.runtime_error_fixes",
+        "module": "farfan_core.utils.runtime_error_fixes",
         "names": [
           "ensure_list_return",
           "safe_text_extract"
@@ -10359,7 +10359,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -10369,7 +10369,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -10444,7 +10444,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -10516,7 +10516,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -10526,7 +10526,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -10682,7 +10682,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -10692,7 +10692,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -10773,7 +10773,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -10866,7 +10866,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -10876,7 +10876,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -10919,7 +10919,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -10996,7 +10996,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -11115,7 +11115,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -11191,7 +11191,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -11212,7 +11212,7 @@
     "utils/domain_errors.py": [
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -11244,7 +11244,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -11346,7 +11346,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -11430,7 +11430,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -11519,7 +11519,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -11529,7 +11529,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -11600,7 +11600,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "names": [
           "PreprocessedDocument",
           "ChunkData"
@@ -11611,7 +11611,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -11621,7 +11621,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -11631,7 +11631,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.wiring.validation",
+        "module": "farfan_core.core.wiring.validation",
         "names": [
           "WiringValidator"
         ],
@@ -11751,7 +11751,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -11822,7 +11822,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -11893,7 +11893,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -11955,7 +11955,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.validation.predicates",
+        "module": "farfan_core.utils.validation.predicates",
         "names": [
           "ValidationPredicates",
           "ValidationResult"
@@ -11966,7 +11966,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -12016,7 +12016,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -12026,7 +12026,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -12125,7 +12125,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -12179,7 +12179,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -12238,7 +12238,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -12376,7 +12376,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -12490,7 +12490,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -12569,7 +12569,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -12650,7 +12650,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -12732,7 +12732,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -12764,7 +12764,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -12904,7 +12904,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -12914,7 +12914,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "names": [
           "CACHE_DIR",
           "OUTPUT_DIR",
@@ -12936,7 +12936,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.spc_ingestion",
+        "module": "farfan_core.processing.spc_ingestion",
         "names": [
           "CPPIngestionPipeline"
         ],
@@ -12946,7 +12946,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.spc_adapter",
+        "module": "farfan_core.utils.spc_adapter",
         "names": [
           "SPCAdapter"
         ],
@@ -12956,7 +12956,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "names": [
           "get_output_path"
         ],
@@ -13035,7 +13035,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -13098,7 +13098,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -13258,7 +13258,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.analysis.recommendation_engine",
+        "module": "farfan_core.analysis.recommendation_engine",
         "names": [
           "load_recommendation_engine"
         ],
@@ -13268,7 +13268,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
           "get_parameter_loader"
         ],
@@ -13278,7 +13278,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -13288,7 +13288,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "names": [
           "create_orchestrator"
         ],
@@ -13298,7 +13298,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "names": [
           "PreprocessedDocument"
         ],
@@ -13410,7 +13410,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.questionnaire",
+        "module": "farfan_core.core.orchestrator.questionnaire",
         "names": [
           "load_questionnaire"
         ],
@@ -13420,7 +13420,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.signals",
+        "module": "farfan_core.core.orchestrator.signals",
         "names": [
           "PolicyArea",
           "SignalPack"
@@ -13431,7 +13431,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.calibration.decorators",
+        "module": "farfan_core.core.calibration.decorators",
         "names": [
           "calibrated_method"
         ],
@@ -13860,7 +13860,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "names": [
           "PROJECT_ROOT"
         ],
@@ -13870,7 +13870,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.canonical_notation",
+        "module": "farfan_core.core.canonical_notation",
         "names": [
           "CanonicalDimension"
         ],
@@ -14239,16 +14239,16 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
-          "saaaaaa"
+          "farfan_core"
         ],
         "line": 13,
         "is_star": false
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "names": [
           "PROJECT_ROOT"
         ],
@@ -14407,16 +14407,16 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa",
+        "module": "farfan_core",
         "names": [
-          "saaaaaa"
+          "farfan_core"
         ],
         "line": 44,
         "is_star": false
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "names": [
           "PROJECT_ROOT"
         ],
@@ -14426,7 +14426,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.runtime_config",
+        "module": "farfan_core.core.runtime_config",
         "names": [
           "RuntimeConfig",
           "get_runtime_config"
@@ -14437,7 +14437,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.boot_checks",
+        "module": "farfan_core.core.boot_checks",
         "names": [
           "run_boot_checks",
           "get_boot_check_summary",
@@ -14449,7 +14449,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.observability.structured_logging",
+        "module": "farfan_core.core.observability.structured_logging",
         "names": [
           "log_runtime_config_loaded"
         ],
@@ -14459,7 +14459,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.seed_registry",
+        "module": "farfan_core.core.orchestrator.seed_registry",
         "names": [
           "get_global_seed_registry"
         ],
@@ -14469,7 +14469,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.verification_manifest",
+        "module": "farfan_core.core.orchestrator.verification_manifest",
         "names": [
           "VerificationManifest",
           "verify_manifest_integrity"
@@ -14480,7 +14480,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.phases.phase2_types",
+        "module": "farfan_core.core.phases.phase2_types",
         "names": [
           "validate_phase2_result"
         ],
@@ -14490,7 +14490,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.versions",
+        "module": "farfan_core.core.orchestrator.versions",
         "names": [
           "get_all_versions"
         ],
@@ -14509,7 +14509,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.config.paths",
+        "module": "farfan_core.config.paths",
         "names": [
           "QUESTIONNAIRE_FILE"
         ],
@@ -14519,7 +14519,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.processing.spc_ingestion",
+        "module": "farfan_core.processing.spc_ingestion",
         "names": [
           "CPPIngestionPipeline"
         ],
@@ -14529,7 +14529,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.spc_adapter",
+        "module": "farfan_core.utils.spc_adapter",
         "names": [
           "SPCAdapter"
         ],
@@ -14539,7 +14539,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.factory",
+        "module": "farfan_core.core.orchestrator.factory",
         "names": [
           "build_processor"
         ],
@@ -15073,7 +15073,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.runtime_config",
+        "module": "farfan_core.core.runtime_config",
         "names": [
           "RuntimeConfig",
           "get_runtime_config"
@@ -15084,7 +15084,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.contracts.runtime_contracts",
+        "module": "farfan_core.core.contracts.runtime_contracts",
         "names": [
           "SegmentationMethod",
           "SegmentationInfo",
@@ -15096,7 +15096,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.observability.structured_logging",
+        "module": "farfan_core.core.observability.structured_logging",
         "names": [
           "log_fallback"
         ],
@@ -15106,7 +15106,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.observability.metrics",
+        "module": "farfan_core.core.observability.metrics",
         "names": [
           "increment_fallback",
           "increment_segmentation_method"
@@ -15117,7 +15117,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.contract_io",
+        "module": "farfan_core.utils.contract_io",
         "names": [
           "ContractEnvelope"
         ],
@@ -15127,7 +15127,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.json_logger",
+        "module": "farfan_core.utils.json_logger",
         "names": [
           "get_json_logger",
           "log_io_event"
@@ -15138,7 +15138,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.utils.paths",
+        "module": "farfan_core.utils.paths",
         "names": [
           "reports_dir"
         ],
@@ -15290,7 +15290,7 @@
       },
       {
         "type": "absolute",
-        "module": "saaaaaa.core.orchestrator.core",
+        "module": "farfan_core.core.orchestrator.core",
         "names": [
           "Evidence"
         ],

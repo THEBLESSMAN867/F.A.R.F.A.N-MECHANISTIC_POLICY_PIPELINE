@@ -1,7 +1,7 @@
 """Test questionnaire structure validation in factory.py."""
 import pytest
 
-from saaaaaa.core.orchestrator.factory import validate_questionnaire_structure
+from farfan_core.core.orchestrator.factory import validate_questionnaire_structure
 
 
 def test_valid_questionnaire_structure():

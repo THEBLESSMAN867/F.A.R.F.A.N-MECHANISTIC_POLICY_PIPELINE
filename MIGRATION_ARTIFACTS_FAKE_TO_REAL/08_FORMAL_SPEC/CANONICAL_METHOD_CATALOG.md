@@ -120,7 +120,7 @@ Methods are organized into layers:
 
 ### Centralized Calibration (177 methods)
 
-**Location:** `src/saaaaaa/core/orchestrator/calibration_registry.py`
+**Location:** `src/farfan_core/core/orchestrator/calibration_registry.py`
 
 Methods with centralized calibration are **fully compliant**. They use the canonical calibration system with:
 - Explicit `MethodCalibration` entries
@@ -165,7 +165,7 @@ Methods with embedded calibration have **local parametrization** that must be mi
 
 **Example Critical Case:**
 ```python
-# src.saaaaaa.analysis.scoring.scoring.score_type_a
+# src.farfan_core.analysis.scoring.scoring.score_type_a
 def score_type_a(self, evidence):
     threshold = 0.7  # ⚠️ EMBEDDED - should be in calibration_registry
     min_snippets = 3  # ⚠️ EMBEDDED
@@ -314,7 +314,7 @@ Validates catalog compliance with directive requirements.
 
 ### Calibration Registry
 
-**File:** `src/saaaaaa/core/orchestrator/calibration_registry.py`
+**File:** `src/farfan_core/core/orchestrator/calibration_registry.py`
 
 The canonical catalog **references** the calibration registry as the source of truth for centralized calibrations.
 
@@ -325,7 +325,7 @@ The canonical catalog **references** the calibration registry as the source of t
 
 ### Executor System
 
-**File:** `src/saaaaaa/core/orchestrator/executors.py`
+**File:** `src/farfan_core/core/orchestrator/executors.py`
 
 Executors are the primary consumers of calibrations.
 

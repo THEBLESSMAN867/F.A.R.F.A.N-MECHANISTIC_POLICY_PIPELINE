@@ -86,15 +86,15 @@ class ImportValidator:
         ]
 
         core_packages = [
-            "saaaaaa",
-            "saaaaaa.core",
-            "saaaaaa.processing",
-            "saaaaaa.analysis",
-            "saaaaaa.utils",
-            "saaaaaa.concurrency",
-            "saaaaaa.api",
-            "saaaaaa.infrastructure",
-            "saaaaaa.controls",
+            "farfan_core",
+            "farfan_core.core",
+            "farfan_core.processing",
+            "farfan_core.analysis",
+            "farfan_core.utils",
+            "farfan_core.concurrency",
+            "farfan_core.api",
+            "farfan_core.infrastructure",
+            "farfan_core.controls",
         ]
 
         dependency_modules = [

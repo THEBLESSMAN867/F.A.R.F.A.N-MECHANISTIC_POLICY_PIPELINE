@@ -7,8 +7,8 @@ Tests the complete flow using FrontierExecutorOrchestrator:
 import pytest
 from pathlib import Path
 
-from saaaaaa.core.orchestrator.executors import FrontierExecutorOrchestrator
-from saaaaaa.core.orchestrator.signals import SignalRegistry, SignalPack
+from farfan_core.core.orchestrator.executors import FrontierExecutorOrchestrator
+from farfan_core.core.orchestrator.signals import SignalRegistry, SignalPack
 
 
 class TestPolicyOrchestrationE2E:

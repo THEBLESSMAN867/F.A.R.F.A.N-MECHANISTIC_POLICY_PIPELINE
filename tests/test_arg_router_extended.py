@@ -9,7 +9,7 @@ These tests verify:
 
 import pytest
 
-from saaaaaa.core.orchestrator.arg_router import (
+from farfan_core.core.orchestrator.arg_router import (
     ExtendedArgRouter,
     ArgumentValidationError,
 )

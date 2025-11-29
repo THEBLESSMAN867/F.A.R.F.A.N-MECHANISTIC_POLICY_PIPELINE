@@ -15,8 +15,8 @@ import structlog
 # Add src to python path
 sys.path.append(str(Path(__file__).parent.parent / "src"))
 
-from saaaaaa.core.orchestrator.factory import build_processor
-from saaaaaa.core.orchestrator.core import PreprocessedDocument, Evidence
+from farfan_core.core.orchestrator.factory import build_processor
+from farfan_core.core.orchestrator.core import PreprocessedDocument, Evidence
 
 def setup_logging():
     """
@@ -102,7 +102,7 @@ async def main():
     # 4. Get the executor instance from the orchestrator
     # We need to instantiate the orchestrator to get the executor mapping
     try:
-        from saaaaaa.core.orchestrator.core import Orchestrator
+        from farfan_core.core.orchestrator.core import Orchestrator
         orchestrator = Orchestrator(
             method_executor=method_executor,
             questionnaire=questionnaire,

@@ -20,7 +20,7 @@ from unittest.mock import Mock, patch
 import pytest
 from pydantic import ValidationError
 
-from saaaaaa.core.orchestrator.signals import (
+from farfan_core.core.orchestrator.signals import (
     SignalPack,
     SignalRegistry,
     SignalClient,

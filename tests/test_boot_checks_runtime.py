@@ -8,8 +8,8 @@ and validates proper error handling and fallback behavior.
 import pytest
 from unittest.mock import patch, MagicMock
 
-from saaaaaa.core.runtime_config import RuntimeConfig, RuntimeMode
-from saaaaaa.core.boot_checks import (
+from farfan_core.core.runtime_config import RuntimeConfig, RuntimeMode
+from farfan_core.core.boot_checks import (
     run_boot_checks,
     get_boot_check_summary,
     BootCheckError,
@@ -62,7 +62,7 @@ class TestBootChecksInProdMode:
         )
         
         # Mock contradiction module as unavailable
-        with patch('saaaaaa.core.boot_checks.check_contradiction_module_available') as mock_check:
+        with patch('farfan_core.core.boot_checks.check_contradiction_module_available') as mock_check:
             mock_check.return_value = {
                 "status": "failed",
                 "component": "contradiction_module",
@@ -91,7 +91,7 @@ class TestBootChecksInProdMode:
             preferred_spacy_model="es_core_news_lg"
         )
         
-        with patch('saaaaaa.core.boot_checks.check_spacy_model_available') as mock_check:
+        with patch('farfan_core.core.boot_checks.check_spacy_model_available') as mock_check:
             mock_check.return_value = {
                 "status": "failed",
                 "component": "spacy_model",
@@ -120,7 +120,7 @@ class TestBootChecksInDevMode:
             preferred_spacy_model="es_core_news_lg"
         )
         
-        with patch('saaaaaa.core.boot_checks.check_contradiction_module_available') as mock_check:
+        with patch('farfan_core.core.boot_checks.check_contradiction_module_available') as mock_check:
             mock_check.return_value = {
                 "status": "warning",
                 "component": "contradiction_module",
@@ -148,7 +148,7 @@ class TestBootChecksInDevMode:
             preferred_spacy_model="es_core_news_lg"
         )
         
-        with patch('saaaaaa.core.boot_checks.check_networkx_available') as mock_check:
+        with patch('farfan_core.core.boot_checks.check_networkx_available') as mock_check:
             mock_check.return_value = {
                 "status": "warning",
                 "component": "networkx",
@@ -180,8 +180,8 @@ class TestBootChecksInExploratoryMode:
         )
         
         # Even with multiple missing dependencies, should not fail
-        with patch('saaaaaa.core.boot_checks.check_contradiction_module_available') as mock1, \
-             patch('saaaaaa.core.boot_checks.check_networkx_available') as mock2:
+        with patch('farfan_core.core.boot_checks.check_contradiction_module_available') as mock1, \
+             patch('farfan_core.core.boot_checks.check_networkx_available') as mock2:
             
             mock1.return_value = {"status": "warning", "component": "contradiction_module", 
                                  "reason": "Fallback allowed", "code": "FALLBACK"}

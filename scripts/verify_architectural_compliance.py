@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "src" / "saaaaaa"
+SRC = ROOT / "src" / "farfan_core"
 
 
 def check_single_source_of_truth() -> Tuple[bool, list[str]]:

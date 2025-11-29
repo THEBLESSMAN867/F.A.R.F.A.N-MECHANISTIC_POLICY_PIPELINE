@@ -24,12 +24,12 @@ from pathlib import Path
 # Add src to path
 REPO_ROOT = Path(__file__).parent.parent
 
-from saaaaaa.core.orchestrator.signals import SignalRegistry, SignalClient, InMemorySignalSource
-from saaaaaa.core.orchestrator.signal_loader import (
+from farfan_core.core.orchestrator.signals import SignalRegistry, SignalClient, InMemorySignalSource
+from farfan_core.core.orchestrator.signal_loader import (
     build_signal_pack_from_monolith,
     build_all_signal_packs,
 )
-from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
+from farfan_core.core.orchestrator.questionnaire import load_questionnaire
 
 
 def verify_monolith_loading():
@@ -224,7 +224,7 @@ def verify_consumption_infrastructure():
     
     try:
         # Check signal_consumption module exists and works
-        from saaaaaa.core.orchestrator.signal_consumption import (
+        from farfan_core.core.orchestrator.signal_consumption import (
             SignalConsumptionProof,
             SignalManifest,
             build_merkle_tree,

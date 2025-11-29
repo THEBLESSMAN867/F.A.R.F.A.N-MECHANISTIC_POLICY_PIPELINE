@@ -127,7 +127,7 @@ for phase_id, status in metrics['phase_status'].items():
 ### With Orchestrator
 
 ```python
-from saaaaaa.core.orchestrator.core import Orchestrator
+from farfan_core.core.orchestrator.core import Orchestrator
 from metricas_y_seguimiento_canonico import get_system_health, export_metrics
 
 # Create orchestrator
@@ -164,13 +164,13 @@ def prometheus_format(metrics):
         'degraded': 0.5,
         'unhealthy': 0
     }.get(health['status'], 0)
-    lines.append(f'saaaaaa_health_status {status_value}')
+    lines.append(f'farfan_core_health_status {status_value}')
     
     # Resource metrics
     if 'resources' in health['components']:
         resources = health['components']['resources']
-        lines.append(f'saaaaaa_cpu_percent {resources.get("cpu_percent", 0)}')
-        lines.append(f'saaaaaa_memory_mb {resources.get("memory_mb", 0)}')
+        lines.append(f'farfan_core_cpu_percent {resources.get("cpu_percent", 0)}')
+        lines.append(f'farfan_core_memory_mb {resources.get("memory_mb", 0)}')
     
     return '\n'.join(lines)
 ```

@@ -2,7 +2,7 @@
 
 This test validates that the import path fix described in the problem statement
 has been correctly applied. It checks that all 22 classes have the proper
-saaaaaa. prefix in their import paths.
+farfan_core. prefix in their import paths.
 """
 
 import pytest
@@ -11,20 +11,20 @@ import pytest
 # Mark all tests in this module as outdated
 pytestmark = pytest.mark.skip(reason="Registry system refactored")
 
-def test_class_registry_paths_have_saaaaaa_prefix():
-    """Verify all class paths use absolute imports with saaaaaa. prefix."""
-    from saaaaaa.core.orchestrator.class_registry import get_class_paths
+def test_class_registry_paths_have_farfan_core_prefix():
+    """Verify all class paths use absolute imports with farfan_core. prefix."""
+    from farfan_core.core.orchestrator.class_registry import get_class_paths
 
     paths = get_class_paths()
 
-    # All paths should start with "saaaaaa."
+    # All paths should start with "farfan_core."
     for class_name, import_path in paths.items():
-        assert import_path.startswith("saaaaaa."), \
-            f"{class_name} has invalid path: {import_path} (should start with 'saaaaaa.')"
+        assert import_path.startswith("farfan_core."), \
+            f"{class_name} has invalid path: {import_path} (should start with 'farfan_core.')"
 
 def test_class_registry_has_all_expected_classes():
     """Verify all 22 classes from problem statement are registered."""
-    from saaaaaa.core.orchestrator.class_registry import get_class_paths
+    from farfan_core.core.orchestrator.class_registry import get_class_paths
 
     paths = get_class_paths()
 
@@ -78,66 +78,66 @@ def test_class_registry_has_all_expected_classes():
 
 def test_class_registry_paths_match_expected_modules():
     """Verify classes are mapped to the correct analysis/processing modules."""
-    from saaaaaa.core.orchestrator.class_registry import get_class_paths
+    from farfan_core.core.orchestrator.class_registry import get_class_paths
 
     paths = get_class_paths()
 
-    # Derek Beach classes should be in saaaaaa.analysis.derek_beach
+    # Derek Beach classes should be in farfan_core.analysis.derek_beach
     derek_beach_classes = [
         "CDAFFramework", "CausalExtractor", "OperationalizationAuditor",
         "FinancialAuditor", "BayesianMechanismInference"
     ]
     for class_name in derek_beach_classes:
-        assert paths[class_name].startswith("saaaaaa.analysis.derek_beach."), \
-            f"{class_name} should be in saaaaaa.analysis.derek_beach"
+        assert paths[class_name].startswith("farfan_core.analysis.derek_beach."), \
+            f"{class_name} should be in farfan_core.analysis.derek_beach"
 
-    # Contradiction detection classes should be in saaaaaa.analysis.contradiction_deteccion
+    # Contradiction detection classes should be in farfan_core.analysis.contradiction_deteccion
     contradiction_classes = [
         "PolicyContradictionDetector", "TemporalLogicVerifier", "BayesianConfidenceCalculator"
     ]
     for class_name in contradiction_classes:
-        assert paths[class_name].startswith("saaaaaa.analysis.contradiction_deteccion."), \
-            f"{class_name} should be in saaaaaa.analysis.contradiction_deteccion"
+        assert paths[class_name].startswith("farfan_core.analysis.contradiction_deteccion."), \
+            f"{class_name} should be in farfan_core.analysis.contradiction_deteccion"
 
-    # Analyzer_one classes should be in saaaaaa.analysis.Analyzer_one
+    # Analyzer_one classes should be in farfan_core.analysis.Analyzer_one
     analyzer_classes = [
         "SemanticAnalyzer", "PerformanceAnalyzer", "TextMiningEngine", "MunicipalOntology"
     ]
     for class_name in analyzer_classes:
-        assert paths[class_name].startswith("saaaaaa.analysis.Analyzer_one."), \
-            f"{class_name} should be in saaaaaa.analysis.Analyzer_one"
+        assert paths[class_name].startswith("farfan_core.analysis.Analyzer_one."), \
+            f"{class_name} should be in farfan_core.analysis.Analyzer_one"
 
-    # Theory of Change classes should be in saaaaaa.analysis.teoria_cambio
+    # Theory of Change classes should be in farfan_core.analysis.teoria_cambio
     teoria_classes = ["TeoriaCambio", "AdvancedDAGValidator"]
     for class_name in teoria_classes:
-        assert paths[class_name].startswith("saaaaaa.analysis.teoria_cambio."), \
-            f"{class_name} should be in saaaaaa.analysis.teoria_cambio"
+        assert paths[class_name].startswith("farfan_core.analysis.teoria_cambio."), \
+            f"{class_name} should be in farfan_core.analysis.teoria_cambio"
 
-    # Financial class should be in saaaaaa.analysis.financiero_viabilidad_tablas
+    # Financial class should be in farfan_core.analysis.financiero_viabilidad_tablas
     assert paths["PDETMunicipalPlanAnalyzer"].startswith(
-        "saaaaaa.analysis.financiero_viabilidad_tablas."
-    ), "PDETMunicipalPlanAnalyzer should be in saaaaaa.analysis.financiero_viabilidad_tablas"
+        "farfan_core.analysis.financiero_viabilidad_tablas."
+    ), "PDETMunicipalPlanAnalyzer should be in farfan_core.analysis.financiero_viabilidad_tablas"
 
-    # Embedding policy classes should be in saaaaaa.processing.embedding_policy
+    # Embedding policy classes should be in farfan_core.processing.embedding_policy
     embedding_classes = [
         "BayesianNumericalAnalyzer", "PolicyAnalysisEmbedder",
         "AdvancedSemanticChunker", "SemanticChunker"
     ]
     for class_name in embedding_classes:
-        assert paths[class_name].startswith("saaaaaa.processing.embedding_policy."), \
-            f"{class_name} should be in saaaaaa.processing.embedding_policy"
+        assert paths[class_name].startswith("farfan_core.processing.embedding_policy."), \
+            f"{class_name} should be in farfan_core.processing.embedding_policy"
 
-    # Policy processor classes should be in saaaaaa.processing.policy_processor
+    # Policy processor classes should be in farfan_core.processing.policy_processor
     processor_classes = [
         "IndustrialPolicyProcessor", "PolicyTextProcessor", "BayesianEvidenceScorer"
     ]
     for class_name in processor_classes:
-        assert paths[class_name].startswith("saaaaaa.processing.policy_processor."), \
-            f"{class_name} should be in saaaaaa.processing.policy_processor"
+        assert paths[class_name].startswith("farfan_core.processing.policy_processor."), \
+            f"{class_name} should be in farfan_core.processing.policy_processor"
 
 def test_class_registry_import_structure():
     """Test that class registry can be imported and has correct structure."""
-    from saaaaaa.core.orchestrator.class_registry import (
+    from farfan_core.core.orchestrator.class_registry import (
         ClassRegistryError,
         build_class_registry,
         get_class_paths,
@@ -157,14 +157,14 @@ def test_class_registry_import_structure():
 
 def test_semantic_chunker_alias():
     """Verify SemanticChunker is an alias for AdvancedSemanticChunker."""
-    from saaaaaa.core.orchestrator.class_registry import get_class_paths
+    from farfan_core.core.orchestrator.class_registry import get_class_paths
 
     paths = get_class_paths()
 
     # Both should point to the same class
     assert paths["SemanticChunker"] == paths["AdvancedSemanticChunker"], \
         "SemanticChunker should be an alias for AdvancedSemanticChunker"
-    assert paths["SemanticChunker"] == "saaaaaa.processing.embedding_policy.AdvancedSemanticChunker"
+    assert paths["SemanticChunker"] == "farfan_core.processing.embedding_policy.AdvancedSemanticChunker"
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

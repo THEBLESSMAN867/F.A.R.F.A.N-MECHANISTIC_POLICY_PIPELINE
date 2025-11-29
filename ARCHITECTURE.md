@@ -52,10 +52,10 @@ This project implements a **deterministic, auditable, and portable** import syst
 
 **Install with optional extras:**
 ```bash
-pip install saaaaaa[analytics]    # Polars, PyArrow
-pip install saaaaaa[ml]            # Torch, TensorFlow
-pip install saaaaaa[nlp]           # Transformers, Spacy
-pip install saaaaaa[all]           # Everything
+pip install farfan_core[analytics]    # Polars, PyArrow
+pip install farfan_core[ml]            # Torch, TensorFlow
+pip install farfan_core[nlp]           # Transformers, Spacy
+pip install farfan_core[all]           # Everything
 ```
 
 **Run equipment checks:**
@@ -177,7 +177,7 @@ El sistema implementa un pipeline de 9 fases con dependencias secuenciales estri
 
 #### 2.1.1. Phase 1 SPC Ingestion - Full Execution Contract
 
-**Implementación**: `src/saaaaaa/core/phases/phase1_spc_ingestion_full.py`
+**Implementación**: `src/farfan_core/core/phases/phase1_spc_ingestion_full.py`
 
 La Fase 1 (SPC Ingestion) ha sido refactorizada con un **contrato de ejecución estricto (weight: 10000)** que garantiza cero ambigüedad y determinismo total. El sistema opera bajo el principio: **cualquier desviación = terminación inmediata del pipeline**.
 
@@ -279,10 +279,10 @@ class Phase1FatalError(Exception):
 ##### Uso
 
 ```python
-from saaaaaa.core.phases.phase1_spc_ingestion_full import (
+from farfan_core.core.phases.phase1_spc_ingestion_full import (
     execute_phase_1_with_full_contract
 )
-from saaaaaa.core.phases.phase0_input_validation import CanonicalInput
+from farfan_core.core.phases.phase0_input_validation import CanonicalInput
 
 # Ejecutar con contrato estricto
 canon_package = execute_phase_1_with_full_contract(canonical_input)
@@ -420,7 +420,7 @@ Estructura serializada que empaqueta:
 Convierte CPP → `PreprocessedDocument` (formato esperado por ejecutores):
 
 ```python
-from saaaaaa.utils.cpp_adapter import CPPAdapter
+from farfan_core.utils.cpp_adapter import CPPAdapter
 
 adapter = CPPAdapter()
 cpp = load_cpp_from_disk("plan.cpp")
@@ -575,7 +575,7 @@ Configuraciones externas (JSON, TOML) solo en orchestrator layer, nunca en core.
 
 **Comando**:
 ```bash
-python -m pytest tests/ -v --cov=src/saaaaaa --cov-report=term-missing
+python -m pytest tests/ -v --cov=src/farfan_core --cov-report=term-missing
 ```
 
 ---
@@ -710,7 +710,7 @@ torch.backends.cudnn.benchmark = False
 
 **Configuración en CLI**:
 ```bash
-python -m saaaaaa.core.orchestrator \
+python -m farfan_core.core.orchestrator \
   --input plan.pdf \
   --output-dir results/ \
   --seed 42 \
@@ -724,7 +724,7 @@ python -m saaaaaa.core.orchestrator \
 Cada fase del pipeline produce un hash BLAKE3 acumulativo:
 
 ```python
-from saaaaaa.processing.cpp_ingestion import CPPIngestionPipeline
+from farfan_core.processing.cpp_ingestion import CPPIngestionPipeline
 
 pipeline = CPPIngestionPipeline()
 outcome = pipeline.ingest(Path("plan.pdf"), Path("output/"))

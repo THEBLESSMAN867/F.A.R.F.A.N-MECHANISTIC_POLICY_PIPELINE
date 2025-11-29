@@ -13,12 +13,12 @@ from pathlib import Path
 from types import MappingProxyType
 
 import pytest
-from saaaaaa.config.paths import PROJECT_ROOT
+from farfan_core.config.paths import PROJECT_ROOT
 
 
 def test_execute_phase_with_timeout_exists():
     """Verify execute_phase_with_timeout function exists and is importable."""
-    from saaaaaa.core.orchestrator.core import execute_phase_with_timeout
+    from farfan_core.core.orchestrator.core import execute_phase_with_timeout
     
     assert callable(execute_phase_with_timeout)
     assert asyncio.iscoroutinefunction(execute_phase_with_timeout)
@@ -26,7 +26,7 @@ def test_execute_phase_with_timeout_exists():
 
 def test_execute_phase_with_timeout_signature():
     """Verify execute_phase_with_timeout has correct signature supporting both modern and legacy params."""
-    from saaaaaa.core.orchestrator.core import execute_phase_with_timeout
+    from farfan_core.core.orchestrator.core import execute_phase_with_timeout
     
     sig = inspect.signature(execute_phase_with_timeout)
     params = list(sig.parameters.keys())
@@ -47,7 +47,7 @@ def test_execute_phase_with_timeout_signature():
 
 def test_phase_timeout_error_exists():
     """Verify PhaseTimeoutError exception class exists."""
-    from saaaaaa.core.orchestrator.core import PhaseTimeoutError
+    from farfan_core.core.orchestrator.core import PhaseTimeoutError
     
     assert issubclass(PhaseTimeoutError, RuntimeError)
     
@@ -61,7 +61,7 @@ def test_phase_timeout_error_exists():
 
 def test_phase_timeout_default_constant():
     """Verify PHASE_TIMEOUT_DEFAULT constant exists and has correct value."""
-    from saaaaaa.core.orchestrator.core import PHASE_TIMEOUT_DEFAULT
+    from farfan_core.core.orchestrator.core import PHASE_TIMEOUT_DEFAULT
     
     assert isinstance(PHASE_TIMEOUT_DEFAULT, int)
     assert PHASE_TIMEOUT_DEFAULT == 300  # 5 minutes
@@ -70,7 +70,7 @@ def test_phase_timeout_default_constant():
 @pytest.mark.asyncio
 async def test_execute_phase_with_timeout_legacy_signature():
     """Verify execute_phase_with_timeout works with legacy handler/args signature."""
-    from saaaaaa.core.orchestrator.core import execute_phase_with_timeout
+    from farfan_core.core.orchestrator.core import execute_phase_with_timeout
     
     async def test_handler(x, y):
         return x + y
@@ -88,14 +88,14 @@ async def test_execute_phase_with_timeout_legacy_signature():
 
 def test_mappingproxy_normalization_exists():
     """Verify _normalize_monolith_for_hash function exists."""
-    from saaaaaa.core.orchestrator.core import _normalize_monolith_for_hash
+    from farfan_core.core.orchestrator.core import _normalize_monolith_for_hash
     
     assert callable(_normalize_monolith_for_hash)
 
 
 def test_mappingproxy_uses_isinstance_not_string_check():
     """Verify MappingProxyType handling uses proper isinstance() checks, not string-based checks."""
-    from saaaaaa.core.orchestrator import core
+    from farfan_core.core.orchestrator import core
     import ast
     import inspect
     
@@ -119,7 +119,7 @@ def test_mappingproxy_uses_isinstance_not_string_check():
 
 def test_mappingproxy_json_serialization():
     """Verify MappingProxyType can be properly normalized and serialized to JSON."""
-    from saaaaaa.core.orchestrator.core import _normalize_monolith_for_hash
+    from farfan_core.core.orchestrator.core import _normalize_monolith_for_hash
     
     # Create a MappingProxyType with nested structures
     test_data = {
@@ -150,7 +150,7 @@ def test_mappingproxy_json_serialization():
 
 def test_mappingproxy_import_from_types():
     """Verify MappingProxyType is imported from the standard types module."""
-    from saaaaaa.core.orchestrator import core
+    from farfan_core.core.orchestrator import core
     import inspect
     
     source = inspect.getsource(core)
@@ -161,7 +161,7 @@ def test_mappingproxy_import_from_types():
 
 def test_evidence_registry_has_hash_index_not_by_hash():
     """Verify EvidenceRegistry uses hash_index attribute, not _by_hash."""
-    from saaaaaa.core.orchestrator import EvidenceRegistry
+    from farfan_core.core.orchestrator import EvidenceRegistry
     
     with tempfile.TemporaryDirectory() as tmpdir:
         registry = EvidenceRegistry(storage_path=Path(tmpdir) / "test.jsonl")
@@ -179,7 +179,7 @@ def test_evidence_registry_has_hash_index_not_by_hash():
 
 def test_evidence_registry_hash_index_type():
     """Verify hash_index is properly typed as dict[str, EvidenceRecord]."""
-    from saaaaaa.core.orchestrator import EvidenceRegistry, EvidenceRecord
+    from farfan_core.core.orchestrator import EvidenceRegistry, EvidenceRecord
     
     with tempfile.TemporaryDirectory() as tmpdir:
         # Disable DAG to avoid issues with parent_evidence_ids
@@ -227,13 +227,13 @@ def test_no_by_hash_usage_in_codebase():
 
 def test_all_three_issues_integration():
     """Integration test verifying all three issues are properly resolved."""
-    from saaaaaa.core.orchestrator.core import (
+    from farfan_core.core.orchestrator.core import (
         execute_phase_with_timeout,
         PhaseTimeoutError,
         PHASE_TIMEOUT_DEFAULT,
         _normalize_monolith_for_hash
     )
-    from saaaaaa.core.orchestrator import EvidenceRegistry
+    from farfan_core.core.orchestrator import EvidenceRegistry
     from types import MappingProxyType
     import tempfile
     from pathlib import Path

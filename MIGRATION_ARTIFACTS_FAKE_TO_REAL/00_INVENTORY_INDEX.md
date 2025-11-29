@@ -117,7 +117,7 @@
 ### Executor Implementations
 
 1. **executors_FAKE.py** (3,929 lines - OLD IMPLEMENTATION)
-   - **Location:** `src/saaaaaa/core/orchestrator/executors.py`
+   - **Location:** `src/farfan_core/core/orchestrator/executors.py`
    - **Architecture:** Hardcoded `execute()` methods
    - **Classes:** 30 executors (D1_Q1 through D6_Q5)
    - **Pattern:** D{n}_Q{m}_DescriptiveName (e.g., D1_Q1_QuantitativeBaselineExtractor)
@@ -130,7 +130,7 @@
      - Hardcoded values not derived from rubric
 
 2. **executors_contract_REAL.py** (216 lines - NEW IMPLEMENTATION)
-   - **Location:** `src/saaaaaa/core/orchestrator/executors_contract.py`
+   - **Location:** `src/farfan_core/core/orchestrator/executors_contract.py`
    - **Architecture:** Contract-driven routing via BaseExecutorWithContract
    - **Classes:** 30 contract executors (D1Q1 through D6Q5)
    - **Pattern:** D{n}Q{m}_Executor_Contract (aliased as D{n}Q{m}_Executor)
@@ -146,7 +146,7 @@
    - **Improvement:** 95% code reduction (3,929 → 216 lines)
 
 3. **base_executor_with_contract.py** (220 lines)
-   - **Location:** `src/saaaaaa/core/orchestrator/base_executor_with_contract.py`
+   - **Location:** `src/farfan_core/core/orchestrator/base_executor_with_contract.py`
    - **Purpose:** Abstract base class for contract-driven executors
    - **Features:**
      - Contract loading and validation
@@ -159,7 +159,7 @@
    - **Role:** Core framework for REAL executors
 
 4. **executors_SNAPSHOT.py** (3,929 lines)
-   - **Location:** `src/saaaaaa/core/orchestrator/executors_snapshot/executors.py`
+   - **Location:** `src/farfan_core/core/orchestrator/executors_snapshot/executors.py`
    - **Purpose:** Preserved copy of old executors.py
    - **Status:** ℹ️ SNAPSHOT (reference only, not executed)
    - **Use Case:** Historical reference, rollback capability
@@ -318,7 +318,7 @@ All 30 executor calibration files (D1-Q1 through D6-Q5):
 
 **Sample Entry:**
 ```json
-"src.saaaaaa.core.orchestrator.executors.D1Q1_Executor.execute": {
+"src.farfan_core.core.orchestrator.executors.D1Q1_Executor.execute": {
   "status": "placeholder_computed",
   "b_theory": 0.18,
   "b_impl": 0.365,

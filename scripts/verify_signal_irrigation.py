@@ -18,8 +18,8 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
-from saaaaaa.core.orchestrator.signal_registry import create_signal_registry
+from farfan_core.core.orchestrator.questionnaire import load_questionnaire
+from farfan_core.core.orchestrator.signal_registry import create_signal_registry
 
 # Sample policy text
 SAMPLE_TEXT = """
@@ -243,7 +243,7 @@ def verify_type_safety():
     """Verify type safety with Pydantic."""
     print_header("TEST 5: Type Safety")
 
-    from saaaaaa.core.orchestrator.signal_registry import ChunkingSignalPack
+    from farfan_core.core.orchestrator.signal_registry import ChunkingSignalPack
 
     # Test valid data
     try:

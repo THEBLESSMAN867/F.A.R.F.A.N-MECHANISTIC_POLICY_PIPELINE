@@ -6,8 +6,8 @@ This script targets the deprecated CPP ingestion implementation that no longer
 exists in this repository. The canonical ingestion path is:
 
     scripts/run_policy_pipeline_verified.py
-      → saaaaaa.processing.spc_ingestion.CPPIngestionPipeline
-      → saaaaaa.utils.spc_adapter.SPCAdapter
+      → farfan_core.processing.spc_ingestion.CPPIngestionPipeline
+      → farfan_core.utils.spc_adapter.SPCAdapter
       → Orchestrator
 
 Running this script will fail. Kept only for historical reference.
@@ -20,8 +20,8 @@ DEPRECATED: Use scripts/run_policy_pipeline_verified.py instead
 import sys
 from pathlib import Path
 
-from saaaaaa.utils.paths import data_dir
-from saaaaaa.processing.cpp_ingestion import CPPIngestionPipeline
+from farfan_core.utils.paths import data_dir
+from farfan_core.processing.cpp_ingestion import CPPIngestionPipeline
 
 
 def main():

@@ -220,7 +220,7 @@ Monotonicity: wᵢ + Σⱼ≠ᵢ Iᵢⱼ ≥ 0
 1. AST parsing for class extraction (no string matching)
 2. Cross-reference with `intrinsic_calibration.json`
 3. Pattern matching for D{n}Q{m} executor variants
-4. Module path analysis (src.saaaaaa.core.orchestrator.executors.*)
+4. Module path analysis (src.farfan_core.core.orchestrator.executors.*)
 5. Alias resolution (D{n}_Q{m} ↔ D{n}Q{m})
 
 **Status:** ✅ Fully automated, evidence-based, reproducible
@@ -229,7 +229,7 @@ Monotonicity: wᵢ + Σⱼ≠ᵢ Iᵢⱼ ≥ 0
 
 **FAKE Executor Sample (confirmed in calibration):**
 ```
-src.saaaaaa.core.orchestrator.executors.D1Q1_Executor.execute
+src.farfan_core.core.orchestrator.executors.D1Q1_Executor.execute
 ├─ Status: placeholder_computed
 ├─ b_theory: 0.18
 ├─ b_impl: 0.365
@@ -344,7 +344,7 @@ architecture_enforcement_audit.AnalysisReport.is_compliant
 **Evidence:**
 ```python
 # From intrinsic_calibration.json
-"src.saaaaaa.core.orchestrator.executors.D1Q1_Executor.execute": {
+"src.farfan_core.core.orchestrator.executors.D1Q1_Executor.execute": {
   "status": "placeholder_computed",
   "b_theory": 0.18,
   "b_impl": 0.365,

@@ -4,7 +4,7 @@
 
 ```python
 # V2 Contracts
-from saaaaaa.utils.contracts import (
+from farfan_core.utils.contracts import (
     AnalysisInputV2,
     AnalysisOutputV2,
     DocumentMetadataV2,
@@ -22,14 +22,14 @@ from saaaaaa.utils.contracts import (
 )
 
 # Deterministic Execution
-from saaaaaa.utils.deterministic_execution import (
+from farfan_core.utils.deterministic_execution import (
     DeterministicSeedManager,
     DeterministicExecutor,
     enforce_utc_now,
 )
 
 # Adapters (for migration)
-from saaaaaa.utils.contract_adapters import (
+from farfan_core.utils.contract_adapters import (
     adapt_analysis_input_v1_to_v2,
     adapt_document_metadata_v1_to_v2,
     v2_to_v1_dict,

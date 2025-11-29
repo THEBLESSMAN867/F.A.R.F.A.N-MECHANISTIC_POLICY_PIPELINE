@@ -17,7 +17,7 @@ import pytest
 # Mark all tests in this module as outdated
 pytestmark = pytest.mark.skip(reason="outdated - use test_contracts_comprehensive.py")
 
-from saaaaaa.contracts import (
+from farfan_core.contracts import (
     MISSING,
     AnalysisInputV1,
     AnalysisOutputV1,
@@ -212,7 +212,7 @@ class TestSentinelValues:
 
     def test_missing_sentinel_identity(self) -> None:
         """MISSING has identity semantics."""
-        from saaaaaa.contracts import MISSING as MISSING2
+        from farfan_core.contracts import MISSING as MISSING2
         assert MISSING is MISSING2
 
     def test_missing_sentinel_not_none(self) -> None:
@@ -277,7 +277,7 @@ class TestDocumentIngestionContracts:
         """DocumentLoader.load_pdf must use keyword-only params."""
         import inspect
 
-        from saaaaaa.contracts import DocumentLoaderProtocol
+        from farfan_core.contracts import DocumentLoaderProtocol
 
         # Check protocol signature
         sig = inspect.signature(DocumentLoaderProtocol.load_pdf)
@@ -297,7 +297,7 @@ class TestAnalyzerContracts:
         """Analyzer.analyze must use keyword-only params."""
         import inspect
 
-        from saaaaaa.contracts import AnalyzerProtocol
+        from farfan_core.contracts import AnalyzerProtocol
 
         sig = inspect.signature(AnalyzerProtocol.analyze)
         params = list(sig.parameters.values())

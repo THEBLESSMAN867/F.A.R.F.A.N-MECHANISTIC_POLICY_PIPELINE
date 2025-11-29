@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from saaaaaa.core.calibration.chain_layer import ChainLayerEvaluator
+from farfan_core.core.calibration.chain_layer import ChainLayerEvaluator
 import json
 
 def test_chain_discrete_scoring():

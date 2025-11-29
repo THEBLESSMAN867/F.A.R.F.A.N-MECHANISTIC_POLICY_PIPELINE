@@ -25,8 +25,8 @@ from typing import Any
 
 import pytest
 
-from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
-from saaaaaa.core.orchestrator.signal_registry import (
+from farfan_core.core.orchestrator.questionnaire import load_questionnaire
+from farfan_core.core.orchestrator.signal_registry import (
     ChunkingSignalPack,
     MicroAnsweringSignalPack,
     QuestionnaireSignalRegistry,

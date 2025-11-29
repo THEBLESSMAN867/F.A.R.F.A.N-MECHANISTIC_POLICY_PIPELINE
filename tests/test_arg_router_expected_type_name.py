@@ -5,7 +5,7 @@ import pytest
 # Mark all tests in this module as outdated
 pytestmark = pytest.mark.skip(reason="Merged into test_arg_router_extended.py")
 
-from saaaaaa.core.orchestrator.arg_router import PayloadDriftMonitor
+from farfan_core.core.orchestrator.arg_router import PayloadDriftMonitor
 
 
 def test_expected_type_name_with_tuple():

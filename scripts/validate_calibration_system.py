@@ -22,17 +22,17 @@ print("[TEST 1] File Structure Verification")
 print("-" * 70)
 
 required_files = [
-    "src/saaaaaa/core/calibration/__init__.py",
-    "src/saaaaaa/core/calibration/data_structures.py",
-    "src/saaaaaa/core/calibration/config.py",
-    "src/saaaaaa/core/calibration/pdt_structure.py",
-    "src/saaaaaa/core/calibration/unit_layer.py",
-    "src/saaaaaa/core/calibration/compatibility.py",
-    "src/saaaaaa/core/calibration/congruence_layer.py",
-    "src/saaaaaa/core/calibration/chain_layer.py",
-    "src/saaaaaa/core/calibration/meta_layer.py",
-    "src/saaaaaa/core/calibration/choquet_aggregator.py",
-    "src/saaaaaa/core/calibration/orchestrator.py",
+    "src/farfan_core/core/calibration/__init__.py",
+    "src/farfan_core/core/calibration/data_structures.py",
+    "src/farfan_core/core/calibration/config.py",
+    "src/farfan_core/core/calibration/pdt_structure.py",
+    "src/farfan_core/core/calibration/unit_layer.py",
+    "src/farfan_core/core/calibration/compatibility.py",
+    "src/farfan_core/core/calibration/congruence_layer.py",
+    "src/farfan_core/core/calibration/chain_layer.py",
+    "src/farfan_core/core/calibration/meta_layer.py",
+    "src/farfan_core/core/calibration/choquet_aggregator.py",
+    "src/farfan_core/core/calibration/orchestrator.py",
     "data/method_compatibility.json",
     "tests/calibration/test_data_structures.py",
     "scripts/pre_deployment_checklist.sh",
@@ -60,7 +60,7 @@ print("[TEST 2] Core Module Import Test")
 print("-" * 70)
 
 try:
-    from src.saaaaaa.core.calibration import (
+    from src.farfan_core.core.calibration import (
         LayerID,
         LayerScore,
         ContextTuple,
@@ -71,7 +71,7 @@ except Exception as e:
     sys.exit(1)
 
 try:
-    from src.saaaaaa.core.calibration.config import (
+    from src.farfan_core.core.calibration.config import (
         DEFAULT_CALIBRATION_CONFIG,
     )
     print("✓ Configuration modules imported successfully")
@@ -80,7 +80,7 @@ except Exception as e:
     sys.exit(1)
 
 try:
-    from src.saaaaaa.core.calibration import CalibrationOrchestrator
+    from src.farfan_core.core.calibration import CalibrationOrchestrator
     print("✓ Orchestrator imported successfully")
 except Exception as e:
     print(f"✗ Orchestrator import failed: {e}")
@@ -223,7 +223,7 @@ print("[TEST 6] Compatibility Registry & Anti-Universality")
 print("-" * 70)
 
 try:
-    from src.saaaaaa.core.calibration.compatibility import CompatibilityRegistry
+    from src.farfan_core.core.calibration.compatibility import CompatibilityRegistry
     
     compat_path = project_root / "data/method_compatibility.json"
     if compat_path.exists():
@@ -248,7 +248,7 @@ print("[TEST 7] End-to-End Calibration Test")
 print("-" * 70)
 
 try:
-    from src.saaaaaa.core.calibration.pdt_structure import PDTStructure
+    from src.farfan_core.core.calibration.pdt_structure import PDTStructure
     
     # Create minimal test scenario
     orchestrator = CalibrationOrchestrator(
@@ -306,7 +306,7 @@ print("[TEST 8] Executor Integration Verification")
 print("-" * 70)
 
 try:
-    from src.saaaaaa.core.orchestrator.executors import AdvancedDataFlowExecutor
+    from src.farfan_core.core.orchestrator.executors import AdvancedDataFlowExecutor
     import inspect
     
     # Check if constructor has calibration parameter

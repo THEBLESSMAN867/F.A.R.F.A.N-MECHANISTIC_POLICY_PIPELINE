@@ -10,8 +10,8 @@
   "methods": {
     "calibrated": [
       {
-        "method_id": "src.saaaaaa.core.orchestrator.advanced_module_config.AdvancedModuleConfig.model_post_init",
-        "canonical_name": "src.saaaaaa.core.orchestrator.advanced_module_config.AdvancedModuleConfig.model_post_init",
+        "method_id": "src.farfan_core.core.orchestrator.advanced_module_config.AdvancedModuleConfig.model_post_init",
+        "canonical_name": "src.farfan_core.core.orchestrator.advanced_module_config.AdvancedModuleConfig.model_post_init",
         "role": "META_TOOL",
         "calibration_status": "centralized",
         "calibration_date": "2025-11-18",
@@ -85,7 +85,7 @@
     ],
     "excluded": [
       {
-        "method_id": "src.saaaaaa.core.orchestrator.advanced_module_config.AcademicReference.cite_apa",
+        "method_id": "src.farfan_core.core.orchestrator.advanced_module_config.AcademicReference.cite_apa",
         "exclusion_reason": "Citation formatting - non-semantic utility",
         "triage_result": {
           "q1": false,
@@ -94,7 +94,7 @@
         }
       },
       {
-        "method_id": "src.saaaaaa.core.orchestrator.advanced_module_config.AdvancedModuleConfig.get_academic_references",
+        "method_id": "src.farfan_core.core.orchestrator.advanced_module_config.AdvancedModuleConfig.get_academic_references",
         "exclusion_reason": "Metadata accessor - non-analytical",
         "triage_result": {
           "q1": false,
@@ -103,7 +103,7 @@
         }
       },
       {
-        "method_id": "src.saaaaaa.core.orchestrator.advanced_module_config.AdvancedModuleConfig.describe_academic_basis",
+        "method_id": "src.farfan_core.core.orchestrator.advanced_module_config.AdvancedModuleConfig.describe_academic_basis",
         "exclusion_reason": "Documentation generation - non-analytical",
         "triage_result": {
           "q1": false,

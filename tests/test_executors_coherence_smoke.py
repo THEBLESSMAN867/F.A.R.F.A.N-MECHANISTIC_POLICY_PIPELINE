@@ -15,7 +15,7 @@ import pytest
 
 
 # Stub orchestrator dependencies to avoid circular imports during test import
-core_stub = types.ModuleType("saaaaaa.core.orchestrator.core")
+core_stub = types.ModuleType("farfan_core.core.orchestrator.core")
 
 
 class _FakeMethodExecutor:
@@ -41,9 +41,9 @@ core_stub.ScoredMicroQuestion = type("ScoredMicroQuestion", (), {})
 core_stub.Evidence = type("Evidence", (), {})
 core_stub.PreprocessedDocument = type("PreprocessedDocument", (), {})
 core_stub.Orchestrator = type("Orchestrator", (), {})
-sys.modules["saaaaaa.core.orchestrator.core"] = core_stub
+sys.modules["farfan_core.core.orchestrator.core"] = core_stub
 
-factory_stub = types.ModuleType("saaaaaa.core.orchestrator.factory")
+factory_stub = types.ModuleType("farfan_core.core.orchestrator.factory")
 
 
 def _fake_build_processor(me: _FakeMethodExecutor | None = None):
@@ -53,7 +53,7 @@ def _fake_build_processor(me: _FakeMethodExecutor | None = None):
 
 
 factory_stub.build_processor = _fake_build_processor
-sys.modules["saaaaaa.core.orchestrator.factory"] = factory_stub
+sys.modules["farfan_core.core.orchestrator.factory"] = factory_stub
 
 contract_loader = types.ModuleType("contract_loader")
 
@@ -65,9 +65,9 @@ class _Dummy:
 contract_loader.JSONContractLoader = _Dummy
 contract_loader.LoadError = _Dummy
 contract_loader.LoadResult = _Dummy
-sys.modules.setdefault("saaaaaa.core.orchestrator.contract_loader", contract_loader)
+sys.modules.setdefault("farfan_core.core.orchestrator.contract_loader", contract_loader)
 
-exec_mod = importlib.import_module("saaaaaa.core.orchestrator.executors")
+exec_mod = importlib.import_module("farfan_core.core.orchestrator.executors")
 
 
 def parse_docstring_methods(docstring: str) -> List[str]:

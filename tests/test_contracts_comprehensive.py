@@ -31,7 +31,7 @@ class TestScoringContracts:
 
     def test_scoring_precondition_evidence_dict(self):
         """Scoring requires evidence to be a dictionary."""
-        from saaaaaa.scoring.scoring import ModalityConfig, ScoringModality, score_type_a
+        from farfan_core.scoring.scoring import ModalityConfig, ScoringModality, score_type_a
 
         config = ModalityConfig(
             modality=ScoringModality.TYPE_A,
@@ -52,7 +52,7 @@ class TestScoringContracts:
 
     def test_scoring_postcondition_score_range(self):
         """Scoring postcondition: score must be within declared range."""
-        from saaaaaa.scoring.scoring import ModalityConfig, ScoringModality, score_type_a
+        from farfan_core.scoring.scoring import ModalityConfig, ScoringModality, score_type_a
 
         config = ModalityConfig(
             modality=ScoringModality.TYPE_A,
@@ -75,7 +75,7 @@ class TestScoringContracts:
 
     def test_scoring_invariant_determinism(self):
         """Scoring invariant: same input produces same output."""
-        from saaaaaa.scoring.scoring import ModalityConfig, ScoringModality, score_type_a
+        from farfan_core.scoring.scoring import ModalityConfig, ScoringModality, score_type_a
 
         config = ModalityConfig(
             modality=ScoringModality.TYPE_A,
@@ -101,7 +101,7 @@ class TestAggregationContracts:
 
     def test_dimension_aggregator_precondition_monolith(self):
         """DimensionAggregator requires valid monolith structure."""
-        from saaaaaa.core.aggregation import DimensionAggregator
+        from farfan_core.core.aggregation import DimensionAggregator
 
         # Valid monolith (minimal structure)
         valid_monolith = {
@@ -127,7 +127,7 @@ class TestAggregationContracts:
 
     def test_dimension_aggregator_postcondition_score_range(self):
         """Dimension aggregation postcondition: score in [0, 3]."""
-        from saaaaaa.core.aggregation import DimensionAggregator, ScoredResult
+        from farfan_core.core.aggregation import DimensionAggregator, ScoredResult
 
         monolith = {
             "questions": [],
@@ -170,7 +170,7 @@ class TestAggregationContracts:
 
     def test_aggregation_invariant_weights_sum_to_one(self):
         """Aggregation invariant: weights must sum to 1.0."""
-        from saaaaaa.core.aggregation import DimensionAggregator
+        from farfan_core.core.aggregation import DimensionAggregator
 
         monolith = {
             "questions": [],
@@ -207,7 +207,7 @@ class TestConcurrencyContracts:
 
     def test_worker_pool_precondition_max_workers(self):
         """WorkerPool requires max_workers >= 1."""
-        from saaaaaa.concurrency.concurrency import WorkerPool, WorkerPoolConfig
+        from farfan_core.concurrency.concurrency import WorkerPool, WorkerPoolConfig
 
         # Valid precondition
         config = WorkerPoolConfig(max_workers=4, max_retries=3, backoff_factor=2.0)
@@ -220,7 +220,7 @@ class TestConcurrencyContracts:
 
     def test_worker_pool_postcondition_result_type(self):
         """WorkerPool postcondition: submit returns TaskResult."""
-        from saaaaaa.concurrency.concurrency import TaskResult, WorkerPool, WorkerPoolConfig
+        from farfan_core.concurrency.concurrency import TaskResult, WorkerPool, WorkerPoolConfig
 
         config = WorkerPoolConfig(max_workers=2, max_retries=1, backoff_factor=1.0)
 
@@ -236,7 +236,7 @@ class TestConcurrencyContracts:
         """WorkerPool invariant: deterministic execution with same seed."""
         import random
 
-        from saaaaaa.concurrency.concurrency import WorkerPool, WorkerPoolConfig
+        from farfan_core.concurrency.concurrency import WorkerPool, WorkerPoolConfig
 
         config = WorkerPoolConfig(
             max_workers=2,
@@ -276,7 +276,7 @@ class TestSeedFactoryContracts:
 
     def test_seed_factory_precondition_correlation_id(self):
         """SeedFactory requires non-empty correlation_id."""
-        from saaaaaa.core.seed_factory import SeedFactory
+        from farfan_core.core.seed_factory import SeedFactory
 
         factory = SeedFactory()
 
@@ -292,7 +292,7 @@ class TestSeedFactoryContracts:
 
     def test_seed_factory_postcondition_range(self):
         """SeedFactory postcondition: seed is 32-bit unsigned integer."""
-        from saaaaaa.core.seed_factory import SeedFactory
+        from farfan_core.core.seed_factory import SeedFactory
 
         factory = SeedFactory()
 
@@ -303,7 +303,7 @@ class TestSeedFactoryContracts:
 
     def test_seed_factory_invariant_determinism(self):
         """SeedFactory invariant: same input produces same seed."""
-        from saaaaaa.core.seed_factory import SeedFactory
+        from farfan_core.core.seed_factory import SeedFactory
 
         factory = SeedFactory()
 
@@ -365,7 +365,7 @@ class TestInterModuleContracts:
 
     def test_scoring_to_aggregation_contract(self):
         """Test that scoring output matches aggregation input contract."""
-        from saaaaaa.scoring.scoring import ScoredResult
+        from farfan_core.scoring.scoring import ScoredResult
 
         # Create ScoredResult (scoring output)
         scored = ScoredResult(

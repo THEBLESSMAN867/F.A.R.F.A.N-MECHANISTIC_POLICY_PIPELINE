@@ -13,8 +13,8 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from saaaaaa.core.calibration import UnitLayerEvaluator, UnitLayerConfig
-from saaaaaa.core.calibration.pdt_structure import PDTStructure
+from farfan_core.core.calibration import UnitLayerEvaluator, UnitLayerConfig
+from farfan_core.core.calibration.pdt_structure import PDTStructure
 
 
 def create_high_quality_pdt() -> PDTStructure:

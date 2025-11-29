@@ -7,7 +7,7 @@ import pytest
 import sys
 from pathlib import Path
 
-from saaaaaa.core.orchestrator.core import (
+from farfan_core.core.orchestrator.core import (
     PhaseTimeoutError,
     execute_phase_with_timeout,
 )

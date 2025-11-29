@@ -15,7 +15,7 @@ def verify_all_methods_anchored():
     errors = []
     
     # 1. Scan all files
-    src_root = "src/saaaaaa"
+    src_root = "src/farfan_core"
     if not os.path.exists(src_root):
         print(f"Directory {src_root} not found.")
         return

@@ -22,8 +22,8 @@ from typing import Any
 
 # Add src to path for imports
 
-from saaaaaa.core.wiring.bootstrap import WiringBootstrap
-from saaaaaa.core.wiring.feature_flags import WiringFeatureFlags
+from farfan_core.core.wiring.bootstrap import WiringBootstrap
+from farfan_core.core.wiring.feature_flags import WiringFeatureFlags
 
 
 class Colors:
@@ -227,7 +227,7 @@ def validate_no_yaml_in_executors() -> bool:
     print_header("NO YAML IN EXECUTORS VALIDATION")
     
     repo_root = Path(__file__).parent.parent
-    executors_dir = repo_root / "src" / "saaaaaa" / "core" / "orchestrator"
+    executors_dir = repo_root / "src" / "farfan_core" / "core" / "orchestrator"
     
     if not executors_dir.exists():
         print_warning(f"Executors directory not found: {executors_dir}")
@@ -254,7 +254,7 @@ def validate_type_checking() -> bool:
     print_header("TYPE CHECKING VALIDATION")
     
     repo_root = Path(__file__).parent.parent
-    wiring_dir = repo_root / "src" / "saaaaaa" / "core" / "wiring"
+    wiring_dir = repo_root / "src" / "farfan_core" / "core" / "wiring"
     
     # Try pyright first
     try:

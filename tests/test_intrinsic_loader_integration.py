@@ -16,7 +16,7 @@ import threading
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.saaaaaa.core.calibration.intrinsic_loader import IntrinsicScoreLoader
+from src.farfan_core.core.calibration.intrinsic_loader import IntrinsicScoreLoader
 
 
 def test_lazy_loading():
@@ -307,9 +307,9 @@ def test_layer_field_extraction():
     # Test specific examples
     test_cases = [
         ("orchestrator.__init__.__getattr__", "orchestrator"),
-        ("src.saaaaaa.analysis.Analyzer_one.BatchProcessor.__init__", "analyzer"),
+        ("src.farfan_core.analysis.Analyzer_one.BatchProcessor.__init__", "analyzer"),
         ("smart_policy_chunks_canonic_phase_one.ArgumentAnalyzer.__init__", "processor"),
-        ("src.saaaaaa.utils.adapters._deprecation_warning", "utility"),
+        ("src.farfan_core.utils.adapters._deprecation_warning", "utility"),
     ]
 
     print("Testing specific layer extractions:")
@@ -414,7 +414,7 @@ def test_executor_coverage():
 
     loader = IntrinsicScoreLoader("config/intrinsic_calibration.json")
 
-    executor_template = "src.saaaaaa.core.orchestrator.executors.D{d}Q{q}_Executor.execute"
+    executor_template = "src.farfan_core.core.orchestrator.executors.D{d}Q{q}_Executor.execute"
 
     missing = []
     found = []

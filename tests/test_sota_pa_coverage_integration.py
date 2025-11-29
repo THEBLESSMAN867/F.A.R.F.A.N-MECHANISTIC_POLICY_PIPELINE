@@ -10,30 +10,30 @@ Tests all 5 components:
 
 import pytest
 
-from saaaaaa.core.orchestrator.signal_loader import build_all_signal_packs
-from saaaaaa.core.orchestrator.signals import SignalPack
-from saaaaaa.core.orchestrator.signal_aliasing import (
+from farfan_core.core.orchestrator.signal_loader import build_all_signal_packs
+from farfan_core.core.orchestrator.signals import SignalPack
+from farfan_core.core.orchestrator.signal_aliasing import (
     canonicalize_signal_fingerprint,
     upgrade_legacy_fingerprints,
     validate_fingerprint_uniqueness,
     build_fingerprint_index,
 )
-from saaaaaa.core.orchestrator.signal_quality_metrics import (
+from farfan_core.core.orchestrator.signal_quality_metrics import (
     compute_signal_quality_metrics,
     analyze_coverage_gaps,
     generate_quality_report,
 )
-from saaaaaa.core.orchestrator.signal_fallback_fusion import (
+from farfan_core.core.orchestrator.signal_fallback_fusion import (
     apply_intelligent_fallback_fusion,
     FusionStrategy,
     select_fusion_candidates,
 )
-from saaaaaa.core.orchestrator.signal_calibration_gate import (
+from farfan_core.core.orchestrator.signal_calibration_gate import (
     run_calibration_gates,
     CalibrationGateConfig,
     GateSeverity,
 )
-from saaaaaa.core.orchestrator.signal_cache_invalidation import (
+from farfan_core.core.orchestrator.signal_cache_invalidation import (
     SignalPackCache,
     build_cache_key,
     validate_cache_integrity,

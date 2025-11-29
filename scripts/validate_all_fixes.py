@@ -20,7 +20,7 @@ def validate_safe_strip():
     print("1. Validating _safe_strip function")
     print("=" * 70)
     
-    from saaaaaa.processing.cpp_ingestion.tables import _safe_strip
+    from farfan_core.processing.cpp_ingestion.tables import _safe_strip
     
     # Test cases
     test_cases = [
@@ -56,7 +56,7 @@ def validate_table_extraction():
     print("2. Validating table extraction with None values")
     print("=" * 70)
     
-    from saaaaaa.processing.cpp_ingestion.tables import TableExtractor
+    from farfan_core.processing.cpp_ingestion.tables import TableExtractor
     
     extractor = TableExtractor()
     
@@ -112,13 +112,13 @@ def validate_ingestion_outcome():
     print("3. Validating IngestionOutcome.cpp attribute")
     print("=" * 70)
     
-    from saaaaaa.processing.cpp_ingestion.models import (
+    from farfan_core.processing.cpp_ingestion.models import (
         IngestionOutcome,
         CanonPolicyPackage,
         PolicyManifest,
         ChunkGraph,
     )
-    from saaaaaa.utils.paths import tmp_dir
+    from farfan_core.utils.paths import tmp_dir
     
     # Create minimal CPP
     cpp = CanonPolicyPackage(
@@ -170,7 +170,7 @@ def validate_preprocessed_document():
     print("4. Validating PreprocessedDocument.raw_text attribute")
     print("=" * 70)
     
-    from saaaaaa.core.orchestrator.core import PreprocessedDocument
+    from farfan_core.core.orchestrator.core import PreprocessedDocument
     
     doc = PreprocessedDocument(
         document_id="test",
@@ -215,7 +215,7 @@ def validate_build_processor():
     print("=" * 70)
     
     import inspect
-    from saaaaaa.core.orchestrator.factory import build_processor
+    from farfan_core.core.orchestrator.factory import build_processor
     
     sig = inspect.signature(build_processor)
     params = sig.parameters

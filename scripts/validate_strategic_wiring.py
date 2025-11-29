@@ -288,7 +288,7 @@ def validate_determinism() -> bool:
     print_header("DETERMINISM VALIDATION")
 
     try:
-        from saaaaaa.core.seed_factory import create_deterministic_seed
+        from farfan_core.core.seed_factory import create_deterministic_seed
 
         # Test deterministic seed generation
         seed1 = create_deterministic_seed("test-001", question_id="Q1", policy_area="P1")
@@ -319,7 +319,7 @@ def validate_immutability() -> bool:
     print_header("IMMUTABILITY VALIDATION")
 
     try:
-        from saaaaaa.core.evidence_registry import EvidenceRegistry
+        from farfan_core.core.evidence_registry import EvidenceRegistry
 
         registry = EvidenceRegistry(auto_load=False)
 
@@ -361,7 +361,7 @@ def validate_golden_rules() -> bool:
     print_header("GOLDEN RULES VALIDATION")
 
     try:
-        from saaaaaa.utils.validation.golden_rule import GoldenRuleValidator, GoldenRuleViolation
+        from farfan_core.utils.validation.golden_rule import GoldenRuleValidator, GoldenRuleViolation
 
         step_catalog = ["step1", "step2", "step3"]
         questionnaire_hash = "test_hash_123"

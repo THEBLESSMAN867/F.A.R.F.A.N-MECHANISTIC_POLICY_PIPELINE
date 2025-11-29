@@ -284,7 +284,7 @@ class RuntimeAudit:
             return False
         
         # Check if it matches our known package structure
-        if s.startswith('saaaaaa'):
+        if s.startswith('farfan_core'):
             return True
         
         # Check if it contains common module patterns
@@ -463,8 +463,8 @@ class RuntimeAudit:
         if any(rel_path.startswith(d) for d in compat_dirs):
             # Check if this is a shim file
             if item.suffix == '.py' or item.name == '__init__.py':
-                # Keep if there's a corresponding file in src/saaaaaa/
-                src_counterpart = self.repo_root / "src" / "saaaaaa" / rel_path
+                # Keep if there's a corresponding file in src/farfan_core/
+                src_counterpart = self.repo_root / "src" / "farfan_core" / rel_path
                 if src_counterpart.exists() and src_counterpart in self.reachable_files:
                     return True
         
@@ -491,7 +491,7 @@ class RuntimeAudit:
         rel_path = str(item.relative_to(self.repo_root))
         compat_dirs = ['orchestrator/', 'concurrency/', 'core/', 'executors/', 'scoring/']
         if any(rel_path.startswith(d) for d in compat_dirs):
-            src_counterpart = self.repo_root / "src" / "saaaaaa" / rel_path
+            src_counterpart = self.repo_root / "src" / "farfan_core" / rel_path
             if src_counterpart.exists() and src_counterpart in self.reachable_files:
                 return "Compatibility shim for backward-compatible imports"
         

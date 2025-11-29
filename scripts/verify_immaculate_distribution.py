@@ -24,9 +24,9 @@ def run_verification():
 
     # 1. Load all necessary data to instantiate the Orchestrator
     try:
-        from saaaaaa.core.orchestrator.core import Orchestrator
-        from saaaaaa.core.orchestrator.factory import load_catalog, load_method_map, load_schema
-        from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
+        from farfan_core.core.orchestrator.core import Orchestrator
+        from farfan_core.core.orchestrator.factory import load_catalog, load_method_map, load_schema
+        from farfan_core.core.orchestrator.questionnaire import load_questionnaire
         
         logging.info("Loading Orchestrator dependencies...")
         catalog = load_catalog()

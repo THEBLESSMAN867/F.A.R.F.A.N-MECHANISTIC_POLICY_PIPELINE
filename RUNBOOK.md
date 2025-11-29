@@ -102,7 +102,7 @@ export PYTHONHASHSEED=42  # For determinism
 ```bash
 # Quick health check
 python3 -c "
-from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
+from farfan_core.core.orchestrator.questionnaire import load_questionnaire
 q = load_questionnaire()
 print(f'✓ System Ready: {q.total_question_count} questions loaded')
 print(f'✓ SHA256: {q.sha256[:16]}...')
@@ -170,7 +170,7 @@ echo ""
 
 # Questionnaire
 echo "4. Questionnaire Integrity:"
-python3 -c "from saaaaaa.core.orchestrator.questionnaire import load_questionnaire; q = load_questionnaire(); print(f'✓ {q.total_question_count} questions loaded')" 2>&1
+python3 -c "from farfan_core.core.orchestrator.questionnaire import load_questionnaire; q = load_questionnaire(); print(f'✓ {q.total_question_count} questions loaded')" 2>&1
 echo ""
 
 # Test data
@@ -243,7 +243,7 @@ EOF
 ```bash
 # Verify all 22 classes can be imported
 python3 << 'EOF'
-from saaaaaa.core.orchestrator.class_registry import ClassRegistry
+from farfan_core.core.orchestrator.class_registry import ClassRegistry
 
 registry = ClassRegistry()
 classes = registry.get_all_classes()
@@ -268,7 +268,7 @@ EOF
 ```bash
 # Verify signal system is operational
 python3 << 'EOF'
-from saaaaaa.core.orchestrator.signals import SignalClient
+from farfan_core.core.orchestrator.signals import SignalClient
 
 client = SignalClient(base_url="memory://")
 
@@ -335,7 +335,7 @@ grep "PIPELINE_VERIFIED=1" artifacts/plan1/verification_manifest.json
 # Verify HMAC integrity
 python3 << 'EOF'
 import json
-from saaaaaa.core.orchestrator.verification_manifest import verify_manifest_integrity
+from farfan_core.core.orchestrator.verification_manifest import verify_manifest_integrity
 
 with open('artifacts/plan1/verification_manifest.json') as f:
     manifest = json.load(f)
@@ -366,10 +366,10 @@ python scripts/run_complete_analysis_plan1.py
 python3 << 'EOF'
 import asyncio
 from pathlib import Path
-from saaaaaa.processing.spc_ingestion import CPPIngestionPipeline
-from saaaaaa.utils.spc_adapter import SPCAdapter
-from saaaaaa.core.orchestrator import Orchestrator
-from saaaaaa.core.orchestrator.factory import build_processor
+from farfan_core.processing.spc_ingestion import CPPIngestionPipeline
+from farfan_core.utils.spc_adapter import SPCAdapter
+from farfan_core.core.orchestrator import Orchestrator
+from farfan_core.core.orchestrator.factory import build_processor
 
 async def custom_pipeline():
     # Step 1: SPC Ingestion
@@ -655,7 +655,7 @@ serialized = json.dumps(data, sort_keys=True, ensure_ascii=True, separators=(','
 computed_hash = hashlib.sha256(serialized.encode()).hexdigest()
 
 # Load expected hash from code
-from saaaaaa.core.orchestrator.questionnaire import EXPECTED_HASH
+from farfan_core.core.orchestrator.questionnaire import EXPECTED_HASH
 
 if computed_hash == EXPECTED_HASH:
     print(f"✓ Questionnaire integrity verified")
@@ -718,7 +718,7 @@ python -X faulthandler scripts/run_policy_pipeline_verified.py \
 **Symptoms**:
 ```
 python: command not found
-ModuleNotFoundError: No module named 'saaaaaa'
+ModuleNotFoundError: No module named 'farfan_core'
 ```
 
 **Solution**:
@@ -833,7 +833,7 @@ pkill -f "python.*run_complete"
 ps aux | grep python | grep -v grep
 
 # Clean up temporary files
-rm -rf /tmp/saaaaaa_*
+rm -rf /tmp/farfan_core_*
 
 echo "✓ Emergency stop completed"
 ```
@@ -851,7 +851,7 @@ rm -rf artifacts/incomplete_run/
 python verify_dependencies.py
 
 # 4. Check questionnaire integrity
-python3 -c "from saaaaaa.core.orchestrator.questionnaire import load_questionnaire; load_questionnaire()"
+python3 -c "from farfan_core.core.orchestrator.questionnaire import load_questionnaire; load_questionnaire()"
 
 # 5. Restart pipeline
 python scripts/run_policy_pipeline_verified.py \
@@ -867,7 +867,7 @@ git status data/
 git checkout data/questionnaire_monolith.json
 
 # 2. Verify integrity
-python3 -c "from saaaaaa.core.orchestrator.questionnaire import load_questionnaire; load_questionnaire()"
+python3 -c "from farfan_core.core.orchestrator.questionnaire import load_questionnaire; load_questionnaire()"
 
 # 3. Re-run analysis
 python scripts/run_policy_pipeline_verified.py \
@@ -1019,7 +1019,7 @@ echo ""
 
 # Check 4: Questionnaire
 echo "4. Questionnaire Integrity"
-if python3 -c "from saaaaaa.core.orchestrator.questionnaire import load_questionnaire; load_questionnaire()" 2>/dev/null; then
+if python3 -c "from farfan_core.core.orchestrator.questionnaire import load_questionnaire; load_questionnaire()" 2>/dev/null; then
     echo -e "${GREEN}✓ Questionnaire loaded and verified${NC}"
     ((HEALTH_SCORE++))
 else
@@ -1029,7 +1029,7 @@ echo ""
 
 # Check 5: Class Registry
 echo "5. Class Registry"
-CLASS_COUNT=$(python3 -c "from saaaaaa.core.orchestrator.class_registry import ClassRegistry; print(len(ClassRegistry().get_all_classes()))" 2>/dev/null || echo "0")
+CLASS_COUNT=$(python3 -c "from farfan_core.core.orchestrator.class_registry import ClassRegistry; print(len(ClassRegistry().get_all_classes()))" 2>/dev/null || echo "0")
 if [ "$CLASS_COUNT" -ge "22" ]; then
     echo -e "${GREEN}✓ All $CLASS_COUNT classes registered${NC}"
     ((HEALTH_SCORE++))
@@ -1051,7 +1051,7 @@ echo ""
 
 # Check 7: Signal System
 echo "7. Signal System"
-if python3 -c "from saaaaaa.core.orchestrator.signals import SignalClient; c = SignalClient('memory://'); c.register_memory_signal('TEST', {}); c.fetch_signal_pack('TEST')" 2>/dev/null; then
+if python3 -c "from farfan_core.core.orchestrator.signals import SignalClient; c = SignalClient('memory://'); c.register_memory_signal('TEST', {}); c.fetch_signal_pack('TEST')" 2>/dev/null; then
     echo -e "${GREEN}✓ Signal system operational${NC}"
     ((HEALTH_SCORE++))
 else
@@ -1151,7 +1151,7 @@ echo ""
 
 # TC-002: Questionnaire
 echo "Running TC-002: Questionnaire Integrity..."
-if python3 -c "from saaaaaa.core.orchestrator.questionnaire import load_questionnaire; load_questionnaire()" 2>&1; then
+if python3 -c "from farfan_core.core.orchestrator.questionnaire import load_questionnaire; load_questionnaire()" 2>&1; then
     echo "✓ TC-002 PASSED"
 else
     echo "✗ TC-002 FAILED"
@@ -1161,7 +1161,7 @@ echo ""
 
 # TC-003: Class Registry
 echo "Running TC-003: Class Registry..."
-CLASS_COUNT=$(python3 -c "from saaaaaa.core.orchestrator.class_registry import ClassRegistry; print(len(ClassRegistry().get_all_classes()))" 2>/dev/null || echo "0")
+CLASS_COUNT=$(python3 -c "from farfan_core.core.orchestrator.class_registry import ClassRegistry; print(len(ClassRegistry().get_all_classes()))" 2>/dev/null || echo "0")
 if [ "$CLASS_COUNT" -ge "22" ]; then
     echo "✓ TC-003 PASSED ($CLASS_COUNT classes)"
 else

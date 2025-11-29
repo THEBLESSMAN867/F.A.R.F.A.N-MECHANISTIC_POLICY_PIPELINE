@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from saaaaaa.config.paths import SRC_DIR
-from saaaaaa.utils.proof_generator import (
+from farfan_core.config.paths import SRC_DIR
+from farfan_core.utils.proof_generator import (
     ProofData,
     compute_file_hash,
     compute_dict_hash,

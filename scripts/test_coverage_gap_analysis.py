@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Dict, List, Set
 
 REPO_ROOT = Path(__file__).parent.parent
-SRC_DIR = REPO_ROOT / "src" / "saaaaaa"
+SRC_DIR = REPO_ROOT / "src" / "farfan_core"
 TESTS_DIR = REPO_ROOT / "tests"
 OUTPUT_DIR = REPO_ROOT / "reports"
 
@@ -46,7 +46,7 @@ class CoverageGapAnalyzer:
 
     def __init__(self, repo_root: Path):
         self.repo_root = repo_root
-        self.src_dir = repo_root / "src" / "saaaaaa"
+        self.src_dir = repo_root / "src" / "farfan_core"
         self.tests_dir = repo_root / "tests"
         self.output_dir = repo_root / "reports"
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -111,8 +111,8 @@ class CoverageGapAnalyzer:
 
                 for node in ast.walk(tree):
                     if isinstance(node, ast.ImportFrom):
-                        if node.module and node.module.startswith("saaaaaa."):
-                            module_path = node.module[8:]  # Remove "saaaaaa."
+                        if node.module and node.module.startswith("farfan_core."):
+                            module_path = node.module[8:]  # Remove "farfan_core."
                             self.tested_modules.add(module_path)
 
             except Exception:

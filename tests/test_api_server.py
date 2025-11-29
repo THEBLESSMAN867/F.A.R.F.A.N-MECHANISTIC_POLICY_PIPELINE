@@ -1,5 +1,5 @@
 import pytest
-from saaaaaa.api.api_server import app
+from farfan_core.api.api_server import app
 
 @pytest.fixture
 def client():

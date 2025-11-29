@@ -3,7 +3,7 @@
 This module enforces the architectural guardrails requested by the
 refactoring plan:
 
-* Every ``saaaaaa.core`` module must be importable without crashing.
+* Every ``farfan_core.core`` module must be importable without crashing.
 * Pure library modules must stay free from ``__main__`` blocks and direct I/O.
 * ``import-linter`` layer contracts must remain satisfied when available.
 """
@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from saaaaaa.config.paths import PROJECT_ROOT, SRC_DIR
+from farfan_core.config.paths import PROJECT_ROOT, SRC_DIR
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -32,18 +32,18 @@ PACKAGE_ROOT = SRC_DIR
 
 # Modules that must stay pure (no __main__ and no direct I/O).
 PURE_MODULE_PATHS: dict[str, Path] = {
-    "saaaaaa.processing.embedding_policy": PACKAGE_ROOT / "processing" / "embedding_policy.py",
+    "farfan_core.processing.embedding_policy": PACKAGE_ROOT / "processing" / "embedding_policy.py",
 }
 
 # Legacy modules still undergoing I/O migration. We record them so that the
 # detector can surface the locations without failing the build yet.
 LEGACY_IO_MODULES: dict[str, Path] = {
-    "saaaaaa.analysis.Analyzer_one": PACKAGE_ROOT / "analysis" / "Analyzer_one.py",
-    "saaaaaa.analysis.derek_beach": PACKAGE_ROOT / "analysis" / "derek_beach.py",
-    "saaaaaa.analysis.financiero_viabilidad_tablas": PACKAGE_ROOT / "analysis" / "financiero_viabilidad_tablas.py",
-    "saaaaaa.analysis.teoria_cambio": PACKAGE_ROOT / "analysis" / "teoria_cambio.py",
-    "saaaaaa.analysis.contradiction_deteccion": PACKAGE_ROOT / "analysis" / "contradiction_deteccion.py",
-    "saaaaaa.processing.semantic_chunking_policy": PACKAGE_ROOT / "processing" / "semantic_chunking_policy.py",
+    "farfan_core.analysis.Analyzer_one": PACKAGE_ROOT / "analysis" / "Analyzer_one.py",
+    "farfan_core.analysis.derek_beach": PACKAGE_ROOT / "analysis" / "derek_beach.py",
+    "farfan_core.analysis.financiero_viabilidad_tablas": PACKAGE_ROOT / "analysis" / "financiero_viabilidad_tablas.py",
+    "farfan_core.analysis.teoria_cambio": PACKAGE_ROOT / "analysis" / "teoria_cambio.py",
+    "farfan_core.analysis.contradiction_deteccion": PACKAGE_ROOT / "analysis" / "contradiction_deteccion.py",
+    "farfan_core.processing.semantic_chunking_policy": PACKAGE_ROOT / "processing" / "semantic_chunking_policy.py",
 }
 
 class _IODetector(ast.NodeVisitor):
@@ -119,13 +119,13 @@ def _load_source(path: Path) -> ast.AST:
 
 def _iter_core_modules() -> Iterable[str]:
     package_path = PACKAGE_ROOT / "core"
-    for module_info in pkgutil.walk_packages([str(package_path)], prefix="saaaaaa.core."):
+    for module_info in pkgutil.walk_packages([str(package_path)], prefix="farfan_core.core."):
         if not module_info.ispkg:
             yield module_info.name
 
 @pytest.mark.parametrize("module_name", sorted(_iter_core_modules()))
 def test_core_modules_import_cleanly(module_name: str) -> None:
-    """Every module inside ``saaaaaa.core`` must be importable."""
+    """Every module inside ``farfan_core.core`` must be importable."""
 
     spec = importlib.util.find_spec(module_name)
     if spec is None:
@@ -182,16 +182,16 @@ def test_import_linter_layer_contract(tmp_path: Path) -> None:
     config.write_text(
         """
 [importlinter]
-root_package = saaaaaa
+root_package = farfan_core
 
 [contract:core-does-not-import-tests]
 name = Core package must not import tests
 type = forbidden
 source_modules =
-    saaaaaa.core
+    farfan_core.core
 forbidden_modules =
     tests
-    saaaaaa.tests
+    farfan_core.tests
         """.strip()
     )
 

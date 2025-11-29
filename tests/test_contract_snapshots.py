@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from saaaaaa.utils import contracts as core_contracts
+from farfan_core.utils import contracts as core_contracts
 
 
 # Mark all tests in this module as outdated

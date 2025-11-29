@@ -12,7 +12,7 @@ from typing import Dict, Any
 
 def warmup_memory_signals() -> Dict[str, Any]:
     """Warm up memory:// signal cache with test data."""
-    from saaaaaa.core.orchestrator.signals import SignalClient, SignalPack
+    from farfan_core.core.orchestrator.signals import SignalClient, SignalPack
     
     client = SignalClient(base_url="memory://")
     
@@ -46,7 +46,7 @@ def warmup_memory_signals() -> Dict[str, Any]:
 
 def initialize_signal_registry(max_size: int = 100, ttl_s: int = 3600) -> Dict[str, Any]:
     """Initialize SignalRegistry with specified parameters."""
-    from saaaaaa.core.orchestrator.signals import SignalRegistry
+    from farfan_core.core.orchestrator.signals import SignalRegistry
     
     registry = SignalRegistry(max_size=max_size, default_ttl_s=ttl_s)
     
@@ -59,7 +59,7 @@ def initialize_signal_registry(max_size: int = 100, ttl_s: int = 3600) -> Dict[s
 
 def verify_signal_hit_rate(threshold: float = 0.95) -> Dict[str, Any]:
     """Verify signal hit rate meets threshold."""
-    from saaaaaa.core.orchestrator.signals import SignalClient
+    from farfan_core.core.orchestrator.signals import SignalClient
     
     client = SignalClient(base_url="memory://")
     

@@ -82,7 +82,7 @@
         },
         "executor_module": {
           "type": "string",
-          "description": "Python module path (e.g., saaaaaa.core.orchestrator.executors_contract)"
+          "description": "Python module path (e.g., farfan_core.core.orchestrator.executors_contract)"
         }
       },
       "additionalProperties": false

@@ -10,8 +10,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from saaaaaa.core.orchestrator.signals import SignalPack, SignalRegistry
-from saaaaaa.core.orchestrator.executors import AdvancedDataFlowExecutor
+from farfan_core.core.orchestrator.signals import SignalPack, SignalRegistry
+from farfan_core.core.orchestrator.executors import AdvancedDataFlowExecutor
 
 
 class MockMethodExecutor:

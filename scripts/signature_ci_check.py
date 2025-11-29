@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Any
 
 # Add project root to path
-from saaaaaa.utils.signature_validator import (
+from farfan_core.utils.signature_validator import (
     FunctionSignature,
     SignatureMismatch,
     SignatureRegistry,

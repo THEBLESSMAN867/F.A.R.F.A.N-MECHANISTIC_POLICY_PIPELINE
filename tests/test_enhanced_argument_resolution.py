@@ -16,7 +16,7 @@ import pytest
 # Mark all tests in this module as outdated
 pytestmark = pytest.mark.skip(reason="Argument resolution now in ArgRouter extended tests")
 
-from saaaaaa.core.orchestrator.executors import AdvancedDataFlowExecutor, D1Q1_Executor
+from farfan_core.core.orchestrator.executors import AdvancedDataFlowExecutor, D1Q1_Executor
 
 
 class MockDoc:
@@ -122,7 +122,7 @@ class TestGraphResolution:
     
     def test_graph_resolution_returns_unset_when_unavailable(self):
         """Test that graph resolution returns _ARG_UNSET when unavailable"""
-        from saaaaaa.core.orchestrator.executors import _ARG_UNSET
+        from farfan_core.core.orchestrator.executors import _ARG_UNSET
         
         mock_method_executor = MockExecutor()
         executor = D1Q1_Executor(mock_method_executor)

@@ -4,13 +4,13 @@ from pathlib import Path
 
 import pytest
 
-from saaaaaa.core.orchestrator.core import Orchestrator, PreprocessedDocument
-from saaaaaa.core.orchestrator.executors_contract import D1Q1_Executor_Contract
-from saaaaaa.core.orchestrator.factory import build_processor
-from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
-from saaaaaa.core.phases.phase0_input_validation import Phase0Input, Phase0ValidationContract
-from saaaaaa.core.phases.phase1_spc_ingestion import Phase1SPCIngestionContract
-from saaaaaa.core.phases.phase1_to_phase2_adapter import AdapterContract
+from farfan_core.core.orchestrator.core import Orchestrator, PreprocessedDocument
+from farfan_core.core.orchestrator.executors_contract import D1Q1_Executor_Contract
+from farfan_core.core.orchestrator.factory import build_processor
+from farfan_core.core.orchestrator.questionnaire import load_questionnaire
+from farfan_core.core.phases.phase0_input_validation import Phase0Input, Phase0ValidationContract
+from farfan_core.core.phases.phase1_spc_ingestion import Phase1SPCIngestionContract
+from farfan_core.core.phases.phase1_to_phase2_adapter import AdapterContract
 
 
 def _load_d1q1_question() -> dict:

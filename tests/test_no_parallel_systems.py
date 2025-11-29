@@ -19,7 +19,7 @@ def test_no_parallel_systems():
     
     # Test 1: Singletons are unique
     try:
-        from saaaaaa import get_calibration_orchestrator, get_parameter_loader
+        from farfan_core import get_calibration_orchestrator, get_parameter_loader
         
         orch1 = get_calibration_orchestrator()
         orch2 = get_calibration_orchestrator()

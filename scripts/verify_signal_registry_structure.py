@@ -32,7 +32,7 @@ def analyze_signal_registry_module():
     """Analyze signal_registry.py module structure."""
     print_header("SIGNAL REGISTRY MODULE ANALYSIS")
 
-    module_path = Path("src/saaaaaa/core/orchestrator/signal_registry.py")
+    module_path = Path("src/farfan_core/core/orchestrator/signal_registry.py")
     if not module_path.exists():
         print(f"✗ Module not found: {module_path}")
         return {}
@@ -175,7 +175,7 @@ def check_file_sizes():
     print_header("IMPLEMENTATION COMPLETENESS CHECK")
 
     files = [
-        "src/saaaaaa/core/orchestrator/signal_registry.py",
+        "src/farfan_core/core/orchestrator/signal_registry.py",
         "tests/test_signal_irrigation_contrafactual.py",
         "tests/test_signal_irrigation_component_impact.py",
         "docs/SIGNAL_IRRIGATION_INNOVATION_AUDIT.md",
@@ -202,7 +202,7 @@ def verify_standards_compliance():
     """Verify standards compliance in code."""
     print_header("STANDARDS COMPLIANCE CHECK")
 
-    module_path = Path("src/saaaaaa/core/orchestrator/signal_registry.py")
+    module_path = Path("src/farfan_core/core/orchestrator/signal_registry.py")
     with open(module_path) as f:
         content = f.read()
 

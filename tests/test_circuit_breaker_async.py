@@ -6,7 +6,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_circuit_breaker_increment_failures():
     """Test that circuit breaker increments failures safely."""
-    from saaaaaa.core.orchestrator.executors import CircuitBreakerState
+    from farfan_core.core.orchestrator.executors import CircuitBreakerState
     
     cb = CircuitBreakerState()
     
@@ -29,7 +29,7 @@ async def test_circuit_breaker_increment_failures():
 @pytest.mark.asyncio
 async def test_circuit_breaker_concurrent_increments():
     """Test that circuit breaker handles concurrent increments correctly."""
-    from saaaaaa.core.orchestrator.executors import CircuitBreakerState
+    from farfan_core.core.orchestrator.executors import CircuitBreakerState
     
     cb = CircuitBreakerState()
     
@@ -45,7 +45,7 @@ async def test_circuit_breaker_concurrent_increments():
 @pytest.mark.asyncio
 async def test_circuit_breaker_reset():
     """Test that circuit breaker reset works correctly."""
-    from saaaaaa.core.orchestrator.executors import CircuitBreakerState
+    from farfan_core.core.orchestrator.executors import CircuitBreakerState
     
     cb = CircuitBreakerState()
     
@@ -66,7 +66,7 @@ async def test_circuit_breaker_reset():
 @pytest.mark.asyncio
 async def test_circuit_breaker_race_condition():
     """Test that circuit breaker is safe under race conditions."""
-    from saaaaaa.core.orchestrator.executors import CircuitBreakerState
+    from farfan_core.core.orchestrator.executors import CircuitBreakerState
     
     cb = CircuitBreakerState()
     

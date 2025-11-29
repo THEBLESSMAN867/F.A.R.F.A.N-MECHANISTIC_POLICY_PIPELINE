@@ -7,11 +7,11 @@ This guide shows how to integrate the new ContractEnvelope infrastructure with e
 ## Quick Start
 
 ```python
-from saaaaaa.utils.contract_io import ContractEnvelope
-from saaaaaa.utils.determinism_helpers import deterministic
-from saaaaaa.utils.json_logger import get_json_logger, log_io_event
-from saaaaaa.utils.flow_adapters import wrap_payload, unwrap_payload
-from saaaaaa.utils.domain_errors import DataContractError, SystemContractError
+from farfan_core.utils.contract_io import ContractEnvelope
+from farfan_core.utils.determinism_helpers import deterministic
+from farfan_core.utils.json_logger import get_json_logger, log_io_event
+from farfan_core.utils.flow_adapters import wrap_payload, unwrap_payload
+from farfan_core.utils.domain_errors import DataContractError, SystemContractError
 ```
 
 ## Integration Pattern
@@ -20,9 +20,9 @@ from saaaaaa.utils.domain_errors import DataContractError, SystemContractError
 
 ```python
 import time
-from saaaaaa.utils.contract_io import ContractEnvelope
-from saaaaaa.utils.determinism_helpers import deterministic
-from saaaaaa.utils.json_logger import get_json_logger, log_io_event
+from farfan_core.utils.contract_io import ContractEnvelope
+from farfan_core.utils.determinism_helpers import deterministic
+from farfan_core.utils.json_logger import get_json_logger, log_io_event
 
 def run_normalize(cfg, ingest_del, *, policy_unit_id: str, correlation_id: str | None = None):
     """Phase with ContractEnvelope integration."""
@@ -64,7 +64,7 @@ def run_normalize(cfg, ingest_del, *, policy_unit_id: str, correlation_id: str |
 ### 2. Executor Deterministic Seeding
 
 ```python
-from saaaaaa.utils.determinism_helpers import deterministic, create_deterministic_rng
+from farfan_core.utils.determinism_helpers import deterministic, create_deterministic_rng
 
 class AdvancedDataFlowExecutor:
     def execute(self, doc, method_executor, policy_unit_id: str, correlation_id: str | None = None):
@@ -86,7 +86,7 @@ class AdvancedDataFlowExecutor:
 ### 3. Flow Compatibility Adapters
 
 ```python
-from saaaaaa.utils.flow_adapters import wrap_payload, unwrap_payload
+from farfan_core.utils.flow_adapters import wrap_payload, unwrap_payload
 
 def consume_from_previous_stage(envelope: ContractEnvelope):
     """Extract payload from previous stage."""
@@ -102,7 +102,7 @@ def consume_from_previous_stage(envelope: ContractEnvelope):
 ### 4. Error Handling
 
 ```python
-from saaaaaa.utils.domain_errors import DataContractError, SystemContractError
+from farfan_core.utils.domain_errors import DataContractError, SystemContractError
 
 try:
     envelope = ContractEnvelope.wrap(payload, policy_unit_id="PDM-001")
@@ -188,7 +188,7 @@ Both systems can coexist:
 
 ```python
 # Use V2 Pydantic models for typed payloads
-from saaaaaa.utils.contracts import AnalysisInputV2, AnalysisOutputV2
+from farfan_core.utils.contracts import AnalysisInputV2, AnalysisOutputV2
 
 # Wrap in envelope for metadata
 input_v2 = AnalysisInputV2.create_from_text(...)
@@ -208,11 +208,11 @@ All new modules include in-script tests:
 
 ```bash
 # Test individual modules
-python src/saaaaaa/utils/contract_io.py
-python src/saaaaaa/utils/determinism_helpers.py
-python src/saaaaaa/utils/json_logger.py
-python src/saaaaaa/utils/domain_errors.py
-python src/saaaaaa/utils/flow_adapters.py
+python src/farfan_core/utils/contract_io.py
+python src/farfan_core/utils/determinism_helpers.py
+python src/farfan_core/utils/json_logger.py
+python src/farfan_core/utils/domain_errors.py
+python src/farfan_core/utils/flow_adapters.py
 
 # Run integration example
 python examples/contract_envelope_integration_example.py
@@ -220,7 +220,7 @@ python examples/contract_envelope_integration_example.py
 
 ## Next Steps
 
-1. **Wire into FLUX**: Update `saaaaaa/flux/phases.py` to use ContractEnvelope
+1. **Wire into FLUX**: Update `farfan_core/flux/phases.py` to use ContractEnvelope
 2. **Update Executors**: Add `deterministic()` context in `executors.py`
 3. **Add policy_unit_id**: Thread through pipeline entrypoints
 4. **Replace prints**: Use `get_json_logger()` for all logging

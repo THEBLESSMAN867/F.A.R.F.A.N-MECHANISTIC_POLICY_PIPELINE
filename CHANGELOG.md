@@ -145,7 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 config = load_yaml("config/executor.yml")
 
 # NEW (v0.1.0) - Python-based
-from saaaaaa.core.orchestrator.executor_config import BayesianConfig
+from farfan_core.core.orchestrator.executor_config import BayesianConfig
 config = BayesianConfig(prior_alpha=2.0, prior_beta=2.0)
 ```
 
@@ -158,7 +158,7 @@ from core.orchestrator import Orchestrator
 
 # NEW (v0.1.0) - Package installation
 # $ pip install -e .
-from saaaaaa.core.orchestrator import Orchestrator
+from farfan_core.core.orchestrator import Orchestrator
 ```
 
 #### Contract Validation

@@ -6,7 +6,7 @@ Verifies security fixes and proper parsing of the canonical spec.
 import json
 import pytest
 from pathlib import Path
-from src.saaaaaa.utils.method_config_loader import MethodConfigLoader
+from src.farfan_core.utils.method_config_loader import MethodConfigLoader
 
 
 @pytest.fixture

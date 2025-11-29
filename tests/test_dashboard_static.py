@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-HTML_PATH = ROOT / "src" / "saaaaaa" / "api" / "static" / "index.html"
+HTML_PATH = ROOT / "src" / "farfan_core" / "api" / "static" / "index.html"
 
 
 class IdCollector(HTMLParser):

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Migration Script: Root-level Modules → src/saaaaaa/
+Migration Script: Root-level Modules → src/farfan_core/
 ======================================================
 
 This script migrates root-level application modules into the canonical
-src/saaaaaa/ structure according to the Path Management Strategy.
+src/farfan_core/ structure according to the Path Management Strategy.
 
 Author: Python Pipeline Expert
 Date: 2025-11-15
@@ -24,7 +24,7 @@ class SrcLayoutMigrator:
 
     def __init__(self, root_dir: Path, dry_run: bool = True):
         self.root_dir = root_dir
-        self.src_dir = root_dir / "src" / "saaaaaa"
+        self.src_dir = root_dir / "src" / "farfan_core"
         self.dry_run = dry_run
         self.migrations: List[Tuple[Path, Path]] = []
         self.import_replacements: Dict[str, str] = {}
@@ -68,7 +68,7 @@ class SrcLayoutMigrator:
                     # Define import replacement
                     old_import = f"{module_name}."
                     new_import_path = str(target_dir.relative_to(self.src_dir)).replace('/', '.')
-                    new_import = f"saaaaaa.{new_import_path}."
+                    new_import = f"farfan_core.{new_import_path}."
                     if old_import not in self.import_replacements:
                         self.import_replacements[old_import] = new_import
 
@@ -80,7 +80,7 @@ class SrcLayoutMigrator:
 
                 old_import = f"import {module_name}"
                 new_import_path = str(target_dir.relative_to(self.src_dir)).replace('/', '.')
-                new_import = f"from saaaaaa.{new_import_path} import {module_name}"
+                new_import = f"from farfan_core.{new_import_path} import {module_name}"
                 self.import_replacements[old_import] = new_import
 
         print(f"\n📊 Summary:")
@@ -166,7 +166,7 @@ class SrcLayoutMigrator:
             for old_pattern, new_pattern in self.import_replacements.items():
                 # Handle different import styles
 
-                # 1. from saaaaaa.core.orchestrator.module import X
+                # 1. from farfan_core.core.orchestrator.module import X
                 old_from = f"from {old_pattern}"
                 new_from = f"from {new_pattern}"
                 content = content.replace(old_from, new_from)
@@ -174,7 +174,7 @@ class SrcLayoutMigrator:
                 # 2. import orchestrator
                 if old_pattern.endswith('.'):
                     module_name = old_pattern[:-1]
-                    # import orchestrator → from saaaaaa.core.orchestrator import core as orchestrator
+                    # import orchestrator → from farfan_core.core.orchestrator import core as orchestrator
                     content = re.sub(
                         rf'^import {module_name}(\s|$)',
                         new_pattern.rstrip('.') + r'\1',
@@ -205,17 +205,17 @@ class SrcLayoutMigrator:
             if module_path.is_dir():
                 init_file = module_path / "__init__.py"
                 deprecation_content = f'''"""
-DEPRECATED: This module has been moved to src/saaaaaa/
+DEPRECATED: This module has been moved to src/farfan_core/
 
 Please update your imports:
     OLD: from {module_name} import X
-    NEW: from saaaaaa.core.{module_name} import X  (or appropriate location)
+    NEW: from farfan_core.core.{module_name} import X  (or appropriate location)
 
 This module will be removed in a future version.
 """
 import warnings
 warnings.warn(
-    f"Module '{module_name}' has been moved to src/saaaaaa/. "
+    f"Module '{module_name}' has been moved to src/farfan_core/. "
     "Please update your imports.",
     DeprecationWarning,
     stacklevel=2

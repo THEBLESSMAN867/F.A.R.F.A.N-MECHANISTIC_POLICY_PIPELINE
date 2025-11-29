@@ -43,15 +43,15 @@ def test_core_compatibility_shims():
 def test_core_packages():
     """Test that all core packages can be imported"""
     packages = [
-        "saaaaaa",
-        "saaaaaa.core",
-        "saaaaaa.processing",
-        "saaaaaa.analysis",
-        "saaaaaa.utils",
-        "saaaaaa.concurrency",
-        "saaaaaa.api",
-        "saaaaaa.infrastructure",
-        "saaaaaa.controls",
+        "farfan_core",
+        "farfan_core.core",
+        "farfan_core.processing",
+        "farfan_core.analysis",
+        "farfan_core.utils",
+        "farfan_core.concurrency",
+        "farfan_core.api",
+        "farfan_core.infrastructure",
+        "farfan_core.controls",
     ]
 
     for package in packages:
@@ -62,7 +62,7 @@ def test_core_packages():
 
 def test_qmcm_hooks_backward_compatibility():
     """Test that qmcm_hooks has backward-compatible aliases"""
-    import saaaaaa.core.qmcm_hooks as qmcm_hooks
+    import farfan_core.core.qmcm_hooks as qmcm_hooks
 
     # Check that both old and new names work
     assert hasattr(qmcm_hooks, 'qmcm_record')
@@ -75,7 +75,7 @@ def test_qmcm_hooks_backward_compatibility():
 
 def test_signature_validator_backward_compatibility():
     """Test that signature_validator has backward-compatible aliases"""
-    import saaaaaa.utils.signature_validator as signature_validator
+    import farfan_core.utils.signature_validator as signature_validator
 
     # Check that both old and new names work
     assert hasattr(signature_validator, 'SignatureMismatch')
@@ -90,7 +90,7 @@ def test_signature_validator_backward_compatibility():
 
 def test_contracts_exports():
     """Test that contracts module exports expected symbols"""
-    import saaaaaa.contracts as contracts
+    import farfan_core.contracts as contracts
 
     expected_exports = [
         "AnalysisInputV1",
@@ -105,7 +105,7 @@ def test_contracts_exports():
 
 def test_aggregation_exports():
     """Test that aggregation module exports expected symbols"""
-    import saaaaaa.core.aggregation as aggregation
+    import farfan_core.core.aggregation as aggregation
 
     expected_exports = [
         "MacroAggregator",

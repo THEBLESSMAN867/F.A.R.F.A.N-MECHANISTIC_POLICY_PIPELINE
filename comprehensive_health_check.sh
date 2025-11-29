@@ -52,7 +52,7 @@ echo ""
 
 # Check 4: Questionnaire
 echo "4. Questionnaire Integrity"
-if python3 -c "from saaaaaa.core.orchestrator.questionnaire import load_questionnaire; load_questionnaire()" 2>/dev/null; then
+if python3 -c "from farfan_core.core.orchestrator.questionnaire import load_questionnaire; load_questionnaire()" 2>/dev/null; then
     echo -e "${GREEN}✓ Questionnaire loaded and verified${NC}"
     ((HEALTH_SCORE++))
 else
@@ -62,7 +62,7 @@ echo ""
 
 # Check 5: Class Registry
 echo "5. Class Registry"
-CLASS_COUNT=$(python3 -c "from saaaaaa.core.orchestrator.class_registry import ClassRegistry; print(len(ClassRegistry().get_all_classes()))" 2>/dev/null || echo "0")
+CLASS_COUNT=$(python3 -c "from farfan_core.core.orchestrator.class_registry import ClassRegistry; print(len(ClassRegistry().get_all_classes()))" 2>/dev/null || echo "0")
 if [ "$CLASS_COUNT" -ge "22" ]; then
     echo -e "${GREEN}✓ All $CLASS_COUNT classes registered${NC}"
     ((HEALTH_SCORE++))
@@ -84,7 +84,7 @@ echo ""
 
 # Check 7: Signal System
 echo "7. Signal System"
-if python3 -c "from saaaaaa.core.orchestrator.signals import SignalClient; c = SignalClient('memory://'); c.register_memory_signal('TEST', {}); c.fetch_signal_pack('TEST')" 2>/dev/null; then
+if python3 -c "from farfan_core.core.orchestrator.signals import SignalClient; c = SignalClient('memory://'); c.register_memory_signal('TEST', {}); c.fetch_signal_pack('TEST')" 2>/dev/null; then
     echo -e "${GREEN}✓ Signal system operational${NC}"
     ((HEALTH_SCORE++))
 else

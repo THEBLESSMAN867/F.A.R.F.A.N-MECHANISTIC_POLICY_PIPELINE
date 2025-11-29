@@ -12,8 +12,8 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.saaaaaa.core.calibration.base_layer import BaseLayerEvaluator
-from src.saaaaaa.core.calibration.intrinsic_loader import IntrinsicScoreLoader
+from src.farfan_core.core.calibration.base_layer import BaseLayerEvaluator
+from src.farfan_core.core.calibration.intrinsic_loader import IntrinsicScoreLoader
 
 
 def test_weights_loaded_from_json():
@@ -97,9 +97,9 @@ def test_consistency_with_intrinsic_loader():
     test_methods = [
         "orchestrator.__init__.__getattr__",
         "orchestrator.factory.build_processor",
-        "src.saaaaaa.core.orchestrator.executors.D1Q1_Executor.execute",
-        "src.saaaaaa.core.orchestrator.executors.D3Q2_Executor.execute",
-        "src.saaaaaa.core.orchestrator.executors.D6Q5_Executor.execute",
+        "src.farfan_core.core.orchestrator.executors.D1Q1_Executor.execute",
+        "src.farfan_core.core.orchestrator.executors.D3Q2_Executor.execute",
+        "src.farfan_core.core.orchestrator.executors.D6Q5_Executor.execute",
     ]
 
     print("Comparing scores (calibrated methods only):")

@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import pytest
 
-from saaaaaa.utils.spc_adapter import SPCAdapter, SPCAdapterError
-from saaaaaa.processing.cpp_ingestion.models import (
+from farfan_core.utils.spc_adapter import SPCAdapter, SPCAdapterError
+from farfan_core.processing.cpp_ingestion.models import (
     CanonPolicyPackage,
     Chunk,
     ChunkGraph,

@@ -7,7 +7,7 @@ from hypothesis import given, strategies as st
 import sys
 from pathlib import Path
 
-from saaaaaa.core.orchestrator.executors import MethodSequenceValidatingMixin
+from farfan_core.core.orchestrator.executors import MethodSequenceValidatingMixin
 
 
 class MockExecutor:

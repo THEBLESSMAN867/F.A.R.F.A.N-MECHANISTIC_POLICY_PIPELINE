@@ -118,7 +118,7 @@ class TestStrategicWiring(unittest.TestCase):
     def test_validation_engine_imports(self):
         """Verify validation_engine.py imports correctly."""
         try:
-            import saaaaaa.validation.validation_engine as validation_engine
+            import farfan_core.validation.validation_engine as validation_engine
             self.assertTrue(hasattr(validation_engine, 'ValidationEngine'))
             self.assertTrue(hasattr(validation_engine, 'ValidationReport'))
         except ImportError as e:
@@ -127,7 +127,7 @@ class TestStrategicWiring(unittest.TestCase):
     def test_seed_factory_imports(self):
         """Verify seed_factory.py imports correctly."""
         try:
-            import saaaaaa.core.seed_factory as seed_factory
+            import farfan_core.core.seed_factory as seed_factory
             self.assertTrue(hasattr(seed_factory, 'SeedFactory'))
             self.assertTrue(hasattr(seed_factory, 'DeterministicContext'))
             self.assertTrue(hasattr(seed_factory, 'create_deterministic_seed'))
@@ -137,7 +137,7 @@ class TestStrategicWiring(unittest.TestCase):
     def test_qmcm_hooks_imports(self):
         """Verify qmcm_hooks.py imports correctly."""
         try:
-            import saaaaaa.core.qmcm_hooks as qmcm_hooks
+            import farfan_core.core.qmcm_hooks as qmcm_hooks
             self.assertTrue(hasattr(qmcm_hooks, 'QMCMRecorder'))
             self.assertTrue(hasattr(qmcm_hooks, 'get_global_recorder'))
             self.assertTrue(hasattr(qmcm_hooks, 'qmcm_record'))
@@ -147,7 +147,7 @@ class TestStrategicWiring(unittest.TestCase):
     def test_evidence_registry_imports(self):
         """Verify evidence_registry.py imports correctly."""
         try:
-            import saaaaaa.core.evidence_registry as evidence_registry
+            import farfan_core.core.evidence_registry as evidence_registry
             self.assertTrue(hasattr(evidence_registry, 'EvidenceRegistry'))
             self.assertTrue(hasattr(evidence_registry, 'EvidenceRecord'))
         except ImportError as e:
@@ -156,7 +156,7 @@ class TestStrategicWiring(unittest.TestCase):
     def test_json_contract_loader_imports(self):
         """Verify json_contract_loader.py imports correctly."""
         try:
-            import saaaaaa.core.json_contract_loader as json_contract_loader
+            import farfan_core.core.json_contract_loader as json_contract_loader
             self.assertTrue(hasattr(json_contract_loader, 'JSONContractLoader'))
             self.assertTrue(hasattr(json_contract_loader, 'ContractDocument'))
             self.assertTrue(hasattr(json_contract_loader, 'ContractLoadReport'))
@@ -166,7 +166,7 @@ class TestStrategicWiring(unittest.TestCase):
     def test_validation_predicates_imports(self):
         """Verify validation/predicates.py imports correctly."""
         try:
-            from saaaaaa.utils.validation.predicates import ValidationPredicates, ValidationResult
+            from farfan_core.utils.validation.predicates import ValidationPredicates, ValidationResult
             self.assertIsNotNone(ValidationPredicates)
             self.assertIsNotNone(ValidationResult)
         except ImportError as e:
@@ -175,7 +175,7 @@ class TestStrategicWiring(unittest.TestCase):
     def test_golden_rule_imports(self):
         """Verify validation/golden_rule.py imports correctly."""
         try:
-            from saaaaaa.utils.validation.golden_rule import GoldenRuleValidator, GoldenRuleViolation
+            from farfan_core.utils.validation.golden_rule import GoldenRuleValidator, GoldenRuleViolation
             self.assertIsNotNone(GoldenRuleValidator)
             self.assertIsNotNone(GoldenRuleViolation)
         except ImportError as e:
@@ -184,7 +184,7 @@ class TestStrategicWiring(unittest.TestCase):
     def test_meso_cluster_analysis_imports(self):
         """Verify meso_cluster_analysis.py imports correctly."""
         try:
-            import saaaaaa.analysis.meso_cluster_analysis as meso_cluster_analysis
+            import farfan_core.analysis.meso_cluster_analysis as meso_cluster_analysis
             self.assertTrue(hasattr(meso_cluster_analysis, 'analyze_policy_dispersion'))
             self.assertTrue(hasattr(meso_cluster_analysis, 'reconcile_cross_metrics'))
             self.assertTrue(hasattr(meso_cluster_analysis, 'compose_cluster_posterior'))
@@ -194,7 +194,7 @@ class TestStrategicWiring(unittest.TestCase):
 
     def test_seed_factory_determinism(self):
         """Verify seed_factory produces deterministic seeds."""
-        from saaaaaa.core.seed_factory import create_deterministic_seed
+        from farfan_core.core.seed_factory import create_deterministic_seed
 
         # Same inputs should produce same seed
         seed1 = create_deterministic_seed("test-001", question_id="Q1", policy_area="P1")
@@ -210,7 +210,7 @@ class TestStrategicWiring(unittest.TestCase):
         """Verify evidence_registry maintains immutability."""
         import tempfile
 
-        from saaaaaa.core.evidence_registry import EvidenceRegistry
+        from farfan_core.core.evidence_registry import EvidenceRegistry
 
         # Use temporary directory for storage
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -238,7 +238,7 @@ class TestStrategicWiring(unittest.TestCase):
 
     def test_validation_engine_preconditions(self):
         """Verify validation_engine properly validates preconditions."""
-        from saaaaaa.utils.validation_engine import ValidationEngine
+        from farfan_core.utils.validation_engine import ValidationEngine
 
         engine = ValidationEngine()
 
@@ -266,7 +266,7 @@ class TestStrategicWiring(unittest.TestCase):
 
     def test_golden_rule_validator(self):
         """Verify golden_rule validator enforces immutability."""
-        from saaaaaa.utils.validation.golden_rule import GoldenRuleValidator, GoldenRuleViolation
+        from farfan_core.utils.validation.golden_rule import GoldenRuleValidator, GoldenRuleViolation
 
         step_catalog = ["step1", "step2", "step3"]
         questionnaire_hash = "abc123"
@@ -289,7 +289,7 @@ class TestStrategicWiring(unittest.TestCase):
 
     def test_qmcm_recorder_functionality(self):
         """Verify QMCM recorder tracks method calls."""
-        from saaaaaa.core.qmcm_hooks import QMCMRecorder
+        from farfan_core.core.qmcm_hooks import QMCMRecorder
 
         recorder = QMCMRecorder()
         recorder.clear_recording()
@@ -315,7 +315,7 @@ class TestStrategicWiring(unittest.TestCase):
         import json
         import tempfile
 
-        from saaaaaa.core.json_contract_loader import JSONContractLoader
+        from farfan_core.core.json_contract_loader import JSONContractLoader
 
         loader = JSONContractLoader()
 
@@ -344,7 +344,7 @@ class TestStrategicFileInteraction(unittest.TestCase):
     def test_validation_engine_uses_predicates(self):
         """Verify validation_engine properly integrates with predicates."""
         from validation.predicates import ValidationPredicates
-        from saaaaaa.utils.validation_engine import ValidationEngine
+        from farfan_core.utils.validation_engine import ValidationEngine
 
         engine = ValidationEngine()
 
@@ -355,7 +355,7 @@ class TestStrategicFileInteraction(unittest.TestCase):
         """Verify seed_factory context manager maintains state."""
         import random
 
-        from saaaaaa.core.seed_factory import DeterministicContext
+        from farfan_core.core.seed_factory import DeterministicContext
 
         # Save original state
         random.random()

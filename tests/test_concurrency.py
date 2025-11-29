@@ -15,7 +15,7 @@ import time
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 
-from saaaaaa.concurrency import (
+from farfan_core.concurrency import (
     TaskExecutionError,
     TaskStatus,
     WorkerPool,

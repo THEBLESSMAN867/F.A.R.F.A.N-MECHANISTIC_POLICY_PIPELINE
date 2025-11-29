@@ -29,7 +29,7 @@ def _ensure_sentence_transformer_stub() -> None:
 
 _ensure_sentence_transformer_stub()
 
-from saaaaaa.processing.embedding_policy import PolicyAnalysisEmbedder  # noqa: E402  - imported after stub
+from farfan_core.processing.embedding_policy import PolicyAnalysisEmbedder  # noqa: E402  - imported after stub
 
 @pytest.fixture()
 def embedder_stub() -> PolicyAnalysisEmbedder:

@@ -2,8 +2,8 @@
 
 import pytest
 
-from saaaaaa.core.orchestrator.core import Orchestrator, validate_phase_definitions
-from saaaaaa.core.orchestrator.factory import validate_questionnaire_structure
+from farfan_core.core.orchestrator.core import Orchestrator, validate_phase_definitions
+from farfan_core.core.orchestrator.factory import validate_questionnaire_structure
 
 
 class TestQuestionnaireSchemaGate:
@@ -273,8 +273,8 @@ class TestCanonicalQuestionnaireIntegration:
 
     def test_orchestrator_with_canonical_questionnaire(self):
         """Orchestrator should accept CanonicalQuestionnaire instances."""
-        from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
-        from saaaaaa.core.orchestrator.factory import build_processor
+        from farfan_core.core.orchestrator.questionnaire import load_questionnaire
+        from farfan_core.core.orchestrator.factory import build_processor
 
         # Load canonical questionnaire (type-safe, immutable, hash-verified)
         canonical = load_questionnaire()
@@ -295,7 +295,7 @@ class TestCanonicalQuestionnaireIntegration:
 
     def test_canonical_questionnaire_is_immutable(self):
         """CanonicalQuestionnaire data should be immutable (MappingProxyType)."""
-        from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
+        from farfan_core.core.orchestrator.questionnaire import load_questionnaire
         from types import MappingProxyType
 
         canonical = load_questionnaire()
@@ -309,7 +309,7 @@ class TestCanonicalQuestionnaireIntegration:
 
     def test_canonical_questionnaire_has_verification_data(self):
         """CanonicalQuestionnaire should include hash and verification metadata."""
-        from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
+        from farfan_core.core.orchestrator.questionnaire import load_questionnaire
 
         canonical = load_questionnaire()
 
@@ -328,7 +328,7 @@ class TestCanonicalQuestionnaireIntegration:
 
     def test_factory_pattern_produces_valid_processor(self):
         """build_processor() should produce valid processor bundle."""
-        from saaaaaa.core.orchestrator.factory import build_processor
+        from farfan_core.core.orchestrator.factory import build_processor
 
         processor = build_processor()
 
@@ -341,7 +341,7 @@ class TestCanonicalQuestionnaireIntegration:
 
     def test_orchestrator_rejects_both_monolith_and_questionnaire(self):
         """Orchestrator should reject if both monolith and questionnaire provided."""
-        from saaaaaa.core.orchestrator.questionnaire import load_questionnaire
+        from farfan_core.core.orchestrator.questionnaire import load_questionnaire
 
         canonical = load_questionnaire()
         dict_monolith = dict(canonical.data)

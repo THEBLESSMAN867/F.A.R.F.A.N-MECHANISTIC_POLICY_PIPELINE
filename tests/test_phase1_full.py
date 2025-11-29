@@ -8,14 +8,14 @@ from pathlib import Path
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
-from saaaaaa.core.phases.phase0_input_validation import CanonicalInput
-from saaaaaa.core.phases.phase1_spc_ingestion_full import (
+from farfan_core.core.phases.phase0_input_validation import CanonicalInput
+from farfan_core.core.phases.phase1_spc_ingestion_full import (
     execute_phase_1_with_full_contract,
     Phase1SPCIngestionFullContract,
     Phase1FatalError,
     PADimGridSpecification
 )
-from saaaaaa.processing.cpp_ingestion.models import CanonPolicyPackage
+from farfan_core.processing.cpp_ingestion.models import CanonPolicyPackage
 
 class TestPhase1FullContract(unittest.TestCase):
 

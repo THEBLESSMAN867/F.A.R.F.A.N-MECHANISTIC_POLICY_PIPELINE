@@ -6,7 +6,7 @@ import pytest
 
 def test_metrics_record_execution_thread_safe():
     """Test that record_execution is thread-safe under concurrent updates."""
-    from saaaaaa.core.orchestrator.executors import ExecutionMetrics
+    from farfan_core.core.orchestrator.executors import ExecutionMetrics
     
     metrics = ExecutionMetrics()
     
@@ -29,7 +29,7 @@ def test_metrics_record_execution_thread_safe():
 
 def test_metrics_record_quantum_optimization_thread_safe():
     """Test that record_quantum_optimization is thread-safe."""
-    from saaaaaa.core.orchestrator.executors import ExecutionMetrics
+    from farfan_core.core.orchestrator.executors import ExecutionMetrics
     
     metrics = ExecutionMetrics()
     
@@ -49,7 +49,7 @@ def test_metrics_record_quantum_optimization_thread_safe():
 
 def test_metrics_record_meta_learner_selection_thread_safe():
     """Test that record_meta_learner_selection is thread-safe."""
-    from saaaaaa.core.orchestrator.executors import ExecutionMetrics
+    from farfan_core.core.orchestrator.executors import ExecutionMetrics
     
     metrics = ExecutionMetrics()
     
@@ -69,7 +69,7 @@ def test_metrics_record_meta_learner_selection_thread_safe():
 
 def test_metrics_concurrent_mixed_operations():
     """Test that mixed operations are thread-safe."""
-    from saaaaaa.core.orchestrator.executors import ExecutionMetrics
+    from farfan_core.core.orchestrator.executors import ExecutionMetrics
     
     metrics = ExecutionMetrics()
     

@@ -10,8 +10,8 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from saaaaaa.core.calibration.meta_layer import MetaLayerEvaluator
-from saaaaaa.core.calibration.config import MetaLayerConfig
+from farfan_core.core.calibration.meta_layer import MetaLayerEvaluator
+from farfan_core.core.calibration.config import MetaLayerConfig
 
 def test_meta_weighted_scoring():
     """Test meta layer weighted formula."""

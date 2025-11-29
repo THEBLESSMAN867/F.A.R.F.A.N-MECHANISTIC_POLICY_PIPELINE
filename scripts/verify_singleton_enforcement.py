@@ -20,7 +20,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 def test_intrinsic_score_loader_singleton():
     """Test IntrinsicScoreLoader singleton enforcement."""
-    from saaaaaa.core.calibration.intrinsic_loader import IntrinsicScoreLoader
+    from farfan_core.core.calibration.intrinsic_loader import IntrinsicScoreLoader
 
     print("Testing IntrinsicScoreLoader singleton...")
 
@@ -60,7 +60,7 @@ def test_intrinsic_score_loader_singleton():
 
 def test_method_parameter_loader_singleton():
     """Test MethodParameterLoader singleton enforcement."""
-    from saaaaaa.core.calibration.parameter_loader import MethodParameterLoader
+    from farfan_core.core.calibration.parameter_loader import MethodParameterLoader
 
     print("Testing MethodParameterLoader singleton...")
 
@@ -100,7 +100,7 @@ def test_method_parameter_loader_singleton():
 
 def test_calibration_orchestrator_singleton():
     """Test CalibrationOrchestrator singleton enforcement."""
-    from saaaaaa.core.calibration.orchestrator import CalibrationOrchestrator
+    from farfan_core.core.calibration.orchestrator import CalibrationOrchestrator
 
     print("Testing CalibrationOrchestrator singleton...")
 

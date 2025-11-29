@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SRC_ROOT = PROJECT_ROOT / "src" / "saaaaaa"
+SRC_ROOT = PROJECT_ROOT / "src" / "farfan_core"
 ORCHESTRATOR_ROOT = SRC_ROOT / "core" / "orchestrator"
 
 
@@ -122,7 +122,7 @@ def load_calibrated_methods() -> set[str]:
 
 
 def scan_all_methods() -> set[str]:
-    """Scan all Python files in src/saaaaaa to find all class.method combinations."""
+    """Scan all Python files in src/farfan_core to find all class.method combinations."""
     all_methods = set()
 
     # Walk through all Python files
@@ -294,8 +294,8 @@ def generate_classification() -> dict[str, Any]:
         "FAKE_EXEC": {
             "description": "Fake executor methods from old executors.py. Hardcoded execute() methods. INVALID - DISCARD CALIBRATIONS.",
             "count": len(fake_executors),
-            "file": "src/saaaaaa/core/orchestrator/executors.py",
-            "snapshot": "src/saaaaaa/core/orchestrator/executors_snapshot/executors.py",
+            "file": "src/farfan_core/core/orchestrator/executors.py",
+            "snapshot": "src/farfan_core/core/orchestrator/executors_snapshot/executors.py",
             "classes": fake_executors,
             "calibrated_methods": {
                 "count": len(fake_exec_calibrated),
@@ -307,7 +307,7 @@ def generate_classification() -> dict[str, Any]:
         "REAL_EXEC": {
             "description": "Real executor methods from executors_contract.py. Contract-driven routing. NEED CALIBRATION - ALL 8 LAYERS.",
             "count": len(real_executors),
-            "file": "src/saaaaaa/core/orchestrator/executors_contract.py",
+            "file": "src/farfan_core/core/orchestrator/executors_contract.py",
             "classes": real_executors,
             "calibrated_methods": {
                 "count": len(real_exec_calibrated),

@@ -15,15 +15,15 @@ from pathlib import Path
 
 import pytest
 
-from saaaaaa.core.wiring.bootstrap import WiringBootstrap
-from saaaaaa.core.wiring.contracts import (
+from farfan_core.core.wiring.bootstrap import WiringBootstrap
+from farfan_core.core.wiring.contracts import (
     AdapterExpectation,
     CPPDeliverable,
     PreprocessedDocumentDeliverable,
 )
-from saaaaaa.core.wiring.errors import WiringContractError
-from saaaaaa.core.wiring.feature_flags import WiringFeatureFlags
-from saaaaaa.core.wiring.validation import WiringValidator
+from farfan_core.core.wiring.errors import WiringContractError
+from farfan_core.core.wiring.feature_flags import WiringFeatureFlags
+from farfan_core.core.wiring.validation import WiringValidator
 
 
 @pytest.fixture
@@ -324,7 +324,7 @@ class TestWiringImportTime:
         start = time.time()
         
         # Import all wiring modules
-        from saaaaaa.core.wiring import bootstrap, contracts, errors, feature_flags, observability, validation
+        from farfan_core.core.wiring import bootstrap, contracts, errors, feature_flags, observability, validation
         
         elapsed = time.time() - start
         
@@ -425,7 +425,7 @@ class TestWiringErrorHandling:
     
     def test_initialization_error_prescriptive(self):
         """Test that initialization errors are prescriptive."""
-        from saaaaaa.core.wiring.errors import WiringInitializationError
+        from farfan_core.core.wiring.errors import WiringInitializationError
         
         error = WiringInitializationError(
             phase="load_resources",

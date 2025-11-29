@@ -19,7 +19,7 @@ import pytest
 pytestmark = pytest.mark.skip(reason="obsolete - calibration_registry API refactored, see tests/calibration/")
 
 # Old imports (no longer valid):
-# from saaaaaa.core.orchestrator.calibration_registry import (
+# from farfan_core.core.orchestrator.calibration_registry import (
 #     CALIBRATIONS,
 #     MissingCalibrationError,
 #     resolve_calibration,
@@ -64,7 +64,7 @@ class TestCalibrationCompleteness:
     
     def test_all_calibrations_have_valid_values(self):
         """Verify all calibration values are MethodCalibration instances."""
-        from saaaaaa.core.orchestrator.calibration_registry import MethodCalibration
+        from farfan_core.core.orchestrator.calibration_registry import MethodCalibration
         
         for key, calib in CALIBRATIONS.items():
             assert isinstance(calib, MethodCalibration), f"Invalid calibration for {key}"
@@ -106,7 +106,7 @@ class TestCalibrationCompleteness:
     
     def test_no_default_like_calibrations_without_flag(self):
         """Verify that default-like calibrations have safe_default_allowed flag."""
-        from saaaaaa.core.orchestrator.calibration_registry import MethodCalibration
+        from farfan_core.core.orchestrator.calibration_registry import MethodCalibration
         
         for key, calib in CALIBRATIONS.items():
             if calib.is_default_like():
@@ -154,7 +154,7 @@ class TestCalibrationMetadata:
     
     def test_calibration_has_document_type_field(self):
         """Verify MethodCalibration dataclass has document_type field."""
-        from saaaaaa.core.orchestrator.calibration_registry import MethodCalibration
+        from farfan_core.core.orchestrator.calibration_registry import MethodCalibration
         
         # Create a calibration with document_type
         calib = MethodCalibration(
@@ -177,7 +177,7 @@ class TestCalibrationMetadata:
     
     def test_calibration_safe_default_flag(self):
         """Verify safe_default_allowed flag is present."""
-        from saaaaaa.core.orchestrator.calibration_registry import MethodCalibration
+        from farfan_core.core.orchestrator.calibration_registry import MethodCalibration
         
         calib = MethodCalibration(
             score_min=0.0,

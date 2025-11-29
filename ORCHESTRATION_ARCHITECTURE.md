@@ -3,7 +3,7 @@
 ## Orchestration Layers (5 niveles)
 
 ### Layer 1: PhaseOrchestrator (NEW - Constitutional Entry Point)
-**Location**: `src/saaaaaa/core/phases/phase_orchestrator.py`
+**Location**: `src/farfan_core/core/phases/phase_orchestrator.py`
 **Responsibility**: Enforce constitutional phase sequence (0 → 1 → Adapter → Core)
 
 **Phases Coordinated**:
@@ -17,7 +17,7 @@
 ---
 
 ### Layer 2: core.Orchestrator (EXISTING - Pipeline Executor)
-**Location**: `src/saaaaaa/core/orchestrator/core.py`
+**Location**: `src/farfan_core/core/orchestrator/core.py`
 **Responsibility**: Execute 11-phase analysis pipeline
 
 **11 FASES** (defined in `core.Orchestrator.FASES`):
@@ -53,7 +53,7 @@ FASE 10: Formateo y Exportación       (_format_and_export)             # Dashbo
 ---
 
 ### Layer 3: Executors (Dimension × Question Executors)
-**Location**: `src/saaaaaa/core/orchestrator/executors.py`
+**Location**: `src/farfan_core/core/orchestrator/executors.py`
 **Responsibility**: Execute specific (Dimension, Question) combinations
 
 **30 Executors** (6 Dimensions × 5 Questions):
@@ -78,12 +78,12 @@ FASE 10: Formateo y Exportación       (_format_and_export)             # Dashbo
 **Responsibility**: Atomic analysis operations
 
 **Examples**:
-- `saaaaaa.analysis.micro_prompts` - CDAF extraction
-- `saaaaaa.analysis.bayesian_multilevel_system` - Probabilistic models
-- `saaaaaa.analysis.contradiction_deteccion` - Contradiction detection
-- `saaaaaa.analysis.derek_beach` - Process tracing
-- `saaaaaa.analysis.teoria_cambio` - Theory of change
-- `saaaaaa.analysis.spc_causal_bridge` - Causal bridging
+- `farfan_core.analysis.micro_prompts` - CDAF extraction
+- `farfan_core.analysis.bayesian_multilevel_system` - Probabilistic models
+- `farfan_core.analysis.contradiction_deteccion` - Contradiction detection
+- `farfan_core.analysis.derek_beach` - Process tracing
+- `farfan_core.analysis.teoria_cambio` - Theory of change
+- `farfan_core.analysis.spc_causal_bridge` - Causal bridging
 
 **Routing**:
 - `MethodExecutor` uses `ArgRouter` to dispatch to methods
@@ -93,7 +93,7 @@ FASE 10: Formateo y Exportación       (_format_and_export)             # Dashbo
 ---
 
 ### Layer 5: Calibration Orchestrator
-**Location**: `src/saaaaaa/core/orchestrator/calibration_context.py`
+**Location**: `src/farfan_core/core/orchestrator/calibration_context.py`
 **Responsibility**: Manage calibration parameters across all layers
 
 **Coordinates**:

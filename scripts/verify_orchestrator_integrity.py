@@ -49,13 +49,13 @@ sys.stdout = io.StringIO()
 # Add src to path
 
 try:
-    from saaaaaa.core.orchestrator.core import (
+    from farfan_core.core.orchestrator.core import (
         Orchestrator,
         MethodExecutor,
         execute_phase_with_timeout,
         describe_pipeline_shape,
     )
-    from saaaaaa.core.orchestrator.evidence_registry import EvidenceRegistry
+    from farfan_core.core.orchestrator.evidence_registry import EvidenceRegistry
 except Exception as e:
     sys.stderr = _original_stderr
     sys.stdout = _original_stdout
@@ -94,7 +94,7 @@ def check_async_phases_use_timeout() -> tuple[bool, str]:
     """Verify async phases call execute_phase_with_timeout."""
     try:
         # Read the core.py source
-        core_path = Path(__file__).parent.parent / "src/saaaaaa/core/orchestrator/core.py"
+        core_path = Path(__file__).parent.parent / "src/farfan_core/core/orchestrator/core.py"
         with open(core_path) as f:
             source = f.read()
         

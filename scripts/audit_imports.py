@@ -279,7 +279,7 @@ class ImportAuditor:
 
 
 def main():
-    repo_root = Path("/home/recovered/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE_FINAL/src/saaaaaa")
+    repo_root = Path("/home/recovered/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE_FINAL/src/farfan_core")
     
     print("Starting Import System Forensic Audit...")
     print(f"Scanning: {repo_root}")

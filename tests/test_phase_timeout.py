@@ -6,7 +6,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_phase_timeout_raises_on_timeout():
     """Test that phase timeout raises PhaseTimeoutError when exceeded."""
-    from saaaaaa.core.orchestrator.core import execute_phase_with_timeout, PhaseTimeoutError
+    from farfan_core.core.orchestrator.core import execute_phase_with_timeout, PhaseTimeoutError
     
     async def slow_handler():
         """A handler that takes longer than timeout."""
@@ -34,7 +34,7 @@ async def test_phase_timeout_raises_on_timeout():
 @pytest.mark.asyncio
 async def test_phase_timeout_succeeds_within_timeout():
     """Test that phase completes successfully within timeout."""
-    from saaaaaa.core.orchestrator.core import execute_phase_with_timeout
+    from farfan_core.core.orchestrator.core import execute_phase_with_timeout
     
     async def fast_handler():
         """A handler that completes quickly."""
@@ -57,7 +57,7 @@ async def test_phase_timeout_succeeds_within_timeout():
 @pytest.mark.asyncio
 async def test_phase_timeout_default_value():
     """Test that PHASE_TIMEOUT_DEFAULT has the expected value."""
-    from saaaaaa.core.orchestrator.core import PHASE_TIMEOUT_DEFAULT
+    from farfan_core.core.orchestrator.core import PHASE_TIMEOUT_DEFAULT
     
     # Default should be 300 seconds
     assert PHASE_TIMEOUT_DEFAULT == 300
@@ -67,7 +67,7 @@ async def test_phase_timeout_default_value():
 @pytest.mark.asyncio
 async def test_phase_timeout_with_cancellation():
     """Test that phase timeout handles cancellation correctly."""
-    from saaaaaa.core.orchestrator.core import execute_phase_with_timeout
+    from farfan_core.core.orchestrator.core import execute_phase_with_timeout
     
     async def cancellable_handler():
         """A handler that can be cancelled."""
@@ -94,7 +94,7 @@ async def test_phase_timeout_with_cancellation():
 @pytest.mark.asyncio
 async def test_phase_timeout_with_exception():
     """Test that phase timeout propagates exceptions correctly."""
-    from saaaaaa.core.orchestrator.core import execute_phase_with_timeout
+    from farfan_core.core.orchestrator.core import execute_phase_with_timeout
     
     async def failing_handler():
         """A handler that raises an exception."""
@@ -113,7 +113,7 @@ async def test_phase_timeout_with_exception():
 @pytest.mark.asyncio
 async def test_phase_timeout_logs_completion_time():
     """Test that phase timeout logs completion time correctly."""
-    from saaaaaa.core.orchestrator.core import execute_phase_with_timeout
+    from farfan_core.core.orchestrator.core import execute_phase_with_timeout
     
     async def timed_handler():
         """A handler with measurable execution time."""

@@ -19,13 +19,13 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.saaaaaa.core.calibration.orchestrator import CalibrationOrchestrator
-from src.saaaaaa.core.calibration.intrinsic_loader import IntrinsicScoreLoader
-from src.saaaaaa.core.calibration.layer_requirements import LayerRequirementsResolver
-from src.saaaaaa.core.calibration.parameter_loader import MethodParameterLoader
-from src.saaaaaa.core.calibration.base_layer import BaseLayerEvaluator
-from src.saaaaaa.core.calibration.data_structures import ContextTuple, LayerID
-from src.saaaaaa.core.calibration.pdt_structure import PDTStructure
+from src.farfan_core.core.calibration.orchestrator import CalibrationOrchestrator
+from src.farfan_core.core.calibration.intrinsic_loader import IntrinsicScoreLoader
+from src.farfan_core.core.calibration.layer_requirements import LayerRequirementsResolver
+from src.farfan_core.core.calibration.parameter_loader import MethodParameterLoader
+from src.farfan_core.core.calibration.base_layer import BaseLayerEvaluator
+from src.farfan_core.core.calibration.data_structures import ContextTuple, LayerID
+from src.farfan_core.core.calibration.pdt_structure import PDTStructure
 
 
 def test_intrinsic_loader_functional():
@@ -85,28 +85,28 @@ def test_layer_requirements_functional():
     resolver = LayerRequirementsResolver(loader)
 
     # Test executor detection
-    is_exec = resolver.is_executor("src.saaaaaa.core.orchestrator.executors.D1Q1_Executor.execute")
+    is_exec = resolver.is_executor("src.farfan_core.core.orchestrator.executors.D1Q1_Executor.execute")
     if not is_exec:
         print("✗ Executor not detected")
         return False
     print("✓ Executor detection works")
 
     # Test executor gets 8 layers
-    layers = resolver.get_required_layers("src.saaaaaa.core.orchestrator.executors.D1Q1_Executor.execute")
+    layers = resolver.get_required_layers("src.farfan_core.core.orchestrator.executors.D1Q1_Executor.execute")
     if len(layers) != 8:
         print(f"✗ Executor has {len(layers)} layers, expected 8")
         return False
     print("✓ Executor gets 8 layers")
 
     # Test utility gets 3 layers
-    util_layers = resolver.get_required_layers("src.saaaaaa.utils.adapters._deprecation_warning")
+    util_layers = resolver.get_required_layers("src.farfan_core.utils.adapters._deprecation_warning")
     if len(util_layers) != 3:
         print(f"✗ Utility has {len(util_layers)} layers, expected 3")
         return False
     print("✓ Utility gets 3 layers")
 
     # Test analyzer gets 8 layers
-    analyzer_layers = resolver.get_required_layers("src.saaaaaa.analysis.Analyzer_one.BatchProcessor.__init__")
+    analyzer_layers = resolver.get_required_layers("src.farfan_core.analysis.Analyzer_one.BatchProcessor.__init__")
     if len(analyzer_layers) != 8:
         print(f"✗ Analyzer has {len(analyzer_layers)} layers, expected 8")
         return False
@@ -229,11 +229,11 @@ def test_executor_calibration():
 
     # Sample 5 executors
     test_executors = [
-        "src.saaaaaa.core.orchestrator.executors.D1Q1_Executor.execute",
-        "src.saaaaaa.core.orchestrator.executors.D2Q3_Executor.execute",
-        "src.saaaaaa.core.orchestrator.executors.D4Q2_Executor.execute",
-        "src.saaaaaa.core.orchestrator.executors.D5Q4_Executor.execute",
-        "src.saaaaaa.core.orchestrator.executors.D6Q5_Executor.execute",
+        "src.farfan_core.core.orchestrator.executors.D1Q1_Executor.execute",
+        "src.farfan_core.core.orchestrator.executors.D2Q3_Executor.execute",
+        "src.farfan_core.core.orchestrator.executors.D4Q2_Executor.execute",
+        "src.farfan_core.core.orchestrator.executors.D5Q4_Executor.execute",
+        "src.farfan_core.core.orchestrator.executors.D6Q5_Executor.execute",
     ]
 
     print(f"Testing {len(test_executors)} executors (sample)...")
@@ -338,7 +338,7 @@ def test_end_to_end_calibration():
 
     # Calibrate one executor
     result = orchestrator.calibrate(
-        method_id="src.saaaaaa.core.orchestrator.executors.D1Q1_Executor.execute",
+        method_id="src.farfan_core.core.orchestrator.executors.D1Q1_Executor.execute",
         method_version="1.0.0",
         context=context,
         pdt_structure=pdt

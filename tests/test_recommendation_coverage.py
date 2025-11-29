@@ -14,7 +14,7 @@ import pytest
 # Try to import recommendation_engine, skip tests if not available
 pytest.importorskip("recommendation_engine", reason="recommendation_engine module not available")
 
-from saaaaaa.analysis.recommendation_engine import (
+from farfan_core.analysis.recommendation_engine import (
     RecommendationEngine,
     RecommendationSet,
 )

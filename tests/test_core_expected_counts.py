@@ -10,7 +10,7 @@ pytestmark = pytest.mark.skip(reason="Count validation moved to structure_verifi
 def test_expected_counts_default():
     """Test that default expected counts are loaded correctly."""
     # Import after setting env vars
-    from saaaaaa.core.orchestrator.core import EXPECTED_QUESTION_COUNT, EXPECTED_METHOD_COUNT
+    from farfan_core.core.orchestrator.core import EXPECTED_QUESTION_COUNT, EXPECTED_METHOD_COUNT
     
     # Default values should be loaded
     assert EXPECTED_QUESTION_COUNT == 305
@@ -26,7 +26,7 @@ def test_expected_counts_custom():
     try:
         # Re-import to pick up new values
         import importlib
-        from saaaaaa.core.orchestrator import core
+        from farfan_core.core.orchestrator import core
         importlib.reload(core)
         
         assert core.EXPECTED_QUESTION_COUNT == 500
@@ -42,7 +42,7 @@ def test_expected_counts_custom():
 
 def test_phase_timeout_default():
     """Test that default phase timeout is loaded correctly."""
-    from saaaaaa.core.orchestrator.core import PHASE_TIMEOUT_DEFAULT
+    from farfan_core.core.orchestrator.core import PHASE_TIMEOUT_DEFAULT
     
     # Default value should be 300 seconds
     assert PHASE_TIMEOUT_DEFAULT == 300
@@ -54,7 +54,7 @@ def test_phase_timeout_custom():
     
     try:
         import importlib
-        from saaaaaa.core.orchestrator import core
+        from farfan_core.core.orchestrator import core
         importlib.reload(core)
         
         assert core.PHASE_TIMEOUT_DEFAULT == 600

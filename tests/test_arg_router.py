@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from saaaaaa.core.orchestrator.arg_router import ArgRouter, ArgumentValidationError
+from farfan_core.core.orchestrator.arg_router import ArgRouter, ArgumentValidationError
 
 class SampleExecutor:
     """Test executor for routing validation."""

@@ -13,9 +13,9 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.saaaaaa.core.calibration.intrinsic_loader import IntrinsicScoreLoader
-from src.saaaaaa.core.calibration.layer_requirements import LayerRequirementsResolver
-from src.saaaaaa.core.calibration.data_structures import LayerID
+from src.farfan_core.core.calibration.intrinsic_loader import IntrinsicScoreLoader
+from src.farfan_core.core.calibration.layer_requirements import LayerRequirementsResolver
+from src.farfan_core.core.calibration.data_structures import LayerID
 
 
 def test_role_layer_mappings():
@@ -85,10 +85,10 @@ def test_real_methods_layer_assignment():
     # Test methods from each type
     test_cases = [
         ("orchestrator.__init__.__getattr__", "orchestrator", 3),
-        ("src.saaaaaa.analysis.Analyzer_one.BatchProcessor.__init__", "analyzer", 8),
+        ("src.farfan_core.analysis.Analyzer_one.BatchProcessor.__init__", "analyzer", 8),
         ("smart_policy_chunks_canonic_phase_one.ArgumentAnalyzer.__init__", "processor", 4),
-        ("src.saaaaaa.utils.adapters._deprecation_warning", "utility", 3),
-        ("src.saaaaaa.processing.document_ingestion.DocumentLoader.__init__", "ingestion", 4),
+        ("src.farfan_core.utils.adapters._deprecation_warning", "utility", 3),
+        ("src.farfan_core.processing.document_ingestion.DocumentLoader.__init__", "ingestion", 4),
         ("architecture_enforcement_audit.AnalysisReport.is_compliant", "unknown", 8),
     ]
 
@@ -132,7 +132,7 @@ def test_executor_special_case():
     all_passed = True
     for d in range(1, 7):
         for q in range(1, 6):
-            executor_id = f"src.saaaaaa.core.orchestrator.executors.D{d}Q{q}_Executor.execute"
+            executor_id = f"src.farfan_core.core.orchestrator.executors.D{d}Q{q}_Executor.execute"
 
             # Check executor detection
             is_exec = resolver.is_executor(executor_id)
@@ -169,9 +169,9 @@ def test_method_without_layer_field():
 
     # These 3 methods were found to have no layer field
     methods_without_layer = [
-        "src.saaaaaa.flux.phases.run_aggregate",
-        "src.saaaaaa.flux.phases.run_normalize",
-        "src.saaaaaa.flux.phases.run_score",
+        "src.farfan_core.flux.phases.run_aggregate",
+        "src.farfan_core.flux.phases.run_normalize",
+        "src.farfan_core.flux.phases.run_score",
     ]
 
     all_passed = True

@@ -11,7 +11,7 @@ import os
 import pytest
 from unittest import mock
 
-from saaaaaa.core.dependency_lockdown import (
+from farfan_core.core.dependency_lockdown import (
     DependencyLockdown,
     DependencyLockdownError,
     get_dependency_lockdown,
@@ -194,7 +194,7 @@ class TestEmbeddingPolicyIntegration:
         """Test that embedding model init raises error when offline and model not cached."""
         os.environ["HF_ONLINE"] = "0"
         
-        from saaaaaa.processing.embedding_policy import (
+        from farfan_core.processing.embedding_policy import (
             PolicyEmbeddingConfig,
             PolicyAnalysisEmbedder,
         )
@@ -205,7 +205,7 @@ class TestEmbeddingPolicyIntegration:
         
         # Mock _is_model_cached to return False
         with mock.patch(
-            "saaaaaa.core.dependency_lockdown._is_model_cached",
+            "farfan_core.core.dependency_lockdown._is_model_cached",
             return_value=False
         ):
             with pytest.raises(DependencyLockdownError) as exc_info:
@@ -218,11 +218,11 @@ class TestEmbeddingPolicyIntegration:
         """Test that cross encoder init raises error when offline and model not cached."""
         os.environ["HF_ONLINE"] = "0"
         
-        from saaaaaa.processing.embedding_policy import PolicyCrossEncoderReranker
+        from farfan_core.processing.embedding_policy import PolicyCrossEncoderReranker
         
         # Mock _is_model_cached to return False
         with mock.patch(
-            "saaaaaa.core.dependency_lockdown._is_model_cached",
+            "farfan_core.core.dependency_lockdown._is_model_cached",
             return_value=False
         ):
             with pytest.raises(DependencyLockdownError) as exc_info:
@@ -241,7 +241,7 @@ class TestOrchestratorIntegration:
         """Test that Orchestrator initializes dependency lockdown on construction."""
         os.environ["HF_ONLINE"] = "0"
         
-        from saaaaaa.core.orchestrator import Orchestrator
+        from farfan_core.core.orchestrator import Orchestrator
         
         # Create minimal orchestrator
         orchestrator = Orchestrator()
@@ -255,7 +255,7 @@ class TestOrchestratorIntegration:
         """Test that Orchestrator respects HF_ONLINE setting."""
         os.environ["HF_ONLINE"] = "1"
         
-        from saaaaaa.core.orchestrator import Orchestrator
+        from farfan_core.core.orchestrator import Orchestrator
         
         orchestrator = Orchestrator()
         

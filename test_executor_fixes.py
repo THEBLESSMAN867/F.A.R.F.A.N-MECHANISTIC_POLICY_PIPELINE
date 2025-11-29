@@ -18,7 +18,7 @@ from typing import Dict, Any
 # Add src to path
 sys.path.insert(0, '/home/user/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE_FINAL/src')
 
-from saaaaaa.core.orchestrator.executors import (
+from farfan_core.core.orchestrator.executors import (
     BaseExecutor,
     ExecutorFailure,
     ExecutorResult,
@@ -69,7 +69,7 @@ def test_lazy_dimension_info_loading():
     """Verify dimension_info is lazy-loaded."""
     print("\n=== Test 2: Lazy Loading of dimension_info ===")
 
-    with patch('saaaaaa.core.orchestrator.executors.get_dimension_info') as mock_get_dim:
+    with patch('farfan_core.core.orchestrator.executors.get_dimension_info') as mock_get_dim:
         mock_get_dim.return_value = Mock(code="D1", label="Test Dimension")
 
         executor = TestExecutor("D1-Q1", {}, Mock())

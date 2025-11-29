@@ -18,7 +18,7 @@ repo_root = Path(__file__).parent.parent
 def check_imports() -> tuple[bool, str]:
     """Verify ExtendedArgRouter can be imported."""
     try:
-        from saaaaaa.core.orchestrator.arg_router import ExtendedArgRouter
+        from farfan_core.core.orchestrator.arg_router import ExtendedArgRouter
         return True, "ExtendedArgRouter import successful"
     except ImportError as e:
         return False, f"Failed to import ExtendedArgRouter: {e}"
@@ -27,7 +27,7 @@ def check_imports() -> tuple[bool, str]:
 def check_phase4_complete() -> tuple[bool, str]:
     """Verify Phase 4 completion - consolidated arg_router.py exists."""
     try:
-        from saaaaaa.core.orchestrator.arg_router import ArgRouter, ExtendedArgRouter
+        from farfan_core.core.orchestrator.arg_router import ArgRouter, ExtendedArgRouter
         
         # Check that both classes are available from the single module
         assert ArgRouter is not None
@@ -52,7 +52,7 @@ def check_phase4_complete() -> tuple[bool, str]:
 def check_special_routes() -> tuple[bool, str]:
     """Verify special routes are defined."""
     try:
-        from saaaaaa.core.orchestrator.arg_router import ExtendedArgRouter
+        from farfan_core.core.orchestrator.arg_router import ExtendedArgRouter
         
         router = ExtendedArgRouter({})
         coverage = router.get_special_route_coverage()
@@ -68,7 +68,7 @@ def check_special_routes() -> tuple[bool, str]:
 def check_metrics() -> tuple[bool, str]:
     """Verify metrics are available."""
     try:
-        from saaaaaa.core.orchestrator.arg_router import ExtendedArgRouter
+        from farfan_core.core.orchestrator.arg_router import ExtendedArgRouter
         
         router = ExtendedArgRouter({})
         metrics = router.get_metrics()

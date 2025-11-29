@@ -5,7 +5,7 @@ import pytest
 
 def test_class_registry_without_torch():
     """Test that class_registry handles missing torch gracefully."""
-    from saaaaaa.core.orchestrator.class_registry import build_class_registry
+    from farfan_core.core.orchestrator.class_registry import build_class_registry
     
     # Should not raise error even if torch is missing
     # Some classes may be skipped but it should not fail entirely
@@ -18,8 +18,8 @@ def test_class_registry_without_torch():
 
 def test_arg_router_can_be_created():
     """Test that ArgRouter can be created."""
-    from saaaaaa.core.orchestrator.arg_router import ArgRouter
-    from saaaaaa.core.orchestrator.class_registry import build_class_registry
+    from farfan_core.core.orchestrator.arg_router import ArgRouter
+    from farfan_core.core.orchestrator.class_registry import build_class_registry
     
     # Build registry (may skip optional classes)
     try:
@@ -35,10 +35,10 @@ def test_arg_router_can_be_created():
 
 def test_arg_router_has_methods():
     """Test that ArgRouter has expected methods."""
-    from saaaaaa.core.orchestrator.arg_router import ArgRouter
+    from farfan_core.core.orchestrator.arg_router import ArgRouter
     
     try:
-        from saaaaaa.core.orchestrator.class_registry import build_class_registry
+        from farfan_core.core.orchestrator.class_registry import build_class_registry
         registry = build_class_registry()
     except Exception:
         registry = {}

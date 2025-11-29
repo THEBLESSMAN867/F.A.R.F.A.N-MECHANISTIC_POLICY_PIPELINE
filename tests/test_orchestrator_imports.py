@@ -3,18 +3,18 @@ import sys
 
 def test_orchestrator_imports_clean():
     # Clear cached orchestrator modules to simulate fresh import
-    mods_to_clear = [m for m in list(sys.modules) if m.startswith("saaaaaa.core.orchestrator")]
+    mods_to_clear = [m for m in list(sys.modules) if m.startswith("farfan_core.core.orchestrator")]
     for m in mods_to_clear:
         sys.modules.pop(m, None)
 
-    import saaaaaa.core.orchestrator  # noqa: F401
-    from saaaaaa.core.orchestrator.core import (
+    import farfan_core.core.orchestrator  # noqa: F401
+    from farfan_core.core.orchestrator.core import (
         MethodExecutor,
         Orchestrator,
         PhaseResult,
         PreprocessedDocument,
     )
-    from saaaaaa.core.orchestrator.base_executor_with_contract import BaseExecutorWithContract
+    from farfan_core.core.orchestrator.base_executor_with_contract import BaseExecutorWithContract
 
     assert Orchestrator is not None
     assert PhaseResult is not None

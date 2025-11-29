@@ -16,7 +16,7 @@ def test_calibration_registry():
     print("Testing Calibration Registry")
     print("=" * 80)
     
-    from saaaaaa.core.orchestrator.calibration_registry import (
+    from farfan_core.core.orchestrator.calibration_registry import (
         MethodCalibration,
         resolve_calibration,
         resolve_calibration_with_context,
@@ -68,7 +68,7 @@ def test_calibration_context():
     print("Testing Calibration Context")
     print("=" * 80)
     
-    from saaaaaa.core.orchestrator.calibration_context import (
+    from farfan_core.core.orchestrator.calibration_context import (
         CalibrationContext,
         CalibrationModifier,
         PolicyArea,
@@ -76,7 +76,7 @@ def test_calibration_context():
         resolve_contextual_calibration,
         infer_context_from_question_id,
     )
-    from saaaaaa.core.orchestrator.calibration_registry import MethodCalibration
+    from farfan_core.core.orchestrator.calibration_registry import MethodCalibration
     
     # Test 1: Parse question IDs
     print("\n1. Testing question ID parsing...")

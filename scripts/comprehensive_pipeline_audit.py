@@ -97,7 +97,7 @@ class ComprehensivePipelineAuditor:
     def __init__(self, repo_root: Path):
         """Initialize auditor."""
         self.repo_root = repo_root
-        self.src_root = repo_root / "src" / "saaaaaa"
+        self.src_root = repo_root / "src" / "farfan_core"
         self.findings: List[Finding] = []
         self.metrics = AuditMetrics()
         self.finding_counter = 0
@@ -843,7 +843,7 @@ class ComprehensivePipelineAuditor:
                   "dataclasses", "collections", "itertools", "functools", "abc", 
                   "logging", "threading", "asyncio", "inspect", "ast", "hashlib"}
         
-        external_imports = imported_packages - stdlib - {"saaaaaa"}
+        external_imports = imported_packages - stdlib - {"farfan_core"}
         
         # Find undeclared dependencies
         undeclared = external_imports - declared_deps

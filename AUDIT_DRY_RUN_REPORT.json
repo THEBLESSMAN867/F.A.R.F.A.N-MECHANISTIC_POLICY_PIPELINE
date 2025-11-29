@@ -229,203 +229,203 @@
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/__init__.py",
+      "path": "src/farfan_core/__init__.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/analysis/Analyzer_one.py",
+      "path": "src/farfan_core/analysis/Analyzer_one.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/analysis/__init__.py",
+      "path": "src/farfan_core/analysis/__init__.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/analysis/bayesian_multilevel_system.py",
+      "path": "src/farfan_core/analysis/bayesian_multilevel_system.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/analysis/contradiction_deteccion.py",
+      "path": "src/farfan_core/analysis/contradiction_deteccion.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/analysis/derek_beach.py",
+      "path": "src/farfan_core/analysis/derek_beach.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/analysis/factory.py",
+      "path": "src/farfan_core/analysis/factory.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/analysis/financiero_viabilidad_tablas.py",
+      "path": "src/farfan_core/analysis/financiero_viabilidad_tablas.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/analysis/recommendation_engine.py",
+      "path": "src/farfan_core/analysis/recommendation_engine.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/analysis/scoring/__init__.py",
+      "path": "src/farfan_core/analysis/scoring/__init__.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/analysis/scoring/scoring.py",
+      "path": "src/farfan_core/analysis/scoring/scoring.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/analysis/teoria_cambio.py",
+      "path": "src/farfan_core/analysis/teoria_cambio.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/api/__init__.py",
+      "path": "src/farfan_core/api/__init__.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/api/api_server.py",
+      "path": "src/farfan_core/api/api_server.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/api/static/README.md",
+      "path": "src/farfan_core/api/static/README.md",
       "reason": "Package documentation referenced by setup.py"
     },
     {
-      "path": "src/saaaaaa/concurrency/README.md",
+      "path": "src/farfan_core/concurrency/README.md",
       "reason": "Package documentation referenced by setup.py"
     },
     {
-      "path": "src/saaaaaa/concurrency/__init__.py",
+      "path": "src/farfan_core/concurrency/__init__.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/concurrency/concurrency.py",
+      "path": "src/farfan_core/concurrency/concurrency.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/controls/__init__.py",
+      "path": "src/farfan_core/controls/__init__.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/__init__.py",
+      "path": "src/farfan_core/core/__init__.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/__init__.py",
+      "path": "src/farfan_core/core/orchestrator/__init__.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/arg_router.py",
+      "path": "src/farfan_core/core/orchestrator/arg_router.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/arg_router_extended.py",
+      "path": "src/farfan_core/core/orchestrator/arg_router_extended.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/class_registry.py",
+      "path": "src/farfan_core/core/orchestrator/class_registry.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/contract_loader.py",
+      "path": "src/farfan_core/core/orchestrator/contract_loader.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/core.py",
+      "path": "src/farfan_core/core/orchestrator/core.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/core_module_factory.py",
+      "path": "src/farfan_core/core/orchestrator/core_module_factory.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/evidence_registry.py",
+      "path": "src/farfan_core/core/orchestrator/evidence_registry.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/executors.py",
+      "path": "src/farfan_core/core/orchestrator/executors.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/factory.py",
+      "path": "src/farfan_core/core/orchestrator/factory.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/signals.py",
+      "path": "src/farfan_core/core/orchestrator/signals.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/core/ports.py",
+      "path": "src/farfan_core/core/ports.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/flux/README.md",
+      "path": "src/farfan_core/flux/README.md",
       "reason": "Package documentation referenced by setup.py"
     },
     {
-      "path": "src/saaaaaa/flux/__init__.py",
+      "path": "src/farfan_core/flux/__init__.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/flux/cli.py",
+      "path": "src/farfan_core/flux/cli.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/flux/phases.py",
+      "path": "src/farfan_core/flux/phases.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/infrastructure/__init__.py",
+      "path": "src/farfan_core/infrastructure/__init__.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/processing/__init__.py",
+      "path": "src/farfan_core/processing/__init__.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/processing/aggregation.py",
+      "path": "src/farfan_core/processing/aggregation.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/processing/cpp_ingestion/README.md",
+      "path": "src/farfan_core/processing/cpp_ingestion/README.md",
       "reason": "Package documentation referenced by setup.py"
     },
     {
-      "path": "src/saaaaaa/processing/document_ingestion.py",
+      "path": "src/farfan_core/processing/document_ingestion.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/processing/embedding_policy.py",
+      "path": "src/farfan_core/processing/embedding_policy.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/processing/policy_processor.py",
+      "path": "src/farfan_core/processing/policy_processor.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/processing/semantic_chunking_policy.py",
+      "path": "src/farfan_core/processing/semantic_chunking_policy.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/utils/__init__.py",
+      "path": "src/farfan_core/utils/__init__.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/utils/contracts.py",
+      "path": "src/farfan_core/utils/contracts.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/utils/cpp_adapter.py",
+      "path": "src/farfan_core/utils/cpp_adapter.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/utils/evidence_registry.py",
+      "path": "src/farfan_core/utils/evidence_registry.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/utils/seed_factory.py",
+      "path": "src/farfan_core/utils/seed_factory.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
-      "path": "src/saaaaaa/utils/signature_validator.py",
+      "path": "src/farfan_core/utils/signature_validator.py",
       "reason": "Reachable in import graph from entry points"
     },
     {
@@ -2398,7 +2398,7 @@
       ]
     },
     {
-      "path": "src/saaaaaa/controls/graphs/dependency_graph.md",APROBADO
+      "path": "src/farfan_core/controls/graphs/dependency_graph.md",APROBADO
       "reason": "Documentation; not required for runtime",
       "rules": [
         "unreachable-import-graph",
@@ -2407,7 +2407,7 @@
       ]
     },
     {
-      "path": "src/saaaaaa/controls/inventories/code_inventory.json",APROBADO
+      "path": "src/farfan_core/controls/inventories/code_inventory.json",APROBADO
       "reason": "Configuration/data file; not used at runtime",
       "rules": [
         "unreachable-import-graph",
@@ -2416,7 +2416,7 @@
       ]
     },
     {
-      "path": "src/saaaaaa/utils/validation/architecture_validation_report.json",APROBADO
+      "path": "src/farfan_core/utils/validation/architecture_validation_report.json",APROBADO
       "reason": "Configuration/data file; not used at runtime",
       "rules": [
         "unreachable-import-graph",
@@ -2983,235 +2983,235 @@
       "ambiguity": "Root-level Python file; might be compatibility shim or standalone script"
     },
     {
-      "path": "src/saaaaaa/analysis/enhance_recommendation_rules.py",
+      "path": "src/farfan_core/analysis/enhance_recommendation_rules.py",
       "ambiguity": "Has main() function; might be CLI entry point not in packaging config"
     },
     {
-      "path": "src/saaaaaa/analysis/macro_prompts.py",
+      "path": "src/farfan_core/analysis/macro_prompts.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/analysis/meso_cluster_analysis.py",
+      "path": "src/farfan_core/analysis/meso_cluster_analysis.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/analysis/micro_prompts.py",
+      "path": "src/farfan_core/analysis/micro_prompts.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/analysis/scoring.py",
+      "path": "src/farfan_core/analysis/scoring.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/api/signals_service.py",
+      "path": "src/farfan_core/api/signals_service.py",
       "ambiguity": "Has main() function; might be CLI entry point not in packaging config"
     },
     {
-      "path": "src/saaaaaa/api/static/__init__.py",
+      "path": "src/farfan_core/api/static/__init__.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/api/static/css/atroz-dashboard.css",
+      "path": "src/farfan_core/api/static/css/atroz-dashboard.css",
       "ambiguity": "Classification unclear; requires human review"
     },
     {
-      "path": "src/saaaaaa/api/static/index.html",
+      "path": "src/farfan_core/api/static/index.html",
       "ambiguity": "Classification unclear; requires human review"
     },
     {
-      "path": "src/saaaaaa/api/static/js/__init__.py",
+      "path": "src/farfan_core/api/static/js/__init__.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/api/static/js/atroz-dashboard-integration.js",
+      "path": "src/farfan_core/api/static/js/atroz-dashboard-integration.js",
       "ambiguity": "Classification unclear; requires human review"
     },
     {
-      "path": "src/saaaaaa/api/static/js/atroz-dashboard.js",
+      "path": "src/farfan_core/api/static/js/atroz-dashboard.js",
       "ambiguity": "Classification unclear; requires human review"
     },
     {
-      "path": "src/saaaaaa/api/static/js/atroz-data-service.js",
+      "path": "src/farfan_core/api/static/js/atroz-data-service.js",
       "ambiguity": "Classification unclear; requires human review"
     },
     {
-      "path": "src/saaaaaa/contracts.py",
+      "path": "src/farfan_core/contracts.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/controls/graphs/__init__.py",
+      "path": "src/farfan_core/controls/graphs/__init__.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/controls/inventories/__init__.py",APROBADO
+      "path": "src/farfan_core/controls/inventories/__init__.py",APROBADO
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/core/aggregation.py",
+      "path": "src/farfan_core/core/aggregation.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/core/contracts.py",
+      "path": "src/farfan_core/core/contracts.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/choreographer.py",APROBADO
+      "path": "src/farfan_core/core/orchestrator/choreographer.py",APROBADO
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/executor_config.py",
+      "path": "src/farfan_core/core/orchestrator/executor_config.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/core/orchestrator/questionnaire_resource_provider.py",
+      "path": "src/farfan_core/core/orchestrator/questionnaire_resource_provider.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/flux/configs.py",
+      "path": "src/farfan_core/flux/configs.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/flux/gates.py",
+      "path": "src/farfan_core/flux/gates.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/flux/models.py",
+      "path": "src/farfan_core/flux/models.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/infrastructure/clock.py",
+      "path": "src/farfan_core/infrastructure/clock.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/infrastructure/environment.py",
+      "path": "src/farfan_core/infrastructure/environment.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/infrastructure/filesystem.py",
+      "path": "src/farfan_core/infrastructure/filesystem.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/infrastructure/logging.py",
+      "path": "src/farfan_core/infrastructure/logging.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/processing/cpp_ingestion/__init__.py",APROBADO
+      "path": "src/farfan_core/processing/cpp_ingestion/__init__.py",APROBADO
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/processing/cpp_ingestion/chunking.py",APROBADO
+      "path": "src/farfan_core/processing/cpp_ingestion/chunking.py",APROBADO
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/processing/cpp_ingestion/models.py",
+      "path": "src/farfan_core/processing/cpp_ingestion/models.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/processing/cpp_ingestion/parsers.py",
+      "path": "src/farfan_core/processing/cpp_ingestion/parsers.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/processing/cpp_ingestion/pipeline.py",
+      "path": "src/farfan_core/processing/cpp_ingestion/pipeline.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/processing/cpp_ingestion/quality_gates.py",
+      "path": "src/farfan_core/processing/cpp_ingestion/quality_gates.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/processing/cpp_ingestion/structural.py",
+      "path": "src/farfan_core/processing/cpp_ingestion/structural.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/processing/cpp_ingestion/tables.py",
+      "path": "src/farfan_core/processing/cpp_ingestion/tables.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/processing/factory.py",
+      "path": "src/farfan_core/processing/factory.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/scoring/__init__.py",
+      "path": "src/farfan_core/scoring/__init__.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/scoring/scoring.py",
+      "path": "src/farfan_core/scoring/scoring.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/adapters.py",
+      "path": "src/farfan_core/utils/adapters.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/contracts_runtime.py",
+      "path": "src/farfan_core/utils/contracts_runtime.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/core_contracts.py",
+      "path": "src/farfan_core/utils/core_contracts.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/coverage_gate.py",
+      "path": "src/farfan_core/utils/coverage_gate.py",
       "ambiguity": "Has main() function; might be CLI entry point not in packaging config"
     },
     {
-      "path": "src/saaaaaa/utils/determinism/__init__.py",
+      "path": "src/farfan_core/utils/determinism/__init__.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/determinism/seeds.py",
+      "path": "src/farfan_core/utils/determinism/seeds.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/json_contract_loader.py",
+      "path": "src/farfan_core/utils/json_contract_loader.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/metadata_loader.py",
+      "path": "src/farfan_core/utils/metadata_loader.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/qmcm_hooks.py",
+      "path": "src/farfan_core/utils/qmcm_hooks.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/runtime_error_fixes.py",
+      "path": "src/farfan_core/utils/runtime_error_fixes.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/schema_monitor.py",
+      "path": "src/farfan_core/utils/schema_monitor.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/validation/__init__.py",
+      "path": "src/farfan_core/utils/validation/__init__.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/validation/aggregation_models.py",
+      "path": "src/farfan_core/utils/validation/aggregation_models.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/validation/architecture_validator.py",
+      "path": "src/farfan_core/utils/validation/architecture_validator.py",
       "ambiguity": "Has main() function; might be CLI entry point not in packaging config"
     },
     {
-      "path": "src/saaaaaa/utils/validation/contract_logger.py",
+      "path": "src/farfan_core/utils/validation/contract_logger.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/validation/golden_rule.py",
+      "path": "src/farfan_core/utils/validation/golden_rule.py",
       "ambiguity": "Appears to be backup/old code; manual verification needed"
     },
     {
-      "path": "src/saaaaaa/utils/validation/predicates.py",
+      "path": "src/farfan_core/utils/validation/predicates.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/validation/schema_validator.py",
+      "path": "src/farfan_core/utils/validation/schema_validator.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
-      "path": "src/saaaaaa/utils/validation_engine.py",
+      "path": "src/farfan_core/utils/validation_engine.py",
       "ambiguity": "Python module not in import graph; usage unclear"
     },
     {
@@ -3233,10 +3233,10 @@
   ],
   "evidence": {
     "entry_points": [
-      "saaaaaa.core.orchestrator:main",
-      "saaaaaa.api.api_server:main",
-      "saaaaaa.core.orchestrator.ORCHESTRATOR_MONILITH:main",
-      "saaaaaa.api.api_server:main"
+      "farfan_core.core.orchestrator:main",
+      "farfan_core.api.api_server:main",
+      "farfan_core.core.orchestrator.ORCHESTRATOR_MONILITH:main",
+      "farfan_core.api.api_server:main"
     ],
     "import_graph_nodes": 115,
     "dynamic_strings_matched": [
@@ -3249,7 +3249,7 @@
       "\"seed_factory.py\"",
       "\"\"\"Compatibility wrapper for orchestrator evidence registry.\"\"\"",
       "\"get_global_registry\"",
-      "\"saaaaaa.core.orchestrator.evidence_registry\"",
+      "\"farfan_core.core.orchestrator.evidence_registry\"",
       "\"orchestrator.evidence_registry\"",
       "\"Note: evidence_registry not fully imported\"",
       "\"\"\"Dummy signal registry for demonstration.\"\"\"",
@@ -3261,10 +3261,10 @@
       "\"factory.py\"",
       "\"data\" / \"signature_registry.json\"",
       "importlib.import_module",
-      "'\\bimport evidence_registry\\b': 'from saaaaaa.utils import evidence_registry'",
-      "'\\bfrom evidence_registry import': 'from saaaaaa.utils.evidence_registry import'",
-      "'\\bimport seed_factory\\b': 'from saaaaaa.utils import seed_factory'",
-      "'\\bfrom seed_factory import': 'from saaaaaa.utils.seed_factory import'",
+      "'\\bimport evidence_registry\\b': 'from farfan_core.utils import evidence_registry'",
+      "'\\bfrom evidence_registry import': 'from farfan_core.utils.evidence_registry import'",
+      "'\\bimport seed_factory\\b': 'from farfan_core.utils import seed_factory'",
+      "'\\bfrom seed_factory import': 'from farfan_core.utils.seed_factory import'",
       "__import__(",
       "\"evidence_registry.py\": \"Append-only evidence registry\"",
       "\"evidence_registry.py\"",
@@ -3284,9 +3284,9 @@
       "\"\u2713 Successfully loaded {len(registry)} classes:\"",
       "\"  \u2713 Class registry can load all modules successfully\"",
       "\"get_global_registry\"",
-      "\"orchestrator.class_registry\": \"saaaaaa.core.orchestrator.class_registry\"",
-      "\"orchestrator.evidence_registry\": \"saaaaaa.core.orchestrator.evidence_registry\"",
-      "\"orchestrator.factory\": \"saaaaaa.core.orchestrator.factory\"",
+      "\"orchestrator.class_registry\": \"farfan_core.core.orchestrator.class_registry\"",
+      "\"orchestrator.evidence_registry\": \"farfan_core.core.orchestrator.evidence_registry\"",
+      "\"orchestrator.factory\": \"farfan_core.core.orchestrator.factory\"",
       "\"data/prompt_cross_registry.json\"",
       "\"\"\"Compute contribution score for a single registry entry.\"\"\"",
       "importlib.import_module",
@@ -3305,7 +3305,7 @@
       "\"_compile_pattern_registry\"",
       "\"_compile_pattern_registry\"",
       "__import__(",
-      "\"saaaaaa.core.orchestrator.evidence_registry\", \"EvidenceRegistry\"",
+      "\"farfan_core.core.orchestrator.evidence_registry\", \"EvidenceRegistry\"",
       "\"\"\"run_signals requires registry_get callable.\"\"\"",
       "\"registry_get not None\"",
       "\"\"\"Test that class registry can be imported and has correct structure.\"\"\"",
@@ -3378,7 +3378,7 @@
       "\"evidence_registry.jsonl\"",
       "\"\"\"Get or create global evidence registry.\"\"\"",
       "\"get_global_registry\"",
-      "\"No monolith data available. Use saaaaaa.core.orchestrator.factory to load \"",
+      "\"No monolith data available. Use farfan_core.core.orchestrator.factory to load \"",
       "\"\"\"Dynamic class registry for orchestrator method execution.\"\"\"",
       "\"get_global_registry\"",
       "\"Questionnaire data not loaded. Use factory.py to load data first.\""
@@ -3387,7 +3387,7 @@
       "examples/demo_bayesian_multilevel.py -> 'data/bayesian_outputs' via Path()",
       "examples/integration_guide_bayesian.py -> 'data/bayesian_outputs' via Path()",
       "examples/integration_guide_bayesian.py -> 'data/bayesian_outputs' via Path()",
-      "scripts/validate_system.py -> 'src/saaaaaa/core/orchestrator' via Path()",
+      "scripts/validate_system.py -> 'src/farfan_core/core/orchestrator' via Path()",
       "scripts/signature_ci_check.py -> '.' via Path()",
       "scripts/verify_imports.py -> '/home/runner/work/SAAAAAA/SAAAAAA' via Path()",
       "scripts/validate_strategic_wiring.py -> 'provenance.csv' via Path()",
@@ -3399,7 +3399,7 @@
       "tools/type_safety_checks.py -> 'tests/test_contracts.py' via open()",
       "tools/type_safety_checks.py -> 'tests/test_contracts.py' via open()",
       "tools/scan_core_purity.py -> 'core' via Path()",
-      "tools/bulk_import_test.py -> 'src/saaaaaa' via Path()",
+      "tools/bulk_import_test.py -> 'src/farfan_core' via Path()",
       "tests/test_coreographer.py -> 'rules/METODOS/complete_canonical_catalog.json' via open()",
       "tests/test_coreographer.py -> 'rules/METODOS/complete_canonical_catalog.json' via Path()",
       "tools/validation/validate_build_hygiene.py -> '.python-version' via Path()",
@@ -3410,13 +3410,13 @@
       "tools/validation/validate_build_hygiene.py -> 'orchestrator/settings.py' via Path()",
       "tools/validation/validate_build_hygiene.py -> '.env.example' via Path()",
       "tools/validation/validate_build_hygiene.py -> '.gitignore' via Path()",
-      "src/saaaaaa/utils/coverage_gate.py -> 'schemas' via Path()",
-      "src/saaaaaa/analysis/bayesian_multilevel_system.py -> 'data/bayesian_outputs' via Path()",
-      "src/saaaaaa/analysis/enhance_recommendation_rules.py -> 'config/recommendation_rules.json' via Path()",
-      "src/saaaaaa/analysis/enhance_recommendation_rules.py -> 'config/recommendation_rules_enhanced.json' via Path()",
-      "src/saaaaaa/core/orchestrator/factory.py -> 'rules/METODOS/complete_canonical_catalog.json' via Path()",
-      "src/saaaaaa/core/orchestrator/factory.py -> 'schemas/questionnaire_monolith.schema.json' via Path()",
-      "src/saaaaaa/core/orchestrator/contract_loader.py -> '.' via Path()"
+      "src/farfan_core/utils/coverage_gate.py -> 'schemas' via Path()",
+      "src/farfan_core/analysis/bayesian_multilevel_system.py -> 'data/bayesian_outputs' via Path()",
+      "src/farfan_core/analysis/enhance_recommendation_rules.py -> 'config/recommendation_rules.json' via Path()",
+      "src/farfan_core/analysis/enhance_recommendation_rules.py -> 'config/recommendation_rules_enhanced.json' via Path()",
+      "src/farfan_core/core/orchestrator/factory.py -> 'rules/METODOS/complete_canonical_catalog.json' via Path()",
+      "src/farfan_core/core/orchestrator/factory.py -> 'schemas/questionnaire_monolith.schema.json' via Path()",
+      "src/farfan_core/core/orchestrator/contract_loader.py -> '.' via Path()"
     ],
     "smoke_test": "simulated-pass",
     "summary": {

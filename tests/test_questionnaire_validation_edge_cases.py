@@ -7,7 +7,7 @@ import time
 import sys
 from pathlib import Path
 
-from saaaaaa.core.orchestrator.factory import validate_questionnaire_structure
+from farfan_core.core.orchestrator.factory import validate_questionnaire_structure
 
 
 def test_validate_empty_questionnaire():

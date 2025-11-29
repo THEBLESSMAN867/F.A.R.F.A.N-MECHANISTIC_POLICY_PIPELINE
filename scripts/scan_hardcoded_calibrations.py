@@ -33,7 +33,7 @@ def eliminate_hardcoded_calibrations():
     findings = []
     
     # Scan all files
-    src_root = "src/saaaaaa"
+    src_root = "src/farfan_core"
     if not os.path.exists(src_root):
         print(f"Directory {src_root} not found.")
         return

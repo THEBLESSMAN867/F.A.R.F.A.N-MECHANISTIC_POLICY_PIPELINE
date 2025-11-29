@@ -14,12 +14,12 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.saaaaaa.core.calibration.intrinsic_loader import IntrinsicScoreLoader
-from src.saaaaaa.core.calibration.parameter_loader import MethodParameterLoader
-from src.saaaaaa.core.calibration.layer_requirements import LayerRequirementsResolver
-from src.saaaaaa.core.calibration.orchestrator import CalibrationOrchestrator
-from src.saaaaaa.core.calibration.validator import CalibrationValidator
-from src.saaaaaa.core.calibration.data_structures import LayerID
+from src.farfan_core.core.calibration.intrinsic_loader import IntrinsicScoreLoader
+from src.farfan_core.core.calibration.parameter_loader import MethodParameterLoader
+from src.farfan_core.core.calibration.layer_requirements import LayerRequirementsResolver
+from src.farfan_core.core.calibration.orchestrator import CalibrationOrchestrator
+from src.farfan_core.core.calibration.validator import CalibrationValidator
+from src.farfan_core.core.calibration.data_structures import LayerID
 
 
 class TestIntrinsicLoader:

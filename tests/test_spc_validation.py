@@ -5,13 +5,13 @@ and enforce SPC-only ingestion.
 """
 
 import pytest
-from saaaaaa.core.orchestrator.core import (
+from farfan_core.core.orchestrator.core import (
     Orchestrator,
     PreprocessedDocument,
     PhaseInstrumentation,
 )
-from saaaaaa.core.orchestrator.factory import build_processor
-from saaaaaa.processing.cpp_ingestion.models import (
+from farfan_core.core.orchestrator.factory import build_processor
+from farfan_core.processing.cpp_ingestion.models import (
     CanonPolicyPackage,
     Chunk,
     ChunkGraph,

@@ -77,15 +77,15 @@ def check_import_budget(budget_ms: float = 300.0) -> list[ImportTiming]:
     """
     # Critical modules to test (from pyproject.toml and known heavy imports)
     critical_modules = [
-        "saaaaaa",
-        "saaaaaa.core",
-        "saaaaaa.core.orchestrator",
-        "saaaaaa.processing",
-        "saaaaaa.processing.document_ingestion",
-        "saaaaaa.analysis",
-        "saaaaaa.concurrency",
-        "saaaaaa.utils",
-        "saaaaaa.compat",
+        "farfan_core",
+        "farfan_core.core",
+        "farfan_core.core.orchestrator",
+        "farfan_core.processing",
+        "farfan_core.processing.document_ingestion",
+        "farfan_core.analysis",
+        "farfan_core.concurrency",
+        "farfan_core.utils",
+        "farfan_core.compat",
     ]
     
     # Heavy optional dependencies to measure separately

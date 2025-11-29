@@ -1,7 +1,7 @@
 """Test SignalClient implementation in signals.py."""
 import pytest
 
-from saaaaaa.core.orchestrator.signals import (
+from farfan_core.core.orchestrator.signals import (
     SignalClient, 
     SignalPack, 
     InMemorySignalSource,

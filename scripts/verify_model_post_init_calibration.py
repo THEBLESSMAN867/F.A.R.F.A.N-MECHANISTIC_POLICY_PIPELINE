@@ -8,7 +8,7 @@ and can be loaded by the Python interpreter using the centralized calibration sy
 Integration Points:
 1. config/layer_calibrations/META_TOOL/model_post_init.json (calibration data)
 2. config/canonical_method_catalog.json (method metadata)
-3. src/saaaaaa/core/calibration/ (calibration system)
+3. src/farfan_core/core/calibration/ (calibration system)
 """
 
 import json
@@ -115,7 +115,7 @@ def verify_calibration_system():
     print("="*70)
 
     try:
-        from saaaaaa.core.calibration import (
+        from farfan_core.core.calibration import (
             CalibrationOrchestrator,
             LayerID,
             CalibrationSubject,
@@ -306,7 +306,7 @@ def main():
         print("  1. Calibration Data: config/layer_calibrations/META_TOOL/model_post_init.json")
         print("  2. Method Catalog: config/canonical_method_catalog.json")
         print("  3. Fusion Weights: config/fusion_specification.json")
-        print("  4. Calibration System: src/saaaaaa/core/calibration/")
+        print("  4. Calibration System: src/farfan_core/core/calibration/")
         return 0
     else:
         print("\n✗ SOME VERIFICATIONS FAILED")

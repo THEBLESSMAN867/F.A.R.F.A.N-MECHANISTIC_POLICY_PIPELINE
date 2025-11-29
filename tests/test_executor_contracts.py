@@ -13,9 +13,9 @@ class _Dummy:
 contract_loader.JSONContractLoader = _Dummy
 contract_loader.LoadError = _Dummy
 contract_loader.LoadResult = _Dummy
-sys.modules.setdefault("saaaaaa.core.orchestrator.contract_loader", contract_loader)
+sys.modules.setdefault("farfan_core.core.orchestrator.contract_loader", contract_loader)
 
-core_stub = types.ModuleType("saaaaaa.core.orchestrator.core")
+core_stub = types.ModuleType("farfan_core.core.orchestrator.core")
 class _StubMethodExecutor:
     def execute(self, *args, **kwargs):
         return {}
@@ -37,11 +37,11 @@ core_stub.MicroQuestionRun = type("MicroQuestionRun", (), {})
 core_stub.ScoredMicroQuestion = type("ScoredMicroQuestion", (), {})
 core_stub.Evidence = type("Evidence", (), {})
 core_stub.Orchestrator = type("Orchestrator", (), {})
-sys.modules.setdefault("saaaaaa.core.orchestrator.core", core_stub)
+sys.modules.setdefault("farfan_core.core.orchestrator.core", core_stub)
 
-from saaaaaa.core.orchestrator.class_registry import build_class_registry, ClassRegistryError
-from saaaaaa.core.orchestrator.core import PreprocessedDocument, MethodExecutor
-from saaaaaa.core.orchestrator.executors_contract import D1Q1_Executor_Contract
+from farfan_core.core.orchestrator.class_registry import build_class_registry, ClassRegistryError
+from farfan_core.core.orchestrator.core import PreprocessedDocument, MethodExecutor
+from farfan_core.core.orchestrator.executors_contract import D1Q1_Executor_Contract
 
 
 def test_contracts_validate_against_schema():

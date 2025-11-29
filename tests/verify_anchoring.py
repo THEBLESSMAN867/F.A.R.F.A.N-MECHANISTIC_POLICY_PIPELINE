@@ -15,7 +15,7 @@ def verify_all_methods_anchored():
     
     errors = []
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    src_path = os.path.join(repo_root, "src/saaaaaa")
+    src_path = os.path.join(repo_root, "src/farfan_core")
     
     print(f"Scanning {src_path}...")
     

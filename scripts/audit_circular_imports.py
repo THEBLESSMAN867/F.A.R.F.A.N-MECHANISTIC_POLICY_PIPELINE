@@ -52,7 +52,7 @@ def extract_imports(file_path: Path) -> set[str]:
     return imports
 
 
-def build_import_graph(root: Path, package_name: str = "saaaaaa") -> dict[str, set[str]]:
+def build_import_graph(root: Path, package_name: str = "farfan_core") -> dict[str, set[str]]:
     """
     Build import graph for the package.
     

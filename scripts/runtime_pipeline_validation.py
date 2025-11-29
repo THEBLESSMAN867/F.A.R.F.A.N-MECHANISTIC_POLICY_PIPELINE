@@ -34,13 +34,13 @@ class RuntimeValidator:
         }
         
         critical_imports = [
-            "saaaaaa.core.orchestrator.core",
-            "saaaaaa.processing.aggregation",
-            "saaaaaa.processing.document_ingestion",
-            "saaaaaa.core.orchestrator.signals",
-            "saaaaaa.core.orchestrator.arg_router",
-            "saaaaaa.utils.spc_adapter",
-            "saaaaaa.analysis.recommendation_engine",
+            "farfan_core.core.orchestrator.core",
+            "farfan_core.processing.aggregation",
+            "farfan_core.processing.document_ingestion",
+            "farfan_core.core.orchestrator.signals",
+            "farfan_core.core.orchestrator.arg_router",
+            "farfan_core.utils.spc_adapter",
+            "farfan_core.analysis.recommendation_engine",
         ]
         
         for module_name in critical_imports:
@@ -65,12 +65,12 @@ class RuntimeValidator:
         
         try:
             # Test PreprocessedDocument
-            from saaaaaa.core.orchestrator.core import PreprocessedDocument
+            from farfan_core.core.orchestrator.core import PreprocessedDocument
             if hasattr(PreprocessedDocument, "__annotations__"):
                 result["pydantic_models"].append("PreprocessedDocument")
             
             # Test aggregation models
-            from saaaaaa.processing.aggregation import (
+            from farfan_core.processing.aggregation import (
                 ScoredResult, DimensionScore, AreaScore, ClusterScore, MacroScore
             )
             for model in [ScoredResult, DimensionScore, AreaScore, ClusterScore, MacroScore]:
@@ -78,7 +78,7 @@ class RuntimeValidator:
             
             # Test SignalPack
             try:
-                from saaaaaa.core.orchestrator.signals import SignalPack
+                from farfan_core.core.orchestrator.signals import SignalPack
                 from pydantic import BaseModel
                 if issubclass(SignalPack, BaseModel):
                     result["pydantic_models"].append("SignalPack (Pydantic)")
@@ -102,8 +102,8 @@ class RuntimeValidator:
         }
         
         try:
-            from saaaaaa.core.orchestrator.arg_router import ArgRouter
-            from saaaaaa.core.orchestrator.class_registry import build_class_registry
+            from farfan_core.core.orchestrator.arg_router import ArgRouter
+            from farfan_core.core.orchestrator.class_registry import build_class_registry
             
             # Build a test registry
             registry = build_class_registry()
@@ -138,7 +138,7 @@ class RuntimeValidator:
         }
         
         try:
-            from saaaaaa.utils.spc_adapter import SPCAdapter
+            from farfan_core.utils.spc_adapter import SPCAdapter
             
             adapter = SPCAdapter()
             result["features_tested"].append("SPCAdapter instantiation")
@@ -166,14 +166,14 @@ class RuntimeValidator:
         try:
             # Test seed factory
             try:
-                from saaaaaa.utils.seed_factory import SeedFactory
+                from farfan_core.utils.seed_factory import SeedFactory
                 result["seed_modules"].append("SeedFactory")
             except ImportError:
                 pass
             
             # Test determinism utils
             try:
-                from saaaaaa.utils.determinism import seeds
+                from farfan_core.utils.determinism import seeds
                 result["seed_modules"].append("determinism.seeds")
             except ImportError:
                 pass
@@ -199,7 +199,7 @@ class RuntimeValidator:
         }
         
         try:
-            from saaaaaa.core.orchestrator.signals import SignalPack, SignalRegistry
+            from farfan_core.core.orchestrator.signals import SignalPack, SignalRegistry
             
             result["features"].append("SignalPack imported")
             
@@ -233,7 +233,7 @@ class RuntimeValidator:
         }
         
         try:
-            from saaaaaa.processing.aggregation import (
+            from farfan_core.processing.aggregation import (
                 DimensionAggregator,
                 AreaPolicyAggregator,
                 ClusterAggregator,
@@ -269,7 +269,7 @@ class RuntimeValidator:
         try:
             # Test executor config
             try:
-                from saaaaaa.core.orchestrator.executor_config import ExecutorConfig
+                from farfan_core.core.orchestrator.executor_config import ExecutorConfig
                 result["configs_tested"].append("ExecutorConfig")
                 
                 if not hasattr(ExecutorConfig, "from_env"):

@@ -44,7 +44,7 @@ IMPORT_TO_PACKAGE = {
 
 # Local project modules that should not be treated as external dependencies
 LOCAL_MODULES = {
-    "saaaaaa",
+    "farfan_core",
     # Project internal modules
     "advanced_module_config", "config", "layer_requirements", "tomllib",
     "calibration_context", "intrinsic_loader", "event_tracking",
@@ -234,8 +234,8 @@ class DependencyAuditor:
             return IMPORT_TO_PACKAGE[import_name]
         
         # Check if it's a local package
-        if import_name == "saaaaaa":
-            return "saaaaaa"
+        if import_name == "farfan_core":
+            return "farfan_core"
         
         # Otherwise, assume import name = package name
         return import_name

@@ -6,7 +6,7 @@ all stochastic operations.
 """
 
 import pytest
-from saaaaaa.core.orchestrator.seed_registry import (
+from farfan_core.core.orchestrator.seed_registry import (
     SeedRegistry,
     get_global_seed_registry,
     reset_global_seed_registry,

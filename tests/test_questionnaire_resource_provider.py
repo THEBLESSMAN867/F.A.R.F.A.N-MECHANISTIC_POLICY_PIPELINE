@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from saaaaaa.core.orchestrator.questionnaire_resource_provider import (
+from farfan_core.core.orchestrator.questionnaire_resource_provider import (
     QuestionnaireResourceProvider,
     Pattern,
 )

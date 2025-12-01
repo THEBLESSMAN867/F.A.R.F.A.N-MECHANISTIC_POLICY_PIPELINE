@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from farfan_core.core.orchestrator import get_questionnaire_provider
+from farfan_pipeline.core.orchestrator import get_questionnaire_provider
 
 QUESTIONNAIRE_PROVIDER = get_questionnaire_provider()
 
@@ -379,7 +379,7 @@ class MonolithForge:
         logger.info(f"=== {phase} START ===")
 
         # Load real method catalog from canonical source
-        from farfan_core.core.orchestrator.factory import load_catalog
+        from farfan_pipeline.core.orchestrator.factory import load_catalog
         
         # Load canonical method catalog (1,996 methods)
         catalog_path = self.repo_root / "config" / "canonical_method_catalog.json"

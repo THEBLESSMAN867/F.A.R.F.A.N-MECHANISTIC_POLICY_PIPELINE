@@ -254,6 +254,6 @@ def create_deployment_zip(output_path: Path) -> None:
     print(f"\n📄 Manifest saved to: {manifest_path}")
 
 if __name__ == "__main__":
-    output_zip = BASE_DIR / "farfan_core-deployment.zip"
+    output_zip = BASE_DIR / "farfan_pipeline-deployment.zip"
     create_deployment_zip(output_zip)
     print("\n✨ Deployment package ready for production!")

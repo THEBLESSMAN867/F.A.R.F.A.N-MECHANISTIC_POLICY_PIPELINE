@@ -13,7 +13,7 @@ def main() -> None:
 
     # Add src to path
     # Find all Python modules
-    src_path = Path('src/farfan_core')
+    src_path = Path('src/farfan_pipeline')
     if not src_path.exists():
         print(f"Error: {src_path} does not exist")
         sys.exit(1)

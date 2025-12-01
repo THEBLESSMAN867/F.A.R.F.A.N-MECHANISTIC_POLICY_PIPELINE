@@ -26,17 +26,17 @@ from typing import Dict, List, Any, Optional
 
 # Ensure src/ is in Python path
 
-from farfan_core.utils.paths import data_dir
-from farfan_core.processing.spc_ingestion import CPPIngestionPipeline
-from farfan_core.utils.spc_adapter import SPCAdapter
-from farfan_core.core.orchestrator import Orchestrator
-from farfan_core.core.orchestrator.factory import build_processor
-from farfan_core.core.orchestrator.questionnaire import load_questionnaire
-from farfan_core.core.orchestrator.calibration_registry import (
+from farfan_pipeline.utils.paths import data_dir
+from farfan_pipeline.processing.spc_ingestion import CPPIngestionPipeline
+from farfan_pipeline.utils.spc_adapter import SPCAdapter
+from farfan_pipeline.core.orchestrator import Orchestrator
+from farfan_pipeline.core.orchestrator.factory import build_processor
+from farfan_pipeline.core.orchestrator.questionnaire import load_questionnaire
+from farfan_pipeline.core.orchestrator.calibration_registry import (
     resolve_calibration,
     resolve_calibration_with_context,
 )
-from farfan_core.core.orchestrator.calibration_context import (
+from farfan_pipeline.core.orchestrator.calibration_context import (
     infer_context_from_question_id,
 )
 
@@ -128,7 +128,7 @@ class CalibrationTester:
         orchestrator, doc = await self._setup_orchestrator()
         
         # Monkey-patch to use base calibration only
-        import farfan_core.core.orchestrator.calibration_registry as _calib_reg
+        import farfan_pipeline.core.orchestrator.calibration_registry as _calib_reg
         original_resolve = _calib_reg.resolve_calibration
         
         def base_only(class_name, method_name):
@@ -169,7 +169,7 @@ class CalibrationTester:
         orchestrator, doc = await self._setup_orchestrator()
         
         # Monkey-patch to use contextual calibration with tracking
-        import farfan_core.core.orchestrator.calibration_registry as _calib_reg
+        import farfan_pipeline.core.orchestrator.calibration_registry as _calib_reg
         original_resolve_with_context = _calib_reg.resolve_calibration_with_context
         
         # Use list as mutable container to track usage in closure

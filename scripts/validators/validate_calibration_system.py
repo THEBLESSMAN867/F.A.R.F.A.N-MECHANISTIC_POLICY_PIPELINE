@@ -5,12 +5,10 @@ Comprehensive validation script for SAAAAAA Calibration System.
 This script provides EVIDENCE for all claims made in the PR.
 No lies, no exaggerations - just facts.
 """
-import sys
 from pathlib import Path
 
-# Add project root to path
+# Project root for reference
 project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
 
 print("=" * 70)
 print("SAAAAAA CALIBRATION SYSTEM - EVIDENCE-BASED VALIDATION")

@@ -19,7 +19,7 @@ print()
 # Test 1: Import CPPIngestionPipeline from correct location
 print("[1/5] Importing CPPIngestionPipeline from spc_ingestion...")
 try:
-    from farfan_core.processing.spc_ingestion import CPPIngestionPipeline
+    from farfan_pipeline.processing.spc_ingestion import CPPIngestionPipeline
     print("✓ CPPIngestionPipeline imported successfully")
 except Exception as e:
     print(f"✗ FAILED: {e}")
@@ -29,7 +29,7 @@ except Exception as e:
 # Test 2: Import Orchestrator
 print("\n[2/5] Importing Orchestrator...")
 try:
-    from farfan_core.core.orchestrator import Orchestrator
+    from farfan_pipeline.core.orchestrator import Orchestrator
     print("✓ Orchestrator imported successfully")
 except Exception as e:
     print(f"✗ FAILED: {e}")

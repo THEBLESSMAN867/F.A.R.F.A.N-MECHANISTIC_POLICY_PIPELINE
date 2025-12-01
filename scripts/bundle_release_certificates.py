@@ -10,17 +10,17 @@ import glob
 import subprocess
 from datetime import datetime
 
-CONTRACTS_DIR = "farfan_core/farfan_core/contracts"
+CONTRACTS_DIR = "farfan_pipeline/farfan_pipeline/contracts"
 TOOLS_DIR = os.path.join(CONTRACTS_DIR, "tools")
 RELEASE_DIR = "release_certificates"
 
 def run_command(cmd):
     try:
-        # Add farfan_core to PYTHONPATH
+        # Add farfan_pipeline to PYTHONPATH
         env = os.environ.copy()
         cwd = os.getcwd()
-        farfan_core_path = os.path.join(cwd, "farfan_core")
-        env["PYTHONPATH"] = f"{farfan_core_path}:{env.get('PYTHONPATH', '')}"
+        farfan_pipeline_path = os.path.join(cwd, "farfan_pipeline")
+        env["PYTHONPATH"] = f"{farfan_pipeline_path}:{env.get('PYTHONPATH', '')}"
         
         subprocess.check_call(cmd, shell=True, env=env)
         return True

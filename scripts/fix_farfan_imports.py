@@ -1,15 +1,15 @@
 import libcst as cst
 import libcst.matchers as m
 
-OLD = "farfan_core.farfan_core"
-NEW = "farfan_core"
+OLD = "farfan_pipeline.farfan_pipeline"
+NEW = "farfan_pipeline"
 
 class FixFarfanImports(cst.CSTTransformer):
     def leave_Import(self, original_node: cst.Import, updated_node: cst.Import) -> cst.Import:
         new_names = []
         for alias in updated_node.names:
             name_node = alias.name
-            # Handle direct imports like 'import farfan_core.farfan_core.x'
+            # Handle direct imports like 'import farfan_pipeline.farfan_pipeline.x'
             if isinstance(name_node, cst.Attribute):
                 # We need to flatten the attribute to check the full name
                 full_name = self._get_full_name(name_node)

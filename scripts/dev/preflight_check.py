@@ -43,7 +43,7 @@ def check_no_yaml_in_executors():
 def check_arg_router_routes():
     """Check ArgRouter has >= 30 routes."""
     try:
-        from farfan_core.core.orchestrator.arg_router import ArgRouter
+        from farfan_pipeline.core.orchestrator.arg_router import ArgRouter
         router = ArgRouter()
         count = len(router._routes)
         if count < 30:
@@ -56,7 +56,7 @@ def check_arg_router_routes():
 def check_memory_signals():
     """Check memory:// signals available."""
     try:
-        from farfan_core.core.orchestrator.signals import SignalClient
+        from farfan_pipeline.core.orchestrator.signals import SignalClient
         client = SignalClient(base_url="memory://")
         if client.base_url != "memory://":
             raise RuntimeError("Memory mode not enabled")
@@ -68,9 +68,9 @@ def check_memory_signals():
 def check_critical_imports():
     """Check critical imports."""
     modules = [
-        "farfan_core.core.orchestrator",
-        "farfan_core.flux",
-        "farfan_core.processing.cpp_ingestion",
+        "farfan_pipeline.core.orchestrator",
+        "farfan_pipeline.flux",
+        "farfan_pipeline.processing.cpp_ingestion",
     ]
     
     for module in modules:

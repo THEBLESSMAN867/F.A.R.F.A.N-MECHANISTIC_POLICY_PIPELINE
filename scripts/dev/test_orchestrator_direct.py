@@ -19,7 +19,7 @@ print()
 # Test 1: Import Orchestrator
 print("[1/6] Importing Orchestrator from core...")
 try:
-    from farfan_core.core.orchestrator import Orchestrator
+    from farfan_pipeline.core.orchestrator import Orchestrator
     print("✓ Orchestrator imported successfully")
 except Exception as e:
     print(f"✗ FAILED: {e}")
@@ -29,7 +29,7 @@ except Exception as e:
 # Test 2: Import questionnaire loader
 print("\n[2/6] Importing questionnaire loader...")
 try:
-    from farfan_core.core.orchestrator.questionnaire import load_questionnaire
+    from farfan_pipeline.core.orchestrator.questionnaire import load_questionnaire
     print("✓ questionnaire loader imported successfully")
 except Exception as e:
     print(f"✗ FAILED: {e}")

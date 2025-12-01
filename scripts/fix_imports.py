@@ -24,7 +24,7 @@ class ImportFixer:
         # Or it's a dotted path that exists but was flagged as phantom because of some other reason?
         # Let's check if the dotted path exists relative to root
         parts = phantom_module.split('.')
-        if parts[0] == 'farfan_core':
+        if parts[0] == 'farfan_pipeline':
             # It's already an absolute path, check if it exists
             potential_path = self.root.parent.joinpath(*parts).with_suffix('.py')
             if potential_path.exists():
@@ -44,7 +44,7 @@ class ImportFixer:
         if sibling_dir.is_dir() and (sibling_dir / "__init__.py").exists():
             return self._path_to_module(sibling_dir)
 
-        # Strategy 2: Check standard farfan_core locations by name
+        # Strategy 2: Check standard farfan_pipeline locations by name
         # Only works if the name is unique in the repo
         name = phantom_module.split('.')[-1]
         matches = list(self.root.rglob(f"{name}.py"))
@@ -64,13 +64,13 @@ class ImportFixer:
         return None
 
     def _path_to_module(self, path: Path) -> str:
-        """Convert file path to absolute module path starting with farfan_core"""
+        """Convert file path to absolute module path starting with farfan_pipeline"""
         try:
             rel_path = path.relative_to(self.root)
             parts = list(rel_path.parts)
             
-            # Ensure it starts with farfan_core (since self.root is src/farfan_core)
-            module_parts = ["farfan_core"] + parts
+            # Ensure it starts with farfan_pipeline (since self.root is src/farfan_pipeline)
+            module_parts = ["farfan_pipeline"] + parts
             
             if module_parts[-1].endswith(".py"):
                 module_parts[-1] = module_parts[-1][:-3]
@@ -146,7 +146,7 @@ class ImportFixer:
                 print(f"Error processing {file_path}: {e}")
 
 def main():
-    root_path = Path("/home/recovered/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE_FINAL/src/farfan_core")
+    root_path = Path("/home/recovered/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE_FINAL/src/farfan_pipeline")
     report_path = Path("/home/recovered/F.A.R.F.A.N-MECHANISTIC_POLICY_PIPELINE_FINAL/import_audit_report.json")
     
     if not report_path.exists():

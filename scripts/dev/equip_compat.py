@@ -24,7 +24,7 @@ def test_compat_imports() -> bool:
     print("=== Compat Module Imports ===")
     
     try:
-        from farfan_core.compat import (
+        from farfan_pipeline.compat import (
             ImportErrorDetailed,
             check_import_available,
             get_import_version,
@@ -43,7 +43,7 @@ def test_safe_imports_functionality() -> bool:
     """Test safe_imports functions."""
     print("\n=== Safe Imports Functionality ===")
     
-    from farfan_core.compat import check_import_available, try_import
+    from farfan_pipeline.compat import check_import_available, try_import
     
     all_ok = True
     
@@ -78,7 +78,7 @@ def test_native_check() -> bool:
     print("\n=== Native Check Functionality ===")
     
     try:
-        from farfan_core.compat.native_check import (
+        from farfan_pipeline.compat.native_check import (
             check_cpu_features,
             check_system_library,
         )
@@ -102,7 +102,7 @@ def test_version_shims() -> bool:
     """Test version compatibility shims."""
     print("\n=== Version Compatibility Shims ===")
     
-    from farfan_core.compat import tomllib
+    from farfan_pipeline.compat import tomllib
     
     all_ok = True
     
@@ -115,7 +115,7 @@ def test_version_shims() -> bool:
     
     # Test typing extensions
     try:
-        from farfan_core.compat import (
+        from farfan_pipeline.compat import (
             Annotated,
             Final,
             Literal,

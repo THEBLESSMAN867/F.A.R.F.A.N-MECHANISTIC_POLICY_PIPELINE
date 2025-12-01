@@ -18,7 +18,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from farfan_core.compat.native_check import (
+from farfan_pipeline.compat.native_check import (
     check_cpu_features,
     check_fips_mode,
     check_system_library,
@@ -34,7 +34,7 @@ def main() -> int:
     print()
     
     # Use the comprehensive report from native_check
-    from farfan_core.compat.native_check import print_native_report
+    from farfan_pipeline.compat.native_check import print_native_report
     print_native_report()
     
     print("=" * 60)

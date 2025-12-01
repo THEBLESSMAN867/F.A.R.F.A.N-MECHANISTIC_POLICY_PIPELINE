@@ -87,15 +87,15 @@ def check_optional_imports() -> None:
 
 
 def test_package_import() -> bool:
-    """Test that the farfan_core package can be imported."""
+    """Test that the farfan_pipeline package can be imported."""
     print("=== SAAAAAA Package Import ===")
     
     try:
-        import farfan_core
+        import farfan_pipeline
         print(f"✓ Package imported successfully")
         
         # Test compat layer
-        from farfan_core.compat import try_import
+        from farfan_pipeline.compat import try_import
         print(f"✓ Compat layer available")
         
         print()
@@ -110,7 +110,7 @@ def compile_bytecode() -> bool:
     print("=== Bytecode Compilation ===")
     
     root = Path(__file__).parent.parent
-    src_path = root / "src" / "farfan_core"
+    src_path = root / "src" / "farfan_pipeline"
     
     try:
         result = subprocess.run(

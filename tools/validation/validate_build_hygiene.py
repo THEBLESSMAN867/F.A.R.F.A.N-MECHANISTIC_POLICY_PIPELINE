@@ -87,7 +87,7 @@ def check_directory_structure() -> bool:
         "tests",
         "tools",
         "examples",
-        "src/farfan_core/core",
+        "src/farfan_pipeline/core",
     ]
 
     missing_dirs = []

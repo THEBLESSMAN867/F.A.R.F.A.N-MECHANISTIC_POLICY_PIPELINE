@@ -154,7 +154,7 @@ def validate_jobfront_3_chunk_router(report: ValidationReport):
     """Validate ChunkRouter existence and routing table."""
     jobfront = "JF03-ChunkRouter"
     
-    router_path = Path("farfan_core/farfan_core/core/orchestrator/chunk_router.py")
+    router_path = Path("farfan_pipeline/farfan_pipeline/core/orchestrator/chunk_router.py")
     
     if not router_path.exists():
         report.add_fail(jobfront, "File exists", f"{router_path} not found")
@@ -187,7 +187,7 @@ def validate_jobfront_4_executors(report: ValidationReport):
     """Validate 30 executor registration."""
     jobfront = "JF04-Executors"
     
-    exec_path = Path("farfan_core/farfan_core/core/orchestrator/executors.py")
+    exec_path = Path("farfan_pipeline/farfan_pipeline/core/orchestrator/executors.py")
     
     if not exec_path.exists():
         report.add_fail(jobfront, "File exists", f"{exec_path} not found")
@@ -222,7 +222,7 @@ def validate_jobfront_5_method_registry(report: ValidationReport):
     """Validate MethodRegistry exists."""
     jobfront = "JF05-MethodRegistry"
     
-    registry_path = Path("farfan_core/farfan_core/core/orchestrator/method_registry.py")
+    registry_path = Path("farfan_pipeline/farfan_pipeline/core/orchestrator/method_registry.py")
     
     if not registry_path.exists():
         report.add_fail(jobfront, "File exists", f"{registry_path} not found")
@@ -254,7 +254,7 @@ def validate_jobfront_6_signal_registry(report: ValidationReport):
         "signal_cache_invalidation.py"
     ]
     
-    base_path = Path("farfan_core/farfan_core/core/orchestrator")
+    base_path = Path("farfan_pipeline/farfan_pipeline/core/orchestrator")
     
     for filename in signal_files:
         file_path = base_path / filename
@@ -274,7 +274,7 @@ def validate_jobfront_9_evidence_model(report: ValidationReport):
         "evidence_registry.py": "EvidenceRegistry"
     }
     
-    base_path = Path("farfan_core/farfan_core/core/orchestrator")
+    base_path = Path("farfan_pipeline/farfan_pipeline/core/orchestrator")
     
     for filename, class_name in evidence_files.items():
         file_path = base_path / filename
@@ -292,7 +292,7 @@ def validate_jobfront_11_seed_registry(report: ValidationReport):
     """Validate seed registry for determinism."""
     jobfront = "JF11-SeedRegistry"
     
-    seed_path = Path("farfan_core/farfan_core/core/orchestrator/seed_registry.py")
+    seed_path = Path("farfan_pipeline/farfan_pipeline/core/orchestrator/seed_registry.py")
     
     if seed_path.exists():
         report.add_pass(jobfront, "seed_registry.py exists", str(seed_path))

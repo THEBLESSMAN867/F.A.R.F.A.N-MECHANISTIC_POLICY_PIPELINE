@@ -1,6 +1,6 @@
 import pytest
-from farfan_core.core.orchestrator.chunk_router import ChunkRouter, ChunkRoute
-from farfan_core.core.orchestrator.core import ChunkData, Provenance
+from farfan_pipeline.core.orchestrator.chunk_router import ChunkRouter, ChunkRoute
+from farfan_pipeline.core.orchestrator.core import ChunkData, Provenance
 
 @pytest.fixture
 def chunk_router():

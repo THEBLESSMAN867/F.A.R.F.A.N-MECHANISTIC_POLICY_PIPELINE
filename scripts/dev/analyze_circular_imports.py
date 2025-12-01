@@ -129,8 +129,8 @@ class ImportAnalyzer:
             # Filter imports to those in our project
             project_imports = set()
             for imp in imports:
-                # Check if this is a farfan_core import
-                if imp.startswith('farfan_core'):
+                # Check if this is a farfan_pipeline import
+                if imp.startswith('farfan_pipeline'):
                     project_imports.add(imp)
                 # Check if it could be a relative local import
                 elif '.' in module_name:
@@ -199,7 +199,7 @@ class ImportAnalyzer:
 
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom):
-                if node.module and node.module.startswith('farfan_core'):
+                if node.module and node.module.startswith('farfan_pipeline'):
                     names = [alias.name for alias in node.names]
                     result['direct_imports'].append({
                         'module': node.module,
@@ -208,7 +208,7 @@ class ImportAnalyzer:
                     })
             elif isinstance(node, ast.Import):
                 for alias in node.names:
-                    if alias.name.startswith('farfan_core'):
+                    if alias.name.startswith('farfan_pipeline'):
                         result['direct_imports'].append({
                             'module': alias.name,
                             'lineno': node.lineno
@@ -283,16 +283,16 @@ def main():
     print(f"Repository: {repo_root}")
     print("=" * 80)
 
-    # Analyze src/farfan_core directory
-    print("\n[1/3] Analyzing src/farfan_core directory...")
-    farfan_core_root = repo_root / 'src' / 'farfan_core'
+    # Analyze src/farfan_pipeline directory
+    print("\n[1/3] Analyzing src/farfan_pipeline directory...")
+    farfan_pipeline_root = repo_root / 'src' / 'farfan_pipeline'
 
-    if not farfan_core_root.exists():
-        print(f"Error: farfan_core directory not found at {farfan_core_root}")
+    if not farfan_pipeline_root.exists():
+        print(f"Error: farfan_pipeline directory not found at {farfan_pipeline_root}")
         sys.exit(1)
 
-    analyzer = ImportAnalyzer(farfan_core_root)
-    analyzer.analyze_directory(str(farfan_core_root))
+    analyzer = ImportAnalyzer(farfan_pipeline_root)
+    analyzer.analyze_directory(str(farfan_pipeline_root))
 
     print(f"    Found {len(analyzer.imports_graph)} modules with imports")
 
@@ -308,8 +308,8 @@ def main():
     # Analyze specific files
     print("\n[3/3] Analyzing specific adapter files...")
 
-    spc_adapter_path = farfan_core_root / 'utils' / 'spc_adapter.py'
-    cpp_adapter_path = farfan_core_root / 'utils' / 'cpp_adapter.py'
+    spc_adapter_path = farfan_pipeline_root / 'utils' / 'spc_adapter.py'
+    cpp_adapter_path = farfan_pipeline_root / 'utils' / 'cpp_adapter.py'
 
     findings = []
 
@@ -374,10 +374,10 @@ def main():
     print("=" * 80)
 
     test_modules = [
-        'farfan_core.utils.spc_adapter',
-        'farfan_core.utils.cpp_adapter',
-        'farfan_core.processing.embedding_policy',
-        'farfan_core.processing.semantic_chunking_policy',
+        'farfan_pipeline.utils.spc_adapter',
+        'farfan_pipeline.utils.cpp_adapter',
+        'farfan_pipeline.processing.embedding_policy',
+        'farfan_pipeline.processing.semantic_chunking_policy',
     ]
 
     for module_name in test_modules:
@@ -390,27 +390,26 @@ def main():
 
     # Import smart_policy_chunks script imports
     print("\n" + "=" * 80)
-    print("ANALYSIS: src/farfan_core/processing/spc_ingestion.py")
+    print("ANALYSIS: src/farfan_pipeline/processing/spc_ingestion.py")
     print("=" * 80)
 
-    smart_chunks_path = repo_root / 'src' / 'farfan_core' / 'processing' / 'spc_ingestion.py'
+    smart_chunks_path = repo_root / 'src' / 'farfan_pipeline' / 'processing' / 'spc_ingestion.py'
     if smart_chunks_path.exists():
         smart_analyzer = ImportAnalyzer(repo_root)
         smart_info = smart_analyzer.analyze_specific_imports(str(smart_chunks_path))
 
         print(f"\n  File: {smart_chunks_path}")
-        print(f"  Direct farfan_core imports:")
-        farfan_core_imports = [imp for imp in smart_info.get('direct_imports', [])
-                           if imp['module'].startswith('farfan_core')]
-        for imp in farfan_core_imports:
+        print(f"  Direct farfan_pipeline imports:")
+        farfan_pipeline_imports = [imp for imp in smart_info.get('direct_imports', [])
+                           if imp['module'].startswith('farfan_pipeline')]
+        for imp in farfan_pipeline_imports:
             print(f"    - from {imp['module']} import {', '.join(imp.get('names', []))}")
 
-        if not farfan_core_imports:
-            print(f"    (No direct farfan_core imports detected)")
+        if not farfan_pipeline_imports:
+            print(f"    (No direct farfan_pipeline imports detected)")
 
         # Test if script can be imported as module
         print(f"\n  Import test:")
-        sys.path.insert(0, str(repo_root))
         try:
             spec = importlib.util.spec_from_file_location("smart_chunks", smart_chunks_path)
             if spec and spec.loader:
@@ -451,8 +450,8 @@ def main():
    - Consider factory patterns to break circular dependencies
 
 3. **Testing Recommendation**:
-   - Run 'import farfan_core.utils.spc_adapter' in clean Python process
-   - Run 'import farfan_core.utils.cpp_adapter' in clean Python process
+   - Run 'import farfan_pipeline.utils.spc_adapter' in clean Python process
+   - Run 'import farfan_pipeline.utils.cpp_adapter' in clean Python process
    - Verify no ImportError or circular dependency errors occur
 """)
 

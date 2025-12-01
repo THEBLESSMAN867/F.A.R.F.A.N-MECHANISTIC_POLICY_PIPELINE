@@ -5,7 +5,7 @@ import ast
 import shutil
 from pathlib import Path
 import pytest
-from farfan_core.core.method_inventory import (
+from farfan_pipeline.core.method_inventory import (
     walk_python_files,
     module_path_from_file,
     parse_file,
@@ -84,8 +84,8 @@ def repo_fixture(tmp_path):
     
     Structure:
     root/
-      farfan_core/
-        farfan_core/
+      farfan_pipeline/
+        farfan_pipeline/
           core/
             ports.py
             orchestrator/
@@ -94,7 +94,7 @@ def repo_fixture(tmp_path):
               cached.py
     """
     root = tmp_path / "repo"
-    core = root / "farfan_core" / "farfan_core" / "core"
+    core = root / "farfan_pipeline" / "farfan_pipeline" / "core"
     core.mkdir(parents=True)
     
     # Create valid python files
@@ -132,16 +132,16 @@ def test_walk_python_files(repo_fixture):
 def test_module_path_from_file(repo_fixture):
     """Stage B: Verify module path conversion."""
     # root is .../core
-    # file is .../core/ports.py -> farfan_core.core.ports
+    # file is .../core/ports.py -> farfan_pipeline.core.ports
     
     ports_file = repo_fixture / "ports.py"
     mod_path = module_path_from_file(ports_file, root=repo_fixture)
-    assert mod_path == "farfan_core.core.ports"
+    assert mod_path == "farfan_pipeline.core.ports"
     
-    # file is .../core/orchestrator/executor.py -> farfan_core.core.orchestrator.executor
+    # file is .../core/orchestrator/executor.py -> farfan_pipeline.core.orchestrator.executor
     exec_file = repo_fixture / "orchestrator" / "executor.py"
     mod_path_exec = module_path_from_file(exec_file, root=repo_fixture)
-    assert mod_path_exec == "farfan_core.core.orchestrator.executor"
+    assert mod_path_exec == "farfan_pipeline.core.orchestrator.executor"
 
 def test_parse_file(tmp_path):
     """Stage C: Verify AST parsing."""

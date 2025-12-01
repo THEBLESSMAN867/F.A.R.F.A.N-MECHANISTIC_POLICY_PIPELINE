@@ -1,13 +1,8 @@
 from pathlib import Path
-import sys
+
+from farfan_pipeline.core.method_inventory import walk_python_files, INVENTORY_ROOTS, _normalize_roots
+
 import os
-
-# Add src to path so we can import farfan_core
-sys.path.append(os.getcwd())
-sys.path.append(os.path.join(os.getcwd(), "farfan_core"))
-
-from farfan_core.core.method_inventory import walk_python_files, INVENTORY_ROOTS, _normalize_roots
-
 print(f"Current CWD: {os.getcwd()}")
 print(f"INVENTORY_ROOTS: {INVENTORY_ROOTS}")
 

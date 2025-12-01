@@ -11,11 +11,11 @@ def run_command(cmd, description):
     print(f"\n--- {description} ---")
     print(f"Command: {cmd}")
     try:
-        # Add farfan_core to PYTHONPATH
+        # Add farfan_pipeline to PYTHONPATH
         env = os.environ.copy()
         cwd = os.getcwd()
-        farfan_core_path = os.path.join(cwd, "farfan_core")
-        env["PYTHONPATH"] = f"{farfan_core_path}:{env.get('PYTHONPATH', '')}"
+        farfan_pipeline_path = os.path.join(cwd, "farfan_pipeline")
+        env["PYTHONPATH"] = f"{farfan_pipeline_path}:{env.get('PYTHONPATH', '')}"
         
         subprocess.check_call(cmd, shell=True, env=env)
         print("✅ PASSED")
@@ -31,8 +31,8 @@ def main():
     # Note: Assuming coverage is installed. If not, this will fail gracefully.
     print("\n[1/2] Running Coverage Analysis...")
     cov_cmd = (
-        "coverage run -m pytest -q farfan_core/farfan_core/contracts/tests && "
-        "coverage report --include='farfan_core/farfan_core/contracts/*' --fail-under=90"
+        "coverage run -m pytest -q farfan_pipeline/farfan_pipeline/contracts/tests && "
+        "coverage report --include='farfan_pipeline/farfan_pipeline/contracts/*' --fail-under=90"
     )
     # We use '|| true' to avoid failing the script if coverage is missing/fails, 
     # as we might not have it installed in this env.
@@ -42,13 +42,13 @@ def main():
     # Note: Assuming mutmut is installed.
     print("\n[2/2] Running Mutation Testing (mutmut)...")
     mut_cmd = (
-        "mutmut run --paths-to-mutate farfan_core/farfan_core/contracts || true"
+        "mutmut run --paths-to-mutate farfan_pipeline/farfan_pipeline/contracts || true"
     )
     run_command(mut_cmd, "Mutation Testing")
     
     # 3. Determinism Check
     print("\n[3/3] Verifying Determinism...")
-    det_cmd = "pytest -q farfan_core/farfan_core/contracts/tests/test_cdc.py::TestConcurrencyDeterminismContract::test_concurrency_invariance"
+    det_cmd = "pytest -q farfan_pipeline/farfan_pipeline/contracts/tests/test_cdc.py::TestConcurrencyDeterminismContract::test_concurrency_invariance"
     run_command(det_cmd, "Determinism Matrix")
 
 if __name__ == "__main__":

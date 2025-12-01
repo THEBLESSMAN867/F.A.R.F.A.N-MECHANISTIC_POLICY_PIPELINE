@@ -14,7 +14,7 @@ from typing import Dict, Any
 def test_cpp_adapter_import() -> Dict[str, Any]:
     """Test SPCAdapter can be imported."""
     try:
-        from farfan_core.utils.spc_adapter import SPCAdapter, adapt_spc_to_orchestrator
+        from farfan_pipeline.utils.spc_adapter import SPCAdapter, adapt_spc_to_orchestrator
         return {
             "success": True,
             "message": "SPCAdapter importable"
@@ -29,7 +29,7 @@ def test_cpp_adapter_import() -> Dict[str, Any]:
 def test_cpp_ingestion_pipeline() -> Dict[str, Any]:
     """Test CPPIngestionPipeline initialization."""
     try:
-        from farfan_core.processing.cpp_ingestion import CPPIngestionPipeline
+        from farfan_pipeline.processing.cpp_ingestion import CPPIngestionPipeline
         
         pipeline = CPPIngestionPipeline(
             enable_ocr=False,
@@ -52,8 +52,8 @@ def test_cpp_ingestion_pipeline() -> Dict[str, Any]:
 def test_cpp_adapter_conversion() -> Dict[str, Any]:
     """Test SPCAdapter conversion with minimal CPP document."""
     try:
-        from farfan_core.utils.spc_adapter import SPCAdapter
-        from farfan_core.processing.cpp_ingestion.models import (
+        from farfan_pipeline.utils.spc_adapter import SPCAdapter
+        from farfan_pipeline.processing.cpp_ingestion.models import (
             CanonPolicyPackage,
             ChunkGraph,
             Chunk,
@@ -136,8 +136,8 @@ def test_cpp_adapter_conversion() -> Dict[str, Any]:
 def test_cpp_ensure() -> Dict[str, Any]:
     """Test SPCAdapter.ensure() method."""
     try:
-        from farfan_core.utils.spc_adapter import SPCAdapter
-        from farfan_core.processing.cpp_ingestion.models import CanonPolicyPackage
+        from farfan_pipeline.utils.spc_adapter import SPCAdapter
+        from farfan_pipeline.processing.cpp_ingestion.models import CanonPolicyPackage
         
         # Create adapter
         adapter = SPCAdapter()

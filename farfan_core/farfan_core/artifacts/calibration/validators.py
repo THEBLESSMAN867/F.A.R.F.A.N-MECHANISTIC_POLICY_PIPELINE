@@ -1,4 +1,4 @@
- """
+"""
 Three-Pillar Calibration System - Validation Functions
 
 This module implements validation checks for the calibration system

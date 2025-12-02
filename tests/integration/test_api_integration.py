@@ -7,7 +7,7 @@ import pytest
 from flask.testing import FlaskClient
 from flask_socketio import SocketIOTestClient
 
-from farfan_core.farfan_core.api.api_server import (
+from farfan_pipeline.api.api_server import (
     APIConfig,
     DataService,
     app,
@@ -665,7 +665,7 @@ class TestAuthenticationValidation:
         assert response.status_code == 401
 
     def test_expired_token_rejected(self):
-        with patch("farfan_core.farfan_core.api.api_server.datetime") as mock_datetime:
+        with patch("farfan_pipeline.api.api_server.datetime") as mock_datetime:
             past_time = datetime.now(timezone.utc) - timedelta(hours=25)
             mock_datetime.now.return_value = past_time
             token = generate_jwt_token("test_client")

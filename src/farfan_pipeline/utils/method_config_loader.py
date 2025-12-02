@@ -8,7 +8,7 @@ import ast
 import json
 from pathlib import Path
 from typing import Any
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 
@@ -133,7 +133,7 @@ class MethodConfigLoader:
     @calibrated_method("farfan_core.utils.method_config_loader.MethodConfigLoader._parse_range")
     def _parse_range(self, spec: str) -> tuple[float, float]:
         """
-        Parse range specification like '[get_parameter_loader().get("farfan_core.utils.method_config_loader.MethodConfigLoader._parse_range").get("auto_param_L135_41", 0.0), get_parameter_loader().get("farfan_core.utils.method_config_loader.MethodConfigLoader._parse_range").get("auto_param_L135_46", 1.0)], inclusive' or '[100, 10000], integer'.
+        Parse range specification like '[ParameterLoaderV2.get("farfan_core.utils.method_config_loader.MethodConfigLoader._parse_range", "auto_param_L135_41", 0.0), ParameterLoaderV2.get("farfan_core.utils.method_config_loader.MethodConfigLoader._parse_range", "auto_param_L135_46", 1.0)], inclusive' or '[100, 10000], integer'.
 
         Args:
             spec: Range specification string with format "[min, max], modifiers"

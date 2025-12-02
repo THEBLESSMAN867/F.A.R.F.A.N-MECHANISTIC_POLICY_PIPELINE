@@ -35,7 +35,7 @@ from typing import Any
 
 import numpy as np
 from scipy import stats
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 # Configure logging
@@ -112,7 +112,7 @@ class ReconciliationValidator:
         if rule.expected_range is None:
             return ValidationResult(
                 rule=rule, passed=True, observed_value=value,
-                expected_value=None, violation_severity=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range").get("auto_param_L115_56", 0.0), penalty_applied=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range").get("auto_param_L115_77", 0.0)
+                expected_value=None, violation_severity=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range", "auto_param_L115_56", 0.0), penalty_applied=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range", "auto_param_L115_77", 0.0)
             )
 
         min_val, max_val = rule.expected_range
@@ -121,13 +121,13 @@ class ReconciliationValidator:
         if not passed:
             # Calculate violation severity based on how far outside range
             if value < min_val:
-                violation_severity = min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range").get("auto_param_L124_41", 1.0), (min_val - value) / max(abs(min_val), get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range").get("auto_param_L124_84", 1.0)))
+                violation_severity = min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range", "auto_param_L124_41", 1.0), (min_val - value) / max(abs(min_val), ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range", "auto_param_L124_84", 1.0)))
             else:
-                violation_severity = min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range").get("auto_param_L126_41", 1.0), (value - max_val) / max(abs(max_val), get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range").get("auto_param_L126_84", 1.0)))
+                violation_severity = min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range", "auto_param_L126_41", 1.0), (value - max_val) / max(abs(max_val), ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range", "auto_param_L126_84", 1.0)))
         else:
-            violation_severity = get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range").get("violation_severity", 0.0) # Refactored
+            violation_severity = ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range", "violation_severity", 0.0) # Refactored
 
-        penalty = violation_severity * rule.penalty_factor if not passed else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range").get("auto_param_L130_78", 0.0)
+        penalty = violation_severity * rule.penalty_factor if not passed else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_range", "auto_param_L130_78", 0.0)
 
         return ValidationResult(
             rule=rule, passed=passed, observed_value=value,
@@ -141,12 +141,12 @@ class ReconciliationValidator:
         if rule.expected_unit is None:
             return ValidationResult(
                 rule=rule, passed=True, observed_value=unit,
-                expected_value=None, violation_severity=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_unit").get("auto_param_L144_56", 0.0), penalty_applied=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_unit").get("auto_param_L144_77", 0.0)
+                expected_value=None, violation_severity=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_unit", "auto_param_L144_56", 0.0), penalty_applied=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_unit", "auto_param_L144_77", 0.0)
             )
 
         passed = unit.lower() == rule.expected_unit.lower()
-        violation_severity = get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_unit").get("auto_param_L148_29", 1.0) if not passed else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_unit").get("auto_param_L148_52", 0.0)
-        penalty = violation_severity * rule.penalty_factor if not passed else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_unit").get("auto_param_L149_78", 0.0)
+        violation_severity = ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_unit", "auto_param_L148_29", 1.0) if not passed else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_unit", "auto_param_L148_52", 0.0)
+        penalty = violation_severity * rule.penalty_factor if not passed else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_unit", "auto_param_L149_78", 0.0)
 
         return ValidationResult(
             rule=rule, passed=passed, observed_value=unit,
@@ -160,12 +160,12 @@ class ReconciliationValidator:
         if rule.expected_period is None:
             return ValidationResult(
                 rule=rule, passed=True, observed_value=period,
-                expected_value=None, violation_severity=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_period").get("auto_param_L163_56", 0.0), penalty_applied=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_period").get("auto_param_L163_77", 0.0)
+                expected_value=None, violation_severity=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_period", "auto_param_L163_56", 0.0), penalty_applied=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_period", "auto_param_L163_77", 0.0)
             )
 
         passed = period.lower() == rule.expected_period.lower()
-        violation_severity = get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_period").get("auto_param_L167_29", 1.0) if not passed else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_period").get("auto_param_L167_52", 0.0)
-        penalty = violation_severity * rule.penalty_factor if not passed else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_period").get("auto_param_L168_78", 0.0)
+        violation_severity = ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_period", "auto_param_L167_29", 1.0) if not passed else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_period", "auto_param_L167_52", 0.0)
+        penalty = violation_severity * rule.penalty_factor if not passed else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_period", "auto_param_L168_78", 0.0)
 
         return ValidationResult(
             rule=rule, passed=passed, observed_value=period,
@@ -179,12 +179,12 @@ class ReconciliationValidator:
         if rule.expected_entity is None:
             return ValidationResult(
                 rule=rule, passed=True, observed_value=entity,
-                expected_value=None, violation_severity=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_entity").get("auto_param_L182_56", 0.0), penalty_applied=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_entity").get("auto_param_L182_77", 0.0)
+                expected_value=None, violation_severity=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_entity", "auto_param_L182_56", 0.0), penalty_applied=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_entity", "auto_param_L182_77", 0.0)
             )
 
         passed = entity.lower() == rule.expected_entity.lower()
-        violation_severity = get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_entity").get("auto_param_L186_29", 1.0) if not passed else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_entity").get("auto_param_L186_52", 0.0)
-        penalty = violation_severity * rule.penalty_factor if not passed else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_entity").get("auto_param_L187_78", 0.0)
+        violation_severity = ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_entity", "auto_param_L186_29", 1.0) if not passed else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_entity", "auto_param_L186_52", 0.0)
+        penalty = violation_severity * rule.penalty_factor if not passed else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ReconciliationValidator.validate_entity", "auto_param_L187_78", 0.0)
 
         return ValidationResult(
             rule=rule, passed=passed, observed_value=entity,
@@ -241,20 +241,20 @@ class ProbativeTest:
         Calculate Bayesian likelihood ratio
 
         Straw-in-wind: weak confirmation (LR ~ 2)
-        Hoop test: strong disconfirmation if fails (LR ~ get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio").get("auto_param_L244_57", 0.1) if fails)
+        Hoop test: strong disconfirmation if fails (LR ~ ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio", "auto_param_L244_57", 0.1) if fails)
         Smoking gun: strong confirmation if passes (LR ~ 10)
-        Doubly decisive: both necessary and sufficient (LR ~ 20 if passes, get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio").get("auto_param_L246_75", 0.05) if fails)
+        Doubly decisive: both necessary and sufficient (LR ~ 20 if passes, ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio", "auto_param_L246_75", 0.05) if fails)
         """
         if self.test_type == ProbativeTestType.STRAW_IN_WIND:
-            return 2.0 if test_passed else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio").get("auto_param_L249_43", 0.8)
+            return 2.0 if test_passed else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio", "auto_param_L249_43", 0.8)
         elif self.test_type == ProbativeTestType.HOOP_TEST:
-            return 1.2 if test_passed else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio").get("auto_param_L251_43", 0.1)
+            return 1.2 if test_passed else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio", "auto_param_L251_43", 0.1)
         elif self.test_type == ProbativeTestType.SMOKING_GUN:
-            return 1get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio").get("auto_param_L253_20", 0.0) if test_passed else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio").get("auto_param_L253_44", 0.9)
+            return 1ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio", "auto_param_L253_20", 0.0) if test_passed else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio", "auto_param_L253_44", 0.9)
         elif self.test_type == ProbativeTestType.DOUBLY_DECISIVE:
-            return 2get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio").get("auto_param_L255_20", 0.0) if test_passed else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio").get("auto_param_L255_44", 0.05)
+            return 2ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio", "auto_param_L255_20", 0.0) if test_passed else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio", "auto_param_L255_44", 0.05)
         else:
-            return get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio").get("auto_param_L257_19", 1.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ProbativeTest.calculate_likelihood_ratio", "auto_param_L257_19", 1.0)
 
 @dataclass
 class BayesianUpdate:
@@ -299,7 +299,7 @@ class BayesianUpdater:
         posterior = posterior_odds / (1 + posterior_odds)
 
         # Ensure valid probability
-        posterior = max(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianUpdater.update").get("auto_param_L302_24", 0.0), min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianUpdater.update").get("auto_param_L302_33", 1.0), posterior))
+        posterior = max(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianUpdater.update", "auto_param_L302_24", 0.0), min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianUpdater.update", "auto_param_L302_33", 1.0), posterior))
 
         # Calculate evidence weight (KL divergence)
         evidence_weight = self._calculate_evidence_weight(prior, posterior)
@@ -410,13 +410,13 @@ class DispersionEngine:
     def calculate_cv(self, scores: list[float]) -> float:
         """Calculate Coefficient of Variation (CV = std / mean)"""
         if not scores or len(scores) < 2:
-            return get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_cv").get("auto_param_L413_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_cv", "auto_param_L413_19", 0.0)
 
         mean_score = np.mean(scores)
         std_score = np.std(scores, ddof=1)
 
         if mean_score == 0:
-            return get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_cv").get("auto_param_L419_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_cv", "auto_param_L419_19", 0.0)
 
         cv = std_score / mean_score
         return cv
@@ -425,12 +425,12 @@ class DispersionEngine:
     def calculate_max_gap(self, scores: list[float]) -> float:
         """Calculate maximum gap between adjacent scores"""
         if not scores or len(scores) < 2:
-            return get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_max_gap").get("auto_param_L428_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_max_gap", "auto_param_L428_19", 0.0)
 
         sorted_scores = sorted(scores)
         gaps = [sorted_scores[i+1] - sorted_scores[i] for i in range(len(sorted_scores) - 1)]
 
-        return max(gaps) if gaps else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_max_gap").get("auto_param_L433_38", 0.0)
+        return max(gaps) if gaps else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_max_gap", "auto_param_L433_38", 0.0)
 
     @calibrated_method("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_gini")
     def calculate_gini(self, scores: list[float]) -> float:
@@ -439,7 +439,7 @@ class DispersionEngine:
         0 = perfect equality, 1 = perfect inequality
         """
         if not scores or len(scores) < 2:
-            return get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_gini").get("auto_param_L442_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_gini", "auto_param_L442_19", 0.0)
 
         # Sort scores
         sorted_scores = np.array(sorted(scores))
@@ -462,12 +462,12 @@ class DispersionEngine:
         gini = self.calculate_gini(scores)
 
         # Calculate penalties for each metric
-        cv_penalty = max(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty").get("auto_param_L465_25", 0.0), (cv - self.dispersion_threshold) * get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty").get("auto_param_L465_65", 0.5))
-        gap_penalty = max(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty").get("auto_param_L466_26", 0.0), (max_gap - get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty").get("auto_param_L466_42", 1.0)) * get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty").get("auto_param_L466_49", 0.3))  # Penalty if gap > get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty").get("auto_param_L466_74", 1.0)
-        gini_penalty = max(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty").get("auto_param_L467_27", 0.0), (gini - get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty").get("auto_param_L467_40", 0.3)) * get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty").get("auto_param_L467_47", 0.4))  # Penalty if Gini > get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty").get("auto_param_L467_73", 0.3)
+        cv_penalty = max(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty", "auto_param_L465_25", 0.0), (cv - self.dispersion_threshold) * ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty", "auto_param_L465_65", 0.5))
+        gap_penalty = max(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty", "auto_param_L466_26", 0.0), (max_gap - ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty", "auto_param_L466_42", 1.0)) * ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty", "auto_param_L466_49", 0.3))  # Penalty if gap > ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty", "auto_param_L466_74", 1.0)
+        gini_penalty = max(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty", "auto_param_L467_27", 0.0), (gini - ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty", "auto_param_L467_40", 0.3)) * ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty", "auto_param_L467_47", 0.4))  # Penalty if Gini > ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty", "auto_param_L467_73", 0.3)
 
-        # Total penalty (capped at get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty").get("auto_param_L469_35", 1.0))
-        total_penalty = min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty").get("auto_param_L470_28", 1.0), cv_penalty + gap_penalty + gini_penalty)
+        # Total penalty (capped at ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty", "auto_param_L469_35", 1.0))
+        total_penalty = min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.DispersionEngine.calculate_dispersion_penalty", "auto_param_L470_28", 1.0), cv_penalty + gap_penalty + gini_penalty)
 
         metrics = {
             'cv': cv,
@@ -528,7 +528,7 @@ class PeerCalibrator:
         """Compare target score to peer contexts"""
         # Extract peer scores for this dimension
         peer_scores = [
-            peer.scores.get(dimension, get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L531_39", 0.0))
+            peer.scores.get(dimension, ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L531_39", 0.0))
             for peer in peer_contexts
             if dimension in peer.scores
         ]
@@ -536,27 +536,27 @@ class PeerCalibrator:
         if not peer_scores:
             return PeerComparison(
                 target_score=target_score,
-                peer_mean=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L539_26", 0.0),
-                peer_std=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L540_25", 0.0),
-                z_score=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L541_24", 0.0),
-                percentile=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L542_27", 0.5),
-                deviation_penalty=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L543_34", 0.0),
+                peer_mean=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L539_26", 0.0),
+                peer_std=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L540_25", 0.0),
+                z_score=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L541_24", 0.0),
+                percentile=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L542_27", 0.5),
+                deviation_penalty=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L543_34", 0.0),
                 narrative="No peer data available for comparison"
             )
 
         # Calculate peer statistics
         peer_mean = np.mean(peer_scores)
-        peer_std = np.std(peer_scores, ddof=1) if len(peer_scores) > 1 else get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L549_76", 1.0)
+        peer_std = np.std(peer_scores, ddof=1) if len(peer_scores) > 1 else ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L549_76", 1.0)
 
         # Calculate z-score
         z_score = (target_score - peer_mean) / (peer_std + 1e-10)
 
         # Calculate percentile
-        percentile = stats.percentileofscore(peer_scores, target_score) / 10get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L555_76", 0.0)
+        percentile = stats.percentileofscore(peer_scores, target_score) / 10ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L555_76", 0.0)
 
         # Calculate deviation penalty
-        deviation_penalty = max(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L558_32", 0.0), (abs(z_score) - self.deviation_threshold) * get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L558_81", 0.2))
-        deviation_penalty = min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L559_32", 0.5), deviation_penalty)  # Cap at get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L559_66", 0.5)
+        deviation_penalty = max(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L558_32", 0.0), (abs(z_score) - self.deviation_threshold) * ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L558_81", 0.2))
+        deviation_penalty = min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L559_32", 0.5), deviation_penalty)  # Cap at ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L559_66", 0.5)
 
         # Generate narrative
         narrative = self._generate_narrative(
@@ -585,9 +585,9 @@ class PeerCalibrator:
         # Determine performance relative to peers
         if z_score > 1.5:
             performance = "significantly above"
-        elif z_score > get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L588_23", 0.5):
+        elif z_score > ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L588_23", 0.5):
             performance = "moderately above"
-        elif z_score > -get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L590_24", 0.5):
+        elif z_score > -ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L590_24", 0.5):
             performance = "comparable to"
         elif z_score > -1.5:
             performance = "moderately below"
@@ -595,13 +595,13 @@ class PeerCalibrator:
             performance = "significantly below"
 
         # Determine percentile description
-        if percentile >= get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L598_25", 0.9):
+        if percentile >= ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L598_25", 0.9):
             rank = "top 10%"
-        elif percentile >= get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L600_27", 0.75):
+        elif percentile >= ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L600_27", 0.75):
             rank = "top quartile"
-        elif percentile >= get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L602_27", 0.5):
+        elif percentile >= ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L602_27", 0.5):
             rank = "above median"
-        elif percentile >= get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__").get("auto_param_L604_27", 0.25):
+        elif percentile >= ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.PeerCalibrator.__init__", "auto_param_L604_27", 0.25):
             rank = "below median"
         else:
             rank = "bottom quartile"
@@ -644,8 +644,8 @@ class BayesianRollUp:
     def aggregate_micro_to_meso(
         self,
         micro_analyses: list[MicroLevelAnalysis],
-        dispersion_penalty: float = get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__").get("auto_param_L647_36", 0.0),
-        peer_penalty: float = get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__").get("auto_param_L648_30", 0.0),
+        dispersion_penalty: float = ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__", "auto_param_L647_36", 0.0),
+        peer_penalty: float = ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__", "auto_param_L648_30", 0.0),
         additional_penalties: dict[str, float] | None = None
     ) -> float:
         """
@@ -656,7 +656,7 @@ class BayesianRollUp:
         - Meso posterior is hyperparameter
         """
         if not micro_analyses:
-            return get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__").get("auto_param_L659_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__", "auto_param_L659_19", 0.0)
 
         # Extract posteriors (use micro-level adjusted scores so reconciliation
         # penalties propagate into the meso aggregation)
@@ -672,7 +672,7 @@ class BayesianRollUp:
 
         # Adjust posterior (multiplicative penalty)
         adjusted_posterior = raw_meso_posterior * (1 - total_penalty)
-        adjusted_posterior = max(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__").get("auto_param_L675_33", 0.0), min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__").get("auto_param_L675_42", 1.0), adjusted_posterior))
+        adjusted_posterior = max(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__", "auto_param_L675_33", 0.0), min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__", "auto_param_L675_42", 1.0), adjusted_posterior))
 
         self.logger.debug(
             f"Meso roll-up: {len(micro_analyses)} micro → "
@@ -706,9 +706,9 @@ class BayesianRollUp:
                 f"{analysis.peer_penalty:.4f}",
                 f"{analysis.total_penalty:.4f}",
                 f"{analysis.adjusted_score:.4f}",
-                f"{analysis.dispersion_metrics.get('cv', get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__").get("auto_param_L709_57", 0.0)):.4f}",
-                f"{analysis.dispersion_metrics.get('max_gap', get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__").get("auto_param_L710_62", 0.0)):.4f}",
-                f"{analysis.dispersion_metrics.get('gini', get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__").get("auto_param_L711_59", 0.0)):.4f}"
+                f"{analysis.dispersion_metrics.get('cv', ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__", "auto_param_L709_57", 0.0)):.4f}",
+                f"{analysis.dispersion_metrics.get('max_gap', ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__", "auto_param_L710_62", 0.0)):.4f}",
+                f"{analysis.dispersion_metrics.get('gini', ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__", "auto_param_L711_59", 0.0)):.4f}"
             ])
 
         write_csv(rows, output_path, headers=headers)
@@ -729,7 +729,7 @@ class ContradictionDetection:
     score_a: float
     score_b: float
     discrepancy: float
-    severity: float  # get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__").get("auto_param_L732_23", 0.0)-get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__").get("auto_param_L732_27", 1.0)
+    severity: float  # ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__", "auto_param_L732_23", 0.0)-ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianRollUp.__init__", "auto_param_L732_27", 1.0)
     description: str
 
 class ContradictionScanner:
@@ -754,7 +754,7 @@ class ContradictionScanner:
             discrepancy = abs(micro.adjusted_score - meso_analysis.adjusted_score)
 
             if discrepancy > self.discrepancy_threshold:
-                severity = min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.__init__").get("auto_param_L757_31", 1.0), discrepancy / 2.0)
+                severity = min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.__init__", "auto_param_L757_31", 1.0), discrepancy / 2.0)
 
                 contradiction = ContradictionDetection(
                     level_a=f"micro:{micro.question_id}",
@@ -786,7 +786,7 @@ class ContradictionScanner:
             discrepancy = abs(meso.adjusted_score - macro_score)
 
             if discrepancy > self.discrepancy_threshold:
-                severity = min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.__init__").get("auto_param_L789_31", 1.0), discrepancy / 2.0)
+                severity = min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.__init__", "auto_param_L789_31", 1.0), discrepancy / 2.0)
 
                 contradiction = ContradictionDetection(
                     level_a=f"meso:{meso.cluster_id}",
@@ -809,13 +809,13 @@ class ContradictionScanner:
     def calculate_contradiction_penalty(self) -> float:
         """Calculate penalty based on detected contradictions"""
         if not self.contradictions:
-            return get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.calculate_contradiction_penalty").get("auto_param_L812_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.calculate_contradiction_penalty", "auto_param_L812_19", 0.0)
 
         # Average severity weighted by number of contradictions
         avg_severity = np.mean([c.severity for c in self.contradictions])
-        count_factor = min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.calculate_contradiction_penalty").get("auto_param_L816_27", 1.0), len(self.contradictions) / 1get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.calculate_contradiction_penalty").get("auto_param_L816_60", 0.0))  # Max at 10 contradictions
+        count_factor = min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.calculate_contradiction_penalty", "auto_param_L816_27", 1.0), len(self.contradictions) / 1ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.calculate_contradiction_penalty", "auto_param_L816_60", 0.0))  # Max at 10 contradictions
 
-        penalty = avg_severity * count_factor * get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.calculate_contradiction_penalty").get("auto_param_L818_48", 0.5)  # Max penalty get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.calculate_contradiction_penalty").get("auto_param_L818_67", 0.5)
+        penalty = avg_severity * count_factor * ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.calculate_contradiction_penalty", "auto_param_L818_48", 0.5)  # Max penalty ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.ContradictionScanner.calculate_contradiction_penalty", "auto_param_L818_67", 0.5)
 
         return penalty
 
@@ -860,14 +860,14 @@ class BayesianPortfolioComposer:
         coverage = questions_answered / max(total_questions, 1)
 
         # Penalty increases sharply below 70% coverage
-        if coverage >= get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L863_23", 0.9):
-            penalty = get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("penalty", 0.0) # Refactored
-        elif coverage >= get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L865_25", 0.7):
-            penalty = (get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L866_23", 0.9) - coverage) * get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L866_41", 0.5)
+        if coverage >= ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L863_23", 0.9):
+            penalty = ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "penalty", 0.0) # Refactored
+        elif coverage >= ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L865_25", 0.7):
+            penalty = (ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L866_23", 0.9) - coverage) * ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L866_41", 0.5)
         else:
-            penalty = get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L868_22", 0.1) + (get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L868_29", 0.7) - coverage) * get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L868_47", 1.0)
+            penalty = ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L868_22", 0.1) + (ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L868_29", 0.7) - coverage) * ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L868_47", 1.0)
 
-        penalty = min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L870_22", 1.0), penalty)
+        penalty = min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L870_22", 1.0), penalty)
 
         return coverage, penalty
 
@@ -882,15 +882,15 @@ class BayesianPortfolioComposer:
         """
         if not meso_analyses:
             return MacroLevelAnalysis(
-                overall_posterior=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L885_34", 0.0),
-                coverage_score=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L886_31", 0.0),
-                coverage_penalty=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L887_33", 1.0),
-                dispersion_score=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L888_33", 0.0),
-                dispersion_penalty=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L889_35", 0.0),
+                overall_posterior=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L885_34", 0.0),
+                coverage_score=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L886_31", 0.0),
+                coverage_penalty=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L887_33", 1.0),
+                dispersion_score=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L888_33", 0.0),
+                dispersion_penalty=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L889_35", 0.0),
                 contradiction_count=0,
-                contradiction_penalty=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L891_38", 0.0),
-                total_penalty=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L892_30", 1.0),
-                adjusted_score=get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L893_31", 0.0),
+                contradiction_penalty=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L891_38", 0.0),
+                total_penalty=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L892_30", 1.0),
+                adjusted_score=ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L893_31", 0.0),
                 cluster_scores={},
                 recommendations=["No meso-level data available"]
             )
@@ -908,7 +908,7 @@ class BayesianPortfolioComposer:
         # Calculate portfolio-level dispersion
         dispersion_engine = DispersionEngine()
         dispersion_penalty, dispersion_metrics = dispersion_engine.calculate_dispersion_penalty(meso_scores)
-        dispersion_score = get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L911_27", 1.0) - dispersion_penalty
+        dispersion_score = ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L911_27", 1.0) - dispersion_penalty
 
         # Get contradiction penalty
         contradiction_penalty = contradiction_scanner.calculate_contradiction_penalty()
@@ -916,11 +916,11 @@ class BayesianPortfolioComposer:
 
         # Total penalty
         total_penalty = coverage_penalty + dispersion_penalty + contradiction_penalty
-        total_penalty = min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L919_28", 1.0), total_penalty)
+        total_penalty = min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L919_28", 1.0), total_penalty)
 
         # Adjusted score
         adjusted_score = raw_overall * (1 - total_penalty)
-        adjusted_score = max(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L923_29", 0.0), min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L923_38", 1.0), adjusted_score))
+        adjusted_score = max(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L923_29", 0.0), min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L923_38", 1.0), adjusted_score))
 
         # Extract cluster scores
         cluster_scores = {m.cluster_id: m.adjusted_score for m in meso_analyses}
@@ -970,19 +970,19 @@ class BayesianPortfolioComposer:
         """Generate strategic recommendations based on portfolio analysis"""
         recommendations = []
 
-        if coverage_penalty > get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L973_30", 0.1):
+        if coverage_penalty > ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L973_30", 0.1):
             recommendations.append(
                 f"Improve question coverage (current: {coverage:.1%}). "
                 "Address unanswered questions to reduce coverage penalty."
             )
 
-        if dispersion_penalty > get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L979_32", 0.1):
+        if dispersion_penalty > ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L979_32", 0.1):
             recommendations.append(
                 f"Reduce score dispersion across clusters (current penalty: {dispersion_penalty:.2f}). "
                 "Focus on bringing lower-performing areas up to standard."
             )
 
-        if contradiction_penalty > get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L985_35", 0.05):
+        if contradiction_penalty > ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L985_35", 0.05):
             recommendations.append(
                 f"Resolve {contradiction_count} detected contradictions between levels. "
                 "Ensure consistency in assessment across micro/meso/macro."
@@ -1035,7 +1035,7 @@ class BayesianPortfolioComposer:
             [
                 'adjusted_score',
                 f"{macro_analysis.adjusted_score:.4f}",
-                'get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L1038_17", 0.0000)',
+                'ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L1038_17", 0.0000)',
                 'Final penalty-adjusted score'
             ]
         ]
@@ -1138,7 +1138,7 @@ class MultiLevelBayesianOrchestrator:
 
         for data in micro_data:
             question_id = data.get('question_id', 'UNKNOWN')
-            raw_score = data.get('raw_score', get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L1141_46", 0.0))
+            raw_score = data.get('raw_score', ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L1141_46", 0.0))
 
             # Reconciliation validation
             validation_results = self.reconciliation_validator.validate_data(data)
@@ -1158,7 +1158,7 @@ class MultiLevelBayesianOrchestrator:
 
             # Calculate adjusted score
             adjusted_score = final_posterior * (1 - validation_penalty)
-            adjusted_score = max(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L1161_33", 0.0), min(get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("auto_param_L1161_42", 1.0), adjusted_score))
+            adjusted_score = max(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L1161_33", 0.0), min(ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "auto_param_L1161_42", 1.0), adjusted_score))
 
             analysis = MicroLevelAnalysis(
                 question_id=question_id,
@@ -1205,7 +1205,7 @@ class MultiLevelBayesianOrchestrator:
             # Peer calibration
             raw_meso_score = np.mean(micro_scores)
             peer_comparison = None
-            peer_penalty = get_parameter_loader().get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__").get("peer_penalty", 0.0) # Refactored
+            peer_penalty = ParameterLoaderV2.get("farfan_core.analysis.bayesian_multilevel_system.BayesianPortfolioComposer.__init__", "peer_penalty", 0.0) # Refactored
 
             if peer_contexts:
                 peer_comparison = self.peer_calibrator.compare_to_peers(

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from typing import Any
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 try:
@@ -89,7 +89,7 @@ class SPCCausalBridge:
                 f"chunk_{node_id}",
                 chunk_type=node.get("type", "unknown"),
                 text_summary=node.get("text", "")[:100],  # First 100 chars
-                confidence=node.get("confidence", get_parameter_loader().get("farfan_core.analysis.spc_causal_bridge.SPCCausalBridge.build_causal_graph_from_spc").get("auto_param_L91_50", 0.0)),
+                confidence=node.get("confidence", ParameterLoaderV2.get("farfan_core.analysis.spc_causal_bridge.SPCCausalBridge.build_causal_graph_from_spc", "auto_param_L91_50", 0.0)),
             )
 
         # Add edges with causal interpretation
@@ -147,9 +147,9 @@ class SPCCausalBridge:
             edge_type: Type of edge from SPC graph
 
         Returns:
-            Causal weight between get_parameter_loader().get("farfan_core.analysis.spc_causal_bridge.SPCCausalBridge._compute_causal_weight").get("auto_param_L149_34", 0.0) and get_parameter_loader().get("farfan_core.analysis.spc_causal_bridge.SPCCausalBridge._compute_causal_weight").get("auto_param_L149_42", 1.0)
+            Causal weight between ParameterLoaderV2.get("farfan_core.analysis.spc_causal_bridge.SPCCausalBridge._compute_causal_weight", "auto_param_L149_34", 0.0) and ParameterLoaderV2.get("farfan_core.analysis.spc_causal_bridge.SPCCausalBridge._compute_causal_weight", "auto_param_L149_42", 1.0)
         """
-        return self.CAUSAL_WEIGHTS.get(edge_type, get_parameter_loader().get("farfan_core.analysis.spc_causal_bridge.SPCCausalBridge._compute_causal_weight").get("auto_param_L151_50", 0.0))
+        return self.CAUSAL_WEIGHTS.get(edge_type, ParameterLoaderV2.get("farfan_core.analysis.spc_causal_bridge.SPCCausalBridge._compute_causal_weight", "auto_param_L151_50", 0.0))
 
     @calibrated_method("farfan_core.analysis.spc_causal_bridge.SPCCausalBridge._remove_cycles")
     def _remove_cycles(self, G: Any) -> Any:
@@ -182,7 +182,7 @@ class SPCCausalBridge:
 
                 for u, v, direction in cycle:
                     if direction == "forward":
-                        weight = G_dag[u][v].get("weight", get_parameter_loader().get("farfan_core.analysis.spc_causal_bridge.SPCCausalBridge._remove_cycles").get("auto_param_L184_59", 0.0))
+                        weight = G_dag[u][v].get("weight", ParameterLoaderV2.get("farfan_core.analysis.spc_causal_bridge.SPCCausalBridge._remove_cycles", "auto_param_L184_59", 0.0))
                         if weight < min_weight:
                             min_weight = weight
                             min_edge = (u, v)

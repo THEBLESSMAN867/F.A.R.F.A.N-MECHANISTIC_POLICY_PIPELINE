@@ -38,7 +38,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, TypedDict
 import numpy as np
 from sentence_transformers import CrossEncoder, SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 if TYPE_CHECKING:
@@ -508,7 +508,7 @@ class BayesianNumericalAnalyzer:
         Initialize Bayesian analyzer.
 
         Args:
-            prior_strength: Prior belief strength (get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer.__init__").get("auto_param_L510_51", 1.0) = weak, 1get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer.__init__").get("auto_param_L510_64", 0.0) = strong)
+            prior_strength: Prior belief strength (ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer.__init__", "auto_param_L510_51", 1.0) = weak, 1ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer.__init__", "auto_param_L510_64", 0.0) = strong)
         """
         self.prior_strength = prior_strength
         self._logger = logging.getLogger(self.__class__.__name__)
@@ -614,7 +614,7 @@ class BayesianNumericalAnalyzer:
         """
         n_obs = len(observations)
         obs_mean = np.mean(observations)
-        obs_std = np.std(observations, ddof=1) if n_obs > 1 else get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer.__init__").get("auto_param_L616_65", 1.0)
+        obs_std = np.std(observations, ddof=1) if n_obs > 1 else ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer.__init__", "auto_param_L616_65", 1.0)
 
         # Prior parameters (weakly informative centered on observed mean)
         mu_prior = obs_mean
@@ -647,11 +647,11 @@ class BayesianNumericalAnalyzer:
         Returns:
             Evidence strength classification (weak/moderate/strong/very_strong)
         """
-        if credible_interval_width > get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer.__init__").get("auto_param_L649_37", 0.5):
+        if credible_interval_width > ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer.__init__", "auto_param_L649_37", 0.5):
             return "weak"
-        elif credible_interval_width > get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer.__init__").get("auto_param_L651_39", 0.3):
+        elif credible_interval_width > ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer.__init__", "auto_param_L651_39", 0.3):
             return "moderate"
-        elif credible_interval_width > get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer.__init__").get("auto_param_L653_39", 0.15):
+        elif credible_interval_width > ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer.__init__", "auto_param_L653_39", 0.15):
             return "strong"
         else:
             return "very_strong"
@@ -671,34 +671,34 @@ class BayesianNumericalAnalyzer:
             Coherence score in [0, 1]
         """
         if len(observations) < 2:
-            return get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._compute_coherence").get("auto_param_L673_19", 1.0)
+            return ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._compute_coherence", "auto_param_L673_19", 1.0)
 
         # Coefficient of variation
         mean_val = np.mean(observations)
         std_val = np.std(observations, ddof=1)
 
         if mean_val == 0:
-            return get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._compute_coherence").get("auto_param_L680_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._compute_coherence", "auto_param_L680_19", 0.0)
 
         cv = std_val / abs(mean_val)
 
         # Normalize: lower CV = higher coherence
         coherence = np.exp(-cv)  # Exponential decay
 
-        return float(np.clip(coherence, get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._compute_coherence").get("auto_param_L687_40", 0.0), get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._compute_coherence").get("auto_param_L687_45", 1.0)))
+        return float(np.clip(coherence, ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._compute_coherence", "auto_param_L687_40", 0.0), ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._compute_coherence", "auto_param_L687_45", 1.0)))
 
     @calibrated_method("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation")
     def _null_evaluation(self) -> BayesianEvaluation:
         """Return null evaluation when no data available."""
-        null_samples = to_dict_samples(np.array([get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L692_49", 0.0)], dtype=np.float32))
+        null_samples = to_dict_samples(np.array([ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L692_49", 0.0)], dtype=np.float32))
 
         return BayesianEvaluation(
-            point_estimate=get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L695_27", 0.0),
-            credible_interval_95=(get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L696_34", 0.0), get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L696_39", 0.0)),
+            point_estimate=ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L695_27", 0.0),
+            credible_interval_95=(ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L696_34", 0.0), ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L696_39", 0.0)),
             posterior_samples=null_samples,
             evidence_strength="weak",
-            numerical_coherence=get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L699_32", 0.0),
-            posterior_records=[{"coherence": get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L700_45", 0.0)}],
+            numerical_coherence=ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L699_32", 0.0),
+            posterior_records=[{"coherence": ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L700_45", 0.0)}],
         )
 
     def serialize_posterior_samples(
@@ -734,7 +734,7 @@ class BayesianNumericalAnalyzer:
         Returns probability that A > B and Bayes factor.
         """
         if not policy_a_values or not policy_b_values:
-            return {"probability_a_better": get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L736_44", 0.5), "bayes_factor": get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L736_65", 1.0)}
+            return {"probability_a_better": ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L736_44", 0.5), "bayes_factor": ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L736_65", 1.0)}
 
         # Get posterior distributions
         eval_a = self.evaluate_policy_metric(policy_a_values)
@@ -748,10 +748,10 @@ class BayesianNumericalAnalyzer:
         # Compute probability that A > B and clip to avoid exact 0/1 which can cause
         # division-by-zero in subsequent Bayes factor calculation.
         prob_a_better = float(np.mean(samples_a > samples_b))
-        prob_a_better = float(np.clip(prob_a_better, 1e-6, get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L750_59", 1.0) - 1e-6))
+        prob_a_better = float(np.clip(prob_a_better, 1e-6, ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L750_59", 1.0) - 1e-6))
 
         # Compute Bayes factor (simplified)
-        if prob_a_better > get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L753_27", 0.5):
+        if prob_a_better > ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L753_27", 0.5):
             bayes_factor = prob_a_better / (1 - prob_a_better)
         else:
             bayes_factor = (1 - prob_a_better) / prob_a_better
@@ -846,7 +846,7 @@ class PolicyCrossEncoderReranker:
         query: str,
         candidates: list[SemanticChunk],
         top_k: int = 10,
-        min_score: float = get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L848_27", 0.0),
+        min_score: float = ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L848_27", 0.0),
     ) -> list[tuple[SemanticChunk, float]]:
         """
         Rerank candidates using cross-encoder attention.
@@ -898,10 +898,10 @@ class PolicyEmbeddingConfig:
     # Retrieval parameters
     top_k_candidates: int = 50  # Bi-encoder retrieval
     top_k_rerank: int = 10  # Cross-encoder rerank
-    mmr_lambda: float = get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L900_24", 0.7)  # Diversity vs relevance trade-off
+    mmr_lambda: float = ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L900_24", 0.7)  # Diversity vs relevance trade-off
 
     # Bayesian analysis
-    prior_strength: float = get_parameter_loader().get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation").get("auto_param_L903_28", 1.0)  # Weakly informative prior
+    prior_strength: float = ParameterLoaderV2.get("farfan_core.processing.embedding_policy.BayesianNumericalAnalyzer._null_evaluation", "auto_param_L903_28", 1.0)  # Weakly informative prior
 
     # Performance
     batch_size: int = 32
@@ -1472,7 +1472,7 @@ class PolicyAnalysisEmbedder:
 
                         # Normalize to 0-1 scale if it's a percentage
                         if "%" in match.group(0) and value <= 100:
-                            value = value / 10get_parameter_loader().get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._extract_numerical_values").get("auto_param_L1474_46", 0.0)
+                            value = value / 10ParameterLoaderV2.get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._extract_numerical_values", "auto_param_L1474_46", 0.0)
 
                         # Filter outliers
                         if 0 <= value <= 1e9:  # Reasonable range
@@ -1507,20 +1507,20 @@ class PolicyAnalysisEmbedder:
         - Statistical coherence
         """
         if not relevant_chunks:
-            return get_parameter_loader().get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq").get("auto_param_L1509_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq", "auto_param_L1509_19", 0.0)
 
         # Semantic confidence: average of top scores
         semantic_scores = [score for _, score in relevant_chunks[:5]]
         semantic_confidence = (
-            float(np.mean(semantic_scores)) if semantic_scores else get_parameter_loader().get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq").get("auto_param_L1514_68", 0.0)
+            float(np.mean(semantic_scores)) if semantic_scores else ParameterLoaderV2.get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq", "auto_param_L1514_68", 0.0)
         )
 
         # Numerical confidence: based on evidence strength and coherence
         evidence_strength_map = {
-            "weak": get_parameter_loader().get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq").get("auto_param_L1519_20", 0.25),
-            "moderate": get_parameter_loader().get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq").get("auto_param_L1520_24", 0.5),
-            "strong": get_parameter_loader().get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq").get("auto_param_L1521_22", 0.75),
-            "very_strong": get_parameter_loader().get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq").get("auto_param_L1522_27", 1.0),
+            "weak": ParameterLoaderV2.get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq", "auto_param_L1519_20", 0.25),
+            "moderate": ParameterLoaderV2.get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq", "auto_param_L1520_24", 0.5),
+            "strong": ParameterLoaderV2.get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq", "auto_param_L1521_22", 0.75),
+            "very_strong": ParameterLoaderV2.get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq", "auto_param_L1522_27", 1.0),
         }
         numerical_confidence = (
             evidence_strength_map[numerical_eval["evidence_strength"]]
@@ -1528,9 +1528,9 @@ class PolicyAnalysisEmbedder:
         )
 
         # Combined confidence: weighted average
-        overall_confidence = get_parameter_loader().get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq").get("auto_param_L1530_29", 0.6) * semantic_confidence + get_parameter_loader().get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq").get("auto_param_L1530_57", 0.4) * numerical_confidence
+        overall_confidence = ParameterLoaderV2.get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq", "auto_param_L1530_29", 0.6) * semantic_confidence + ParameterLoaderV2.get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq", "auto_param_L1530_57", 0.4) * numerical_confidence
 
-        return float(np.clip(overall_confidence, get_parameter_loader().get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq").get("auto_param_L1532_49", 0.0), get_parameter_loader().get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq").get("auto_param_L1532_54", 1.0)))
+        return float(np.clip(overall_confidence, ParameterLoaderV2.get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq", "auto_param_L1532_49", 0.0), ParameterLoaderV2.get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._generate_query_from_pdq", "auto_param_L1532_54", 1.0)))
 
     @lru_cache(maxsize=1024)
     @calibrated_method("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder._cached_similarity")
@@ -1628,7 +1628,7 @@ class EmbeddingPolicyProducer:
     Provides public API methods for orchestrator integration without exposing
     internal implementation details or summarization logic.
 
-    Version: get_parameter_loader().get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder.get_diagnostics").get("auto_param_L1630_13", 1.0).0
+    Version: ParameterLoaderV2.get("farfan_core.processing.embedding_policy.PolicyAnalysisEmbedder.get_diagnostics", "auto_param_L1630_13", 1.0).0
     Producer Type: Embedding / Semantic Search
     """
 
@@ -1742,7 +1742,7 @@ class EmbeddingPolicyProducer:
     @calibrated_method("farfan_core.processing.embedding_policy.EmbeddingPolicyProducer.get_pdq_confidence")
     def get_pdq_confidence(self, report: dict[str, Any]) -> float:
         """Extract confidence from P-D-Q report"""
-        return report.get("confidence", get_parameter_loader().get("farfan_core.processing.embedding_policy.EmbeddingPolicyProducer.get_pdq_confidence").get("auto_param_L1744_40", 0.0))
+        return report.get("confidence", ParameterLoaderV2.get("farfan_core.processing.embedding_policy.EmbeddingPolicyProducer.get_pdq_confidence", "auto_param_L1744_40", 0.0))
 
     # ========================================================================
     # BAYESIAN NUMERICAL ANALYSIS API
@@ -1798,17 +1798,17 @@ class EmbeddingPolicyProducer:
     @calibrated_method("farfan_core.processing.embedding_policy.EmbeddingPolicyProducer.get_comparison_probability")
     def get_comparison_probability(self, comparison: dict[str, Any]) -> float:
         """Extract probability that A is better than B"""
-        return comparison.get("probability_a_better", get_parameter_loader().get("farfan_core.processing.embedding_policy.EmbeddingPolicyProducer.get_comparison_probability").get("auto_param_L1800_54", 0.5))
+        return comparison.get("probability_a_better", ParameterLoaderV2.get("farfan_core.processing.embedding_policy.EmbeddingPolicyProducer.get_comparison_probability", "auto_param_L1800_54", 0.5))
 
     @calibrated_method("farfan_core.processing.embedding_policy.EmbeddingPolicyProducer.get_comparison_bayes_factor")
     def get_comparison_bayes_factor(self, comparison: dict[str, Any]) -> float:
         """Extract Bayes factor from comparison"""
-        return comparison.get("bayes_factor", get_parameter_loader().get("farfan_core.processing.embedding_policy.EmbeddingPolicyProducer.get_comparison_bayes_factor").get("auto_param_L1805_46", 1.0))
+        return comparison.get("bayes_factor", ParameterLoaderV2.get("farfan_core.processing.embedding_policy.EmbeddingPolicyProducer.get_comparison_bayes_factor", "auto_param_L1805_46", 1.0))
 
     @calibrated_method("farfan_core.processing.embedding_policy.EmbeddingPolicyProducer.get_comparison_difference_mean")
     def get_comparison_difference_mean(self, comparison: dict[str, Any]) -> float:
         """Extract mean difference from comparison"""
-        return comparison.get("difference_mean", get_parameter_loader().get("farfan_core.processing.embedding_policy.EmbeddingPolicyProducer.get_comparison_difference_mean").get("auto_param_L1810_49", 0.0))
+        return comparison.get("difference_mean", ParameterLoaderV2.get("farfan_core.processing.embedding_policy.EmbeddingPolicyProducer.get_comparison_difference_mean", "auto_param_L1810_49", 0.0))
 
     # ========================================================================
     # UTILITY API

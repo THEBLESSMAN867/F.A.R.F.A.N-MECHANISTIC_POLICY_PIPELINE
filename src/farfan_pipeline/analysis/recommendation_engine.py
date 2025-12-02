@@ -27,7 +27,7 @@ from pathlib import Path
 from typing import Any
 
 import jsonschema
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 logger = logging.getLogger(__name__)
@@ -277,7 +277,7 @@ class RecommendationEngine:
         Generate MICRO-level recommendations based on PA-DIM scores
 
         Args:
-            scores: Dictionary mapping "PA##-DIM##" to scores (get_parameter_loader().get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith").get("auto_param_L279_63", 0.0)-3.0)
+            scores: Dictionary mapping "PA##-DIM##" to scores (ParameterLoaderV2.get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith", "auto_param_L279_63", 0.0)-3.0)
             context: Additional context for template rendering
 
         Returns:
@@ -396,8 +396,8 @@ class RecommendationEngine:
         Args:
             cluster_data: Dictionary with cluster metrics:
                 {
-                    'CL01': {'score': 75.0, 'variance': get_parameter_loader().get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith").get("auto_param_L398_56", 0.15), 'weak_pa': 'PA02'},
-                    'CL02': {'score': 62.0, 'variance': get_parameter_loader().get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith").get("auto_param_L399_56", 0.22), 'weak_pa': 'PA05'},
+                    'CL01': {'score': 75.0, 'variance': ParameterLoaderV2.get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith", "auto_param_L398_56", 0.15), 'weak_pa': 'PA02'},
+                    'CL02': {'score': 62.0, 'variance': ParameterLoaderV2.get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith", "auto_param_L399_56", 0.22), 'weak_pa': 'PA05'},
                     ...
                 }
             context: Additional context for template rendering
@@ -486,10 +486,10 @@ class RecommendationEngine:
             return False
 
         # Check variance level
-        if variance_level == 'BAJA' and variance >= get_parameter_loader().get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith").get("auto_param_L488_52", 0.08) or variance_level == 'MEDIA' and (variance < get_parameter_loader().get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith").get("auto_param_L488_102", 0.08) or variance >= get_parameter_loader().get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith").get("auto_param_L488_122", 0.18)):
+        if variance_level == 'BAJA' and variance >= ParameterLoaderV2.get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith", "auto_param_L488_52", 0.08) or variance_level == 'MEDIA' and (variance < ParameterLoaderV2.get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith", "auto_param_L488_102", 0.08) or variance >= ParameterLoaderV2.get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith", "auto_param_L488_122", 0.18)):
             return False
         elif variance_level == 'ALTA':
-            if variance_threshold and variance < variance_threshold / 100 or not variance_threshold and variance < get_parameter_loader().get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith").get("auto_param_L491_115", 0.18):
+            if variance_threshold and variance < variance_threshold / 100 or not variance_threshold and variance < ParameterLoaderV2.get("farfan_core.analysis.recommendation_engine.RecommendationEngine.get_thresholds_from_monolith", "auto_param_L491_115", 0.18):
                 return False
 
         # Check weak PA if specified

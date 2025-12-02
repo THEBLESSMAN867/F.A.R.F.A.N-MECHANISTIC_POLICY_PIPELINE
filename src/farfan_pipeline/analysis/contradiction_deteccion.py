@@ -38,7 +38,7 @@ from farfan_pipeline.core.dependency_lockdown import get_dependency_lockdown
 
 # Import runtime error fixes for defensive programming
 from farfan_pipeline.utils.runtime_error_fixes import ensure_list_return, safe_text_extract
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 _lockdown = get_dependency_lockdown()
@@ -118,7 +118,7 @@ class BayesianConfidenceCalculator:
             self,
             evidence_strength: float,
             observations: int,
-            domain_weight: float = get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__").get("auto_param_L121_35", 1.0)
+            domain_weight: float = ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__", "auto_param_L121_35", 1.0)
     ) -> float:
         """
         Calculate posterior probability using Bayesian inference.
@@ -127,12 +127,12 @@ class BayesianConfidenceCalculator:
         the posterior mean, which represents the confidence level in the finding.
 
         Args:
-            evidence_strength: Strength of the evidence (get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__").get("auto_param_L130_57", 0.0)-get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__").get("auto_param_L130_61", 1.0) scale, unitless ratio)
+            evidence_strength: Strength of the evidence (ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__", "auto_param_L130_57", 0.0)-ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__", "auto_param_L130_61", 1.0) scale, unitless ratio)
             observations: Number of observations supporting the evidence (count)
-            domain_weight: Policy domain-specific weight (multiplier, default: get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__").get("auto_param_L132_79", 1.0))
+            domain_weight: Policy domain-specific weight (multiplier, default: ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__", "auto_param_L132_79", 1.0))
 
         Returns:
-            float: Posterior probability (get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__").get("auto_param_L135_42", 0.0)-get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__").get("auto_param_L135_46", 1.0) scale) representing confidence level
+            float: Posterior probability (ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__", "auto_param_L135_42", 0.0)-ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__", "auto_param_L135_46", 1.0) scale) representing confidence level
         """
         # Update Beta distribution with evidence
         alpha_post = self.prior_alpha + evidence_strength * observations * domain_weight
@@ -142,12 +142,12 @@ class BayesianConfidenceCalculator:
         posterior_mean = alpha_post / (alpha_post + beta_post)
 
         # Calculate 95% credible interval
-        credible_interval = beta.interval(get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__").get("auto_param_L145_42", 0.95), alpha_post, beta_post)
+        credible_interval = beta.interval(ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__", "auto_param_L145_42", 0.95), alpha_post, beta_post)
 
         # Adjust for uncertainty (wider intervals reduce confidence)
-        uncertainty_penalty = get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__").get("auto_param_L148_30", 1.0) - (credible_interval[1] - credible_interval[0])
+        uncertainty_penalty = ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__", "auto_param_L148_30", 1.0) - (credible_interval[1] - credible_interval[0])
 
-        return min(get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__").get("auto_param_L150_19", 1.0), posterior_mean * uncertainty_penalty)
+        return min(ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.BayesianConfidenceCalculator.__init__", "auto_param_L150_19", 1.0), posterior_mean * uncertainty_penalty)
 
 class TemporalLogicVerifier:
     """
@@ -466,7 +466,7 @@ class PolicyContradictionDetector:
             "dimension": dimension.value,
             "contradictions": [self._serialize_contradiction(c) for c in contradictions],
             "total_contradictions": len(contradictions),
-            "high_severity_count": sum(1 for c in contradictions if c.severity > get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._initialize_pdm_patterns").get("auto_param_L469_81", 0.7)),
+            "high_severity_count": sum(1 for c in contradictions if c.severity > ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._initialize_pdm_patterns", "auto_param_L469_81", 0.7)),
             "coherence_metrics": coherence_metrics,
             "recommendations": recommendations,
             "knowledge_graph_stats": self._get_graph_statistics()
@@ -559,7 +559,7 @@ class PolicyContradictionDetector:
             for j, other in enumerate(statements):
                 if i != j:
                     similarity = self._calculate_similarity(stmt, other)
-                    if similarity > get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L562_36", 0.7):  # Umbral de relación
+                    if similarity > ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L562_36", 0.7):  # Umbral de relación
                         self.knowledge_graph.add_edge(
                             f"stmt_{i}",
                             f"stmt_{j}",
@@ -584,7 +584,7 @@ class PolicyContradictionDetector:
                     combined_text = f"{stmt_a.text} [SEP] {stmt_b.text}"
                     contradiction_score = self._classify_contradiction(combined_text)
 
-                    if contradiction_score > get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L587_45", 0.7) and similarity > get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L587_66", 0.5):
+                    if contradiction_score > ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L587_45", 0.7) and similarity > ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L587_66", 0.5):
                         # Calcular confianza Bayesiana
                         confidence = self.bayesian_calculator.calculate_posterior(
                             evidence_strength=contradiction_score,
@@ -629,14 +629,14 @@ class PolicyContradictionDetector:
                                     claim_b
                                 )
 
-                                if divergence is not None and divergence > get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L632_75", 0.2):
+                                if divergence is not None and divergence > ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L632_75", 0.2):
                                     # Test estadístico de significancia
                                     p_value = self._statistical_significance_test(
                                         claim_a,
                                         claim_b
                                     )
 
-                                    if p_value < get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L639_49", 0.05):  # Significancia estadística
+                                    if p_value < ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L639_49", 0.05):  # Significancia estadística
                                         confidence = self.bayesian_calculator.calculate_posterior(
                                             evidence_strength=1 - p_value,
                                             observations=2,
@@ -648,8 +648,8 @@ class PolicyContradictionDetector:
                                             statement_b=stmt_b,
                                             contradiction_type=ContradictionType.NUMERICAL_INCONSISTENCY,
                                             confidence=confidence,
-                                            severity=min(get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L651_57", 1.0), divergence),
-                                            semantic_similarity=get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L652_64", 0.0),
+                                            severity=min(ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L651_57", 1.0), divergence),
+                                            semantic_similarity=ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L652_64", 0.0),
                                             logical_conflict_score=divergence,
                                             temporal_consistency=True,
                                             numerical_divergence=divergence,
@@ -683,7 +683,7 @@ class PolicyContradictionDetector:
                 stmt_b = conflict['event_b']['statement']
 
                 confidence = self.bayesian_calculator.calculate_posterior(
-                    evidence_strength=get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L686_38", 0.9),  # Alta confianza en lógica temporal
+                    evidence_strength=ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L686_38", 0.9),  # Alta confianza en lógica temporal
                     observations=len(conflicts),
                     domain_weight=1.2
                 )
@@ -693,9 +693,9 @@ class PolicyContradictionDetector:
                     statement_b=stmt_b,
                     contradiction_type=ContradictionType.TEMPORAL_CONFLICT,
                     confidence=confidence,
-                    severity=get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L696_29", 0.8),  # Los conflictos temporales son severos
+                    severity=ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L696_29", 0.8),  # Los conflictos temporales son severos
                     semantic_similarity=self._calculate_similarity(stmt_a, stmt_b),
-                    logical_conflict_score=get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L698_43", 1.0),
+                    logical_conflict_score=ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L698_43", 1.0),
                     temporal_consistency=False,
                     numerical_divergence=None,
                     affected_dimensions=[PolicyDimension.PROGRAMATICO],
@@ -733,9 +733,9 @@ class PolicyContradictionDetector:
 
                     if self._has_logical_conflict(stmt_a, stmt_b):
                         confidence = self.bayesian_calculator.calculate_posterior(
-                            evidence_strength=get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L736_46", 0.85),
+                            evidence_strength=ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L736_46", 0.85),
                             observations=len(cycle),
-                            domain_weight = get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("domain_weight", 1.0) # Refactored
+                            domain_weight = ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "domain_weight", 1.0) # Refactored
                         )
 
                         evidence = ContradictionEvidence(
@@ -743,9 +743,9 @@ class PolicyContradictionDetector:
                             statement_b=stmt_b,
                             contradiction_type=ContradictionType.LOGICAL_INCOMPATIBILITY,
                             confidence=confidence,
-                            severity=get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L746_37", 0.7),
+                            severity=ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L746_37", 0.7),
                             semantic_similarity=self._calculate_similarity(stmt_a, stmt_b),
-                            logical_conflict_score=get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L748_51", 0.9),
+                            logical_conflict_score=ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L748_51", 0.9),
                             temporal_consistency=True,
                             numerical_divergence=None,
                             affected_dimensions=[stmt_a.dimension, stmt_b.dimension],
@@ -791,7 +791,7 @@ class PolicyContradictionDetector:
                                     total_claimed
                             ):
                                 confidence = self.bayesian_calculator.calculate_posterior(
-                                    evidence_strength=get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L794_54", 0.8),
+                                    evidence_strength=ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L794_54", 0.8),
                                     observations=len(allocations),
                                     domain_weight=1.3
                                 )
@@ -801,9 +801,9 @@ class PolicyContradictionDetector:
                                     statement_b=stmt_b,
                                     contradiction_type=ContradictionType.RESOURCE_ALLOCATION_MISMATCH,
                                     confidence=confidence,
-                                    severity=get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L804_45", 0.9),  # Conflictos de recursos son críticos
+                                    severity=ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L804_45", 0.9),  # Conflictos de recursos son críticos
                                     semantic_similarity=self._calculate_similarity(stmt_a, stmt_b),
-                                    logical_conflict_score=get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L806_59", 0.8),
+                                    logical_conflict_score=ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L806_59", 0.8),
                                     temporal_consistency=True,
                                     numerical_divergence=abs(amount_a - amount_b) / max(amount_a, amount_b),
                                     affected_dimensions=[PolicyDimension.FINANCIERO],
@@ -842,7 +842,7 @@ class PolicyContradictionDetector:
         graph_fragmentation = self._calculate_graph_fragmentation()
 
         # Score de coherencia compuesto (weighted harmonic mean)
-        weights = np.array([get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L845_28", 0.3), get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L845_33", 0.25), get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L845_39", 0.2), get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L845_44", 0.15), get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L845_50", 0.1)])
+        weights = np.array([ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L845_28", 0.3), ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L845_33", 0.25), ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L845_39", 0.2), ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L845_44", 0.15), ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L845_50", 0.1)])
         scores = np.array([
             1 - contradiction_density,
             semantic_coherence,
@@ -852,7 +852,7 @@ class PolicyContradictionDetector:
         ])
 
         # Harmonic mean ponderada para penalizar valores bajos
-        coherence_score = np.sum(weights) / np.sum(weights / np.maximum(scores, get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L855_80", 0.01)))
+        coherence_score = np.sum(weights) / np.sum(weights / np.maximum(scores, ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L855_80", 0.01)))
 
         # Entropía de contradicciones
         contradiction_entropy = self._calculate_contradiction_entropy(contradictions)
@@ -878,12 +878,12 @@ class PolicyContradictionDetector:
     ) -> float:
         """Calcula coherencia semántica global usando embeddings"""
         if len(statements) < 2:
-            return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L881_19", 1.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L881_19", 1.0)
 
         # Calcular matriz de similitud
         embeddings = [s.embedding for s in statements if s.embedding is not None]
         if len(embeddings) < 2:
-            return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L886_19", 0.5)
+            return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L886_19", 0.5)
 
         similarity_matrix = cosine_similarity(embeddings)
 
@@ -896,7 +896,7 @@ class PolicyContradictionDetector:
         mean_similarity = np.mean(consecutive_similarities)
         std_similarity = np.std(consecutive_similarities)
 
-        coherence = mean_similarity * (1 - min(get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L899_47", 0.5), std_similarity))
+        coherence = mean_similarity * (1 - min(ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L899_47", 0.5), std_similarity))
 
         return float(coherence)
 
@@ -911,7 +911,7 @@ class PolicyContradictionDetector:
         ]
 
         if len(objective_statements) < 2:
-            return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L914_19", 1.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L914_19", 1.0)
 
         # Analizar consistencia direccional de objetivos
         alignment_scores = []
@@ -924,13 +924,13 @@ class PolicyContradictionDetector:
 
         if alignment_scores:
             return float(np.mean(alignment_scores))
-        return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph").get("auto_param_L927_15", 0.5)
+        return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._build_knowledge_graph", "auto_param_L927_15", 0.5)
 
     @calibrated_method("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_graph_fragmentation")
     def _calculate_graph_fragmentation(self) -> float:
         """Calcula fragmentación del grafo de conocimiento"""
         if self.knowledge_graph.number_of_nodes() == 0:
-            return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_graph_fragmentation").get("auto_param_L933_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_graph_fragmentation", "auto_param_L933_19", 0.0)
 
         # Calcular número de componentes conectados
         num_components = nx.number_weakly_connected_components(self.knowledge_graph)
@@ -947,7 +947,7 @@ class PolicyContradictionDetector:
     ) -> float:
         """Calcula entropía de distribución de tipos de contradicción"""
         if not contradictions:
-            return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_graph_fragmentation").get("auto_param_L950_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_graph_fragmentation", "auto_param_L950_19", 0.0)
 
         # Contar frecuencia de cada tipo
         type_counts = {}
@@ -990,9 +990,9 @@ class PolicyContradictionDetector:
 
         # Combinar métricas
         complexity = (
-                min(get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_syntactic_complexity").get("auto_param_L993_20", 1.0), avg_sentence_length / 50) * get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_syntactic_complexity").get("auto_param_L993_53", 0.3) +
-                min(get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_syntactic_complexity").get("auto_param_L994_20", 1.0), avg_dependency_depth / 10) * get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_syntactic_complexity").get("auto_param_L994_54", 0.3) +
-                ttr * get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_syntactic_complexity").get("auto_param_L995_22", 0.4)
+                min(ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_syntactic_complexity", "auto_param_L993_20", 1.0), avg_sentence_length / 50) * ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_syntactic_complexity", "auto_param_L993_53", 0.3) +
+                min(ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_syntactic_complexity", "auto_param_L994_20", 1.0), avg_dependency_depth / 10) * ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_syntactic_complexity", "auto_param_L994_54", 0.3) +
+                ttr * ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_syntactic_complexity", "auto_param_L995_22", 0.4)
         )
 
         return float(complexity)
@@ -1018,7 +1018,7 @@ class PolicyContradictionDetector:
             # Error estándar estimado
             se = np.sqrt(score * (1 - score) / n_observations)
             # Valor crítico t para 95% de confianza
-            t_critical = stats.t.ppf(get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_dependency_depth").get("auto_param_L1021_37", 0.975), n_observations - 1)
+            t_critical = stats.t.ppf(ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_dependency_depth", "auto_param_L1021_37", 0.975), n_observations - 1)
             margin = t_critical * se
         else:
             # Usar distribución normal para muestras grandes
@@ -1026,8 +1026,8 @@ class PolicyContradictionDetector:
             margin = 1.96 * se
 
         return (
-            max(get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_dependency_depth").get("auto_param_L1029_16", 0.0), score - margin),
-            min(get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_dependency_depth").get("auto_param_L1030_16", 1.0), score + margin)
+            max(ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_dependency_depth", "auto_param_L1029_16", 0.0), score - margin),
+            min(ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_dependency_depth", "auto_param_L1030_16", 1.0), score + margin)
         )
 
     def _generate_resolution_recommendations(
@@ -1224,7 +1224,7 @@ class PolicyContradictionDetector:
             normalized = text.replace(',', '.')
             return float(normalized)
         except ValueError:
-            return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._parse_number").get("auto_param_L1227_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._parse_number", "auto_param_L1227_19", 0.0)
 
     @calibrated_method("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._extract_resource_mentions")
     def _extract_resource_mentions(self, text: str) -> list[tuple[str, float | None]]:
@@ -1307,7 +1307,7 @@ class PolicyContradictionDetector:
         """Calcula similaridad entre dos declaraciones"""
         if stmt_a.embedding is not None and stmt_b.embedding is not None:
             return float(1 - cosine(stmt_a.embedding, stmt_b.embedding))
-        return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_similarity").get("auto_param_L1310_15", 0.0)
+        return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._calculate_similarity", "auto_param_L1310_15", 0.0)
 
     @calibrated_method("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._classify_contradiction")
     def _classify_contradiction(self, text: str) -> float:
@@ -1318,23 +1318,23 @@ class PolicyContradictionDetector:
             for item in result:
                 if 'contradiction' in item['label'].lower():
                     return item['score']
-            return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._classify_contradiction").get("auto_param_L1321_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._classify_contradiction", "auto_param_L1321_19", 0.0)
         except Exception as e:
             logger.warning(f"Error en clasificación de contradicción: {e}")
-            return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._classify_contradiction").get("auto_param_L1324_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._classify_contradiction", "auto_param_L1324_19", 0.0)
 
     @calibrated_method("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_domain_weight")
     def _get_domain_weight(self, dimension: PolicyDimension) -> float:
         """Obtiene peso específico del dominio"""
         weights = {
-            PolicyDimension.DIAGNOSTICO: get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_domain_weight").get("auto_param_L1330_41", 0.8),
+            PolicyDimension.DIAGNOSTICO: ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_domain_weight", "auto_param_L1330_41", 0.8),
             PolicyDimension.ESTRATEGICO: 1.2,
-            PolicyDimension.PROGRAMATICO: get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_domain_weight").get("auto_param_L1332_42", 1.0),
+            PolicyDimension.PROGRAMATICO: ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_domain_weight", "auto_param_L1332_42", 1.0),
             PolicyDimension.FINANCIERO: 1.5,
-            PolicyDimension.SEGUIMIENTO: get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_domain_weight").get("auto_param_L1334_41", 0.9),
+            PolicyDimension.SEGUIMIENTO: ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_domain_weight", "auto_param_L1334_41", 0.9),
             PolicyDimension.TERRITORIAL: 1.1
         }
-        return weights.get(dimension, get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_domain_weight").get("auto_param_L1337_38", 1.0))
+        return weights.get(dimension, ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._get_domain_weight", "auto_param_L1337_38", 1.0))
 
     @calibrated_method("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._suggest_resolutions")
     def _suggest_resolutions(self, contradiction_type: ContradictionType) -> list[str]:
@@ -1381,26 +1381,26 @@ class PolicyContradictionDetector:
             claim_b.get('context', '')
         )
 
-        return context_similarity > get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._are_comparable_claims").get("auto_param_L1384_36", 0.6)
+        return context_similarity > ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._are_comparable_claims", "auto_param_L1384_36", 0.6)
 
     @calibrated_method("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity")
     def _text_similarity(self, text_a: str, text_b: str) -> float:
         """Calcula similaridad simple entre textos"""
         if not text_a or not text_b:
-            return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity").get("auto_param_L1390_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity", "auto_param_L1390_19", 0.0)
 
         # Tokenización simple
         tokens_a = set(text_a.lower().split())
         tokens_b = set(text_b.lower().split())
 
         if not tokens_a or not tokens_b:
-            return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity").get("auto_param_L1397_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity", "auto_param_L1397_19", 0.0)
 
         # Coeficiente de Jaccard
         intersection = tokens_a & tokens_b
         union = tokens_a | tokens_b
 
-        return len(intersection) / len(union) if union else get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity").get("auto_param_L1403_60", 0.0)
+        return len(intersection) / len(union) if union else ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity", "auto_param_L1403_60", 0.0)
 
     def _calculate_numerical_divergence(
             self,
@@ -1437,13 +1437,13 @@ class PolicyContradictionDetector:
         pooled_value = (value_a + value_b) / 2
 
         if pooled_value == 0:
-            return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity").get("auto_param_L1440_19", 1.0)  # No significativo
+            return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity", "auto_param_L1440_19", 1.0)  # No significativo
 
         # Estimación conservadora de error estándar
-        se = pooled_value * get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity").get("auto_param_L1443_28", 0.1)  # 10% de error estimado
+        se = pooled_value * ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity", "auto_param_L1443_28", 0.1)  # 10% de error estimado
 
         if se == 0:
-            return get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity").get("auto_param_L1446_19", 0.0)  # Altamente significativo
+            return ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._text_similarity", "auto_param_L1446_19", 0.0)  # Altamente significativo
 
         # Estadístico t
         t_stat = diff / se
@@ -1478,7 +1478,7 @@ class PolicyContradictionDetector:
         # Si una tiene negación y otra no, y son similares, hay conflicto
         if has_negation_a != has_negation_b:
             similarity = self._calculate_similarity(stmt_a, stmt_b)
-            if similarity > get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict").get("auto_param_L1481_28", 0.7):
+            if similarity > ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict", "auto_param_L1481_28", 0.7):
                 return True
 
         return False
@@ -1495,7 +1495,7 @@ class PolicyContradictionDetector:
             return True
 
         # Si hay una diferencia muy grande entre asignaciones similares
-        return abs(amount_a - amount_b) / max(amount_a, amount_b) > get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict").get("auto_param_L1498_68", 0.5)
+        return abs(amount_a - amount_b) / max(amount_a, amount_b) > ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict", "auto_param_L1498_68", 0.5)
 
     def _determine_relation_type(
             self,
@@ -1525,19 +1525,19 @@ class PolicyContradictionDetector:
             stmt_b: PolicyStatement
     ) -> float:
         """Calcula la severidad de una contradicción entre declaraciones"""
-        severity = get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict").get("severity", 0.5) # Refactored
+        severity = ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict", "severity", 0.5) # Refactored
 
         # Incrementar si las declaraciones están en la misma dimensión
         if stmt_a.dimension == stmt_b.dimension:
-            severity += get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict").get("auto_param_L1532_24", 0.2)
+            severity += ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict", "auto_param_L1532_24", 0.2)
 
         # Incrementar si tienen muchas entidades en común
         common_entities = set(stmt_a.entities) & set(stmt_b.entities)
         if len(common_entities) > 0:
-            severity += min(get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict").get("auto_param_L1537_28", 0.2), len(common_entities) * get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict").get("auto_param_L1537_56", 0.05))
+            severity += min(ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict", "auto_param_L1537_28", 0.2), len(common_entities) * ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict", "auto_param_L1537_56", 0.05))
 
         # Incrementar si tienen marcadores temporales en conflicto
         if stmt_a.temporal_markers and stmt_b.temporal_markers:
-            severity += get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict").get("auto_param_L1541_24", 0.1)
+            severity += ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict", "auto_param_L1541_24", 0.1)
 
-        return min(get_parameter_loader().get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict").get("auto_param_L1543_19", 1.0), severity)
+        return min(ParameterLoaderV2.get("farfan_core.analysis.contradiction_deteccion.PolicyContradictionDetector._has_logical_conflict", "auto_param_L1543_19", 1.0), severity)

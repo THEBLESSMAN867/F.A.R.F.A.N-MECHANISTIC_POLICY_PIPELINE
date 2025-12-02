@@ -1,24 +1,45 @@
-"""Calibration decorators - LEGACY STUB for backward compatibility."""
+"""Calibration decorators using centralized ParameterLoaderV2."""
 
 import functools
+import logging
 from collections.abc import Callable
-from typing import TypeVar
+from typing import Any
 
-_F = TypeVar("_F", bound=Callable[..., object])
+from farfan_pipeline.core.parameters import ParameterLoaderV2
+
+logger = logging.getLogger(__name__)
 
 
-def calibrated_method(method_id: str) -> Callable[[_F], _F]:  # noqa: ARG001
-    """No-op decorator for backward compatibility.
+def calibrated_method(method_id: str) -> Callable:
+    """
+    Decorator to apply calibration to a method using centralized ParameterLoaderV2.
 
-    Previously used to apply calibration parameters to methods.
-    Now serves as a marker for methods that were calibrated.
+    Future: Will invoke CalibrationOrchestrator.calibrate(method_id, context) when available.
+
+    Args:
+        method_id: Fully qualified method identifier for parameter lookup
+
+    Returns:
+        Decorated function with calibration applied
     """
 
-    def decorator(func: _F) -> _F:
+    def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args: object, **kwargs: object) -> object:
-            return func(*args, **kwargs)  # type: ignore[call-arg]
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            calibration_params = ParameterLoaderV2.get_all(method_id)
 
-        return wrapper  # type: ignore[return-value]
+            logger.debug(
+                f"Calling calibrated method '{method_id}' with {len(calibration_params)} parameters"
+            )
+
+            # Future: CalibrationOrchestrator.calibrate(method_id, context={
+            #     "args": args,
+            #     "kwargs": kwargs,
+            #     "params": calibration_params
+            # })
+
+            return func(*args, **kwargs)
+
+        return wrapper
 
     return decorator

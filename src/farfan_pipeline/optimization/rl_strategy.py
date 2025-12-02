@@ -34,7 +34,7 @@ from typing import Any
 from uuid import uuid4
 
 import numpy as np
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 logger = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ class ExecutorMetrics:
             Normalized reward between 0 and 1
         """
         if not self.success:
-            return get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("auto_param_L85_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "auto_param_L85_19", 0.0)
 
         # Base reward from quality
         quality_reward = self.quality_score
@@ -93,18 +93,18 @@ class ExecutorMetrics:
         efficiency_reward = max(0, 1 - (self.duration_ms / (2 * typical_duration)))
 
         # Cost efficiency reward (cheaper is better, normalized to 0-1)
-        # Assume typical cost is $get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("auto_param_L96_34", 0.01), scale accordingly
-        typical_cost = get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("typical_cost", 0.01) # Refactored
+        # Assume typical cost is $ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "auto_param_L96_34", 0.01), scale accordingly
+        typical_cost = ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "typical_cost", 0.01) # Refactored
         cost_reward = max(0, 1 - (self.cost_usd / (2 * typical_cost)))
 
         # Weighted combination
         reward = (
-            get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("auto_param_L102_12", 0.5) * quality_reward +
-            get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("auto_param_L103_12", 0.3) * efficiency_reward +
-            get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("auto_param_L104_12", 0.2) * cost_reward
+            ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "auto_param_L102_12", 0.5) * quality_reward +
+            ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "auto_param_L103_12", 0.3) * efficiency_reward +
+            ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "auto_param_L104_12", 0.2) * cost_reward
         )
 
-        return min(get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("auto_param_L107_19", 1.0), max(get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("auto_param_L107_28", 0.0), reward))
+        return min(ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "auto_param_L107_19", 1.0), max(ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "auto_param_L107_28", 0.0), reward))
 
 
 @dataclass
@@ -118,19 +118,19 @@ class BanditArm:
     name: str
 
     # Bayesian posterior (Beta distribution for Thompson Sampling)
-    alpha: float = get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("auto_param_L121_19", 1.0)  # Successes + 1
-    beta: float = get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("auto_param_L122_18", 1.0)   # Failures + 1
+    alpha: float = ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "auto_param_L121_19", 1.0)  # Successes + 1
+    beta: float = ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "auto_param_L122_18", 1.0)   # Failures + 1
 
     # Empirical statistics
     pulls: int = 0
-    total_reward: float = get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("auto_param_L126_26", 0.0)
+    total_reward: float = ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "auto_param_L126_26", 0.0)
     successes: int = 0
     failures: int = 0
 
     # Performance tracking
-    total_duration_ms: float = get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("auto_param_L131_31", 0.0)
+    total_duration_ms: float = ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "auto_param_L131_31", 0.0)
     total_tokens: int = 0
-    total_cost_usd: float = get_parameter_loader().get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward").get("auto_param_L133_28", 0.0)
+    total_cost_usd: float = ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.ExecutorMetrics.reward", "auto_param_L133_28", 0.0)
 
     # Recent performance (last N executions)
     recent_rewards: deque = field(default_factory=lambda: deque(maxlen=100))
@@ -140,26 +140,26 @@ class BanditArm:
     @calibrated_method("farfan_core.optimization.rl_strategy.BanditArm.mean_reward")
     def mean_reward(self) -> float:
         """Calculate mean reward."""
-        return self.total_reward / self.pulls if self.pulls > 0 else get_parameter_loader().get("farfan_core.optimization.rl_strategy.BanditArm.mean_reward").get("auto_param_L143_69", 0.0)
+        return self.total_reward / self.pulls if self.pulls > 0 else ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.BanditArm.mean_reward", "auto_param_L143_69", 0.0)
 
     @property
     @calibrated_method("farfan_core.optimization.rl_strategy.BanditArm.success_rate")
     def success_rate(self) -> float:
         """Calculate success rate."""
         total = self.successes + self.failures
-        return self.successes / total if total > 0 else get_parameter_loader().get("farfan_core.optimization.rl_strategy.BanditArm.success_rate").get("auto_param_L150_56", 0.0)
+        return self.successes / total if total > 0 else ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.BanditArm.success_rate", "auto_param_L150_56", 0.0)
 
     @property
     @calibrated_method("farfan_core.optimization.rl_strategy.BanditArm.mean_duration_ms")
     def mean_duration_ms(self) -> float:
         """Calculate mean duration."""
-        return self.total_duration_ms / self.pulls if self.pulls > 0 else get_parameter_loader().get("farfan_core.optimization.rl_strategy.BanditArm.mean_duration_ms").get("auto_param_L156_74", 0.0)
+        return self.total_duration_ms / self.pulls if self.pulls > 0 else ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.BanditArm.mean_duration_ms", "auto_param_L156_74", 0.0)
 
     @property
     @calibrated_method("farfan_core.optimization.rl_strategy.BanditArm.mean_cost_usd")
     def mean_cost_usd(self) -> float:
         """Calculate mean cost."""
-        return self.total_cost_usd / self.pulls if self.pulls > 0 else get_parameter_loader().get("farfan_core.optimization.rl_strategy.BanditArm.mean_cost_usd").get("auto_param_L162_71", 0.0)
+        return self.total_cost_usd / self.pulls if self.pulls > 0 else ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.BanditArm.mean_cost_usd", "auto_param_L162_71", 0.0)
 
     @calibrated_method("farfan_core.optimization.rl_strategy.BanditArm.update")
     def update(self, metrics: ExecutorMetrics) -> None:
@@ -175,7 +175,7 @@ class BanditArm:
         self.pulls += 1
 
         # Update Bayesian posterior
-        if metrics.success and reward > get_parameter_loader().get("farfan_core.optimization.rl_strategy.BanditArm.update").get("auto_param_L178_40", 0.5):
+        if metrics.success and reward > ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.BanditArm.update", "auto_param_L178_40", 0.5):
             self.alpha += 1
             self.successes += 1
         else:
@@ -364,7 +364,7 @@ class EpsilonGreedyAlgorithm(BanditAlgorithm):
 
         # Decay epsilon if enabled
         if self.decay:
-            self.epsilon = self.initial_epsilon / (1 + get_parameter_loader().get("farfan_core.optimization.rl_strategy.EpsilonGreedyAlgorithm.select_arm").get("auto_param_L367_55", 0.001) * self.total_selections)
+            self.epsilon = self.initial_epsilon / (1 + ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.EpsilonGreedyAlgorithm.select_arm", "auto_param_L367_55", 0.001) * self.total_selections)
 
         # Explore with probability epsilon
         if rng.random() < self.epsilon:
@@ -434,7 +434,7 @@ class RLStrategyOptimizer:
         elif strategy == OptimizationStrategy.UCB1:
             return UCB1Algorithm(c=2.0)
         elif strategy == OptimizationStrategy.EPSILON_GREEDY:
-            return EpsilonGreedyAlgorithm(epsilon=get_parameter_loader().get("farfan_core.optimization.rl_strategy.RLStrategyOptimizer._create_algorithm").get("auto_param_L437_50", 0.1), decay=True)
+            return EpsilonGreedyAlgorithm(epsilon=ParameterLoaderV2.get("farfan_core.optimization.rl_strategy.RLStrategyOptimizer._create_algorithm", "auto_param_L437_50", 0.1), decay=True)
         else:
             raise ValueError(f"Unsupported strategy: {strategy}")
 

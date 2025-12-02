@@ -230,8 +230,8 @@ class SmartChunkConverter:
 
         # Build confidence from SPC metrics
         confidence = Confidence(
-            layout=get_parameter_loader().get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._convert_smart_chunk_to_chunk").get("auto_param_L232_19", 1.0),  # SPC doesn't distinguish these
-            ocr=smart_chunk.confidence_metrics.get('extraction_confidence', get_parameter_loader().get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._convert_smart_chunk_to_chunk").get("auto_param_L233_76", 0.95)),
+            layout=ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._convert_smart_chunk_to_chunk", "auto_param_L232_19", 1.0),  # SPC doesn't distinguish these
+            ocr=smart_chunk.confidence_metrics.get('extraction_confidence', ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._convert_smart_chunk_to_chunk", "auto_param_L233_76", 0.95)),
             typing=smart_chunk.coherence_score
         )
 
@@ -371,7 +371,7 @@ class SmartChunkConverter:
                 entity = Entity(
                     text=pe.text if hasattr(pe, 'text') else str(pe),
                     entity_type=pe.entity_type if hasattr(pe, 'entity_type') else 'unknown',
-                    confidence=pe.confidence if hasattr(pe, 'confidence') else get_parameter_loader().get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_entities").get("auto_param_L373_79", 0.8)
+                    confidence=pe.confidence if hasattr(pe, 'confidence') else ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_entities", "auto_param_L373_79", 0.8)
                 )
                 entities.append(entity)
 
@@ -524,31 +524,31 @@ class SmartChunkConverter:
             1 for c in chunk_graph.chunks.values()
             if c.provenance and c.provenance.source_section
         )
-        provenance_completeness = chunks_with_provenance / len(chunk_graph.chunks) if chunk_graph.chunks else get_parameter_loader().get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi").get("auto_param_L526_110", 0.0)
+        provenance_completeness = chunks_with_provenance / len(chunk_graph.chunks) if chunk_graph.chunks else ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi", "auto_param_L526_110", 0.0)
 
         # Average coherence from SPC coherence_score
-        avg_coherence = sum(sc.coherence_score for sc in smart_chunks) / len(smart_chunks) if smart_chunks else get_parameter_loader().get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi").get("auto_param_L529_112", 0.0)
+        avg_coherence = sum(sc.coherence_score for sc in smart_chunks) / len(smart_chunks) if smart_chunks else ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi", "auto_param_L529_112", 0.0)
 
         # Average completeness from SPC completeness_index
-        avg_completeness = sum(sc.completeness_index for sc in smart_chunks) / len(smart_chunks) if smart_chunks else get_parameter_loader().get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi").get("auto_param_L532_118", 0.0)
+        avg_completeness = sum(sc.completeness_index for sc in smart_chunks) / len(smart_chunks) if smart_chunks else ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi", "auto_param_L532_118", 0.0)
 
         # Budget consistency
         chunks_with_budget = sum(1 for c in chunk_graph.chunks.values() if c.budget)
-        budget_consistency = chunks_with_budget / len(chunk_graph.chunks) if chunk_graph.chunks else get_parameter_loader().get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi").get("auto_param_L536_101", 0.0)
+        budget_consistency = chunks_with_budget / len(chunk_graph.chunks) if chunk_graph.chunks else ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi", "auto_param_L536_101", 0.0)
 
         # Temporal robustness
         chunks_with_time = sum(1 for c in chunk_graph.chunks.values() if c.time_facets.years)
-        temporal_robustness = chunks_with_time / len(chunk_graph.chunks) if chunk_graph.chunks else get_parameter_loader().get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi").get("auto_param_L540_100", 0.0)
+        temporal_robustness = chunks_with_time / len(chunk_graph.chunks) if chunk_graph.chunks else ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi", "auto_param_L540_100", 0.0)
 
         # Chunk context coverage (from edges)
         chunks_with_edges = len({e[0] for e in chunk_graph.edges} | {e[1] for e in chunk_graph.edges})
-        chunk_context_coverage = chunks_with_edges / len(chunk_graph.chunks) if chunk_graph.chunks else get_parameter_loader().get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi").get("auto_param_L544_104", 0.0)
+        chunk_context_coverage = chunks_with_edges / len(chunk_graph.chunks) if chunk_graph.chunks else ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi", "auto_param_L544_104", 0.0)
 
         return QualityMetrics(
             provenance_completeness=provenance_completeness,
             structural_consistency=avg_coherence,
             boundary_f1=avg_completeness,
-            kpi_linkage_rate=get_parameter_loader().get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi").get("auto_param_L550_29", 0.0),  # Would need KPI analysis
+            kpi_linkage_rate=ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi", "auto_param_L550_29", 0.0),  # Would need KPI analysis
             budget_consistency_score=budget_consistency,
             temporal_robustness=temporal_robustness,
             chunk_context_coverage=chunk_context_coverage
@@ -649,7 +649,7 @@ class SmartChunkConverter:
                 chunk_data['causal_evidence'] = [
                     {
                         'dimension': ce.dimension if hasattr(ce, 'dimension') else 'unknown',
-                        'confidence': ce.confidence if hasattr(ce, 'confidence') else get_parameter_loader().get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi").get("auto_param_L651_86", 0.0),
+                        'confidence': ce.confidence if hasattr(ce, 'confidence') else ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.converter.SmartChunkConverter._extract_kpi", "auto_param_L651_86", 0.0),
                     }
                     for ce in sc.causal_chain[:5]  # Top 5
                 ]

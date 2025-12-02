@@ -32,7 +32,7 @@ from typing import (
     TypedDict,
     cast,
 )
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 if TYPE_CHECKING:
@@ -251,39 +251,39 @@ class CDAFConfigError(CDAFException):
 class BayesianThresholdsConfig(BaseModel):
     """Bayesian inference thresholds configuration"""
     kl_divergence: float = Field(
-        default=get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianThresholdsConfig").get("kl_divergence", 0.01),
+        default=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianThresholdsConfig", "kl_divergence", 0.01),
         ge=0.0,
         le=1.0,
         description="KL divergence threshold for convergence"
     )
     convergence_min_evidence: int = Field(
-        default=get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianThresholdsConfig").get("convergence_min_evidence", 2),
+        default=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianThresholdsConfig", "convergence_min_evidence", 2),
         ge=1,
         description="Minimum evidence count for convergence check"
     )
     prior_alpha: float = Field(
-        default=get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianThresholdsConfig").get("prior_alpha", 2.0),
+        default=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianThresholdsConfig", "prior_alpha", 2.0),
         ge=0.1,
         description="Default alpha parameter for Beta prior"
     )
     prior_beta: float = Field(
-        default=get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianThresholdsConfig").get("prior_beta", 2.0),
+        default=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianThresholdsConfig", "prior_beta", 2.0),
         ge=0.1,
         description="Default beta parameter for Beta prior"
     )
     laplace_smoothing: float = Field(
-        default=get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianThresholdsConfig").get("laplace_smoothing", 1.0),
+        default=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianThresholdsConfig", "laplace_smoothing", 1.0),
         ge=0.0,
         description="Laplace smoothing parameter"
     )
 
 class MechanismTypeConfig(BaseModel):
     """Mechanism type prior probabilities"""
-    administrativo: float = Field(default=get_parameter_loader().get("farfan_core.analysis.derek_beach.MechanismTypeConfig").get("administrativo", 0.30), ge=0.0, le=1.0)
-    tecnico: float = Field(default=get_parameter_loader().get("farfan_core.analysis.derek_beach.MechanismTypeConfig").get("tecnico", 0.25), ge=0.0, le=1.0)
-    financiero: float = Field(default=get_parameter_loader().get("farfan_core.analysis.derek_beach.MechanismTypeConfig").get("financiero", 0.20), ge=0.0, le=1.0)
-    politico: float = Field(default=get_parameter_loader().get("farfan_core.analysis.derek_beach.MechanismTypeConfig").get("politico", 0.15), ge=0.0, le=1.0)
-    mixto: float = Field(default=get_parameter_loader().get("farfan_core.analysis.derek_beach.MechanismTypeConfig").get("mixto", 0.10), ge=0.0, le=1.0)
+    administrativo: float = Field(default=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.MechanismTypeConfig", "administrativo", 0.30), ge=0.0, le=1.0)
+    tecnico: float = Field(default=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.MechanismTypeConfig", "tecnico", 0.25), ge=0.0, le=1.0)
+    financiero: float = Field(default=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.MechanismTypeConfig", "financiero", 0.20), ge=0.0, le=1.0)
+    politico: float = Field(default=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.MechanismTypeConfig", "politico", 0.15), ge=0.0, le=1.0)
+    mixto: float = Field(default=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.MechanismTypeConfig", "mixto", 0.10), ge=0.0, le=1.0)
 
     @validator('*', pre=True, always=True)
     def check_sum_to_one(cls, v, values):
@@ -321,7 +321,7 @@ class SelfReflectionConfig(BaseModel):
         description="Enable learning from audit feedback to update priors"
     )
     feedback_weight: float = Field(
-        default=get_parameter_loader().get("farfan_core.analysis.derek_beach.SelfReflectionConfig").get("feedback_weight", 0.1),
+        default=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.SelfReflectionConfig", "feedback_weight", 0.1),
         ge=0.0,
         le=1.0,
         description="Weight for feedback in prior updates (0=ignore, 1=full)"
@@ -430,7 +430,7 @@ class MetaNode:
     contextual_risks: list[str] = field(default_factory=list)
     causal_justification: list[str] = field(default_factory=list)
     audit_flags: list[str] = field(default_factory=list)
-    confidence_score: float = get_parameter_loader().get("farfan_core.analysis.derek_beach.MetaNode").get("confidence_score", 0.0)
+    confidence_score: float = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.MetaNode", "confidence_score", 0.0)
 
 class ConfigLoader:
     """External configuration management with Pydantic schema validation"""
@@ -521,19 +521,19 @@ class ConfigLoader:
             },
             # Bayesian thresholds - now externalized
             'bayesian_thresholds': {
-                'kl_divergence': get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config").get("kl_divergence", 0.01),
-                'convergence_min_evidence': get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config").get("convergence_min_evidence", 2),
-                'prior_alpha': get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config").get("prior_alpha", 2.0),
-                'prior_beta': get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config").get("prior_beta", 2.0),
-                'laplace_smoothing': get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config").get("laplace_smoothing", 1.0)
+                'kl_divergence': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config", "kl_divergence", 0.01),
+                'convergence_min_evidence': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config", "convergence_min_evidence", 2),
+                'prior_alpha': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config", "prior_alpha", 2.0),
+                'prior_beta': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config", "prior_beta", 2.0),
+                'laplace_smoothing': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config", "laplace_smoothing", 1.0)
             },
             # Mechanism type priors - now externalized
             'mechanism_type_priors': {
-                'administrativo': get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config").get("administrativo", 0.30),
-                'tecnico': get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config").get("tecnico", 0.25),
-                'financiero': get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config").get("financiero", 0.20),
-                'politico': get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config").get("politico", 0.15),
-                'mixto': get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config").get("mixto", 0.10)
+                'administrativo': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config", "administrativo", 0.30),
+                'tecnico': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config", "tecnico", 0.25),
+                'financiero': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config", "financiero", 0.20),
+                'politico': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config", "politico", 0.15),
+                'mixto': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config", "mixto", 0.10)
             },
             # Performance settings
             'performance': {
@@ -545,7 +545,7 @@ class ConfigLoader:
             # Self-reflection settings
             'self_reflection': {
                 'enable_prior_learning': False,
-                'feedback_weight': get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config").get("feedback_weight", 0.1),
+                'feedback_weight': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader._load_default_config", "feedback_weight", 0.1),
                 'prior_history_path': None,
                 'min_documents_for_learning': 5
             }
@@ -601,14 +601,14 @@ class ConfigLoader:
         """Get Bayesian threshold with type safety"""
         if self.validated_config:
             return getattr(self.validated_config.bayesian_thresholds, key)
-        return self.get(f'bayesian_thresholds.{key}', get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader.get_bayesian_threshold").get("default", 0.01))
+        return self.get(f'bayesian_thresholds.{key}', ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader.get_bayesian_threshold", "default", 0.01))
 
     @calibrated_method("farfan_core.analysis.derek_beach.ConfigLoader.get_mechanism_prior")
     def get_mechanism_prior(self, mechanism_type: str) -> float:
         """Get mechanism type prior probability with type safety"""
         if self.validated_config:
-            return getattr(self.validated_config.mechanism_type_priors, mechanism_type, get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader.get_mechanism_prior").get("default", 0.0))
-        return self.get(f'mechanism_type_priors.{mechanism_type}', get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader.get_mechanism_prior").get("default", 0.0))
+            return getattr(self.validated_config.mechanism_type_priors, mechanism_type, ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader.get_mechanism_prior", "default", 0.0))
+        return self.get(f'mechanism_type_priors.{mechanism_type}', ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader.get_mechanism_prior", "default", 0.0))
 
     @calibrated_method("farfan_core.analysis.derek_beach.ConfigLoader.get_performance_setting")
     def get_performance_setting(self, key: str) -> Any:
@@ -670,7 +670,7 @@ class ConfigLoader:
             # If failures exist, apply additional penalty to 'politico' (often "miracle" type)
             # and 'mixto' (vague mechanism types)
             miracle_types = ['politico', 'mixto']
-            miracle_penalty = get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader.update_priors_from_feedback").get("miracle_penalty", 0.85) # Refactored
+            miracle_penalty = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader.update_priors_from_feedback", "miracle_penalty", 0.85) # Refactored
             for mech_type in miracle_types:
                 if hasattr(self.validated_config.mechanism_type_priors, mech_type):
                     current_prior = getattr(self.validated_config.mechanism_type_priors, mech_type)
@@ -680,7 +680,7 @@ class ConfigLoader:
                     self.logger.info(
                         f"Miracle mechanism penalty for {mech_type}: {current_prior:.4f} -> {updated_prior:.4f}")
 
-        # Renormalize to ensure priors sum to get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader.update_priors_from_feedback").get("auto_param_L686_46", 1.0)
+        # Renormalize to ensure priors sum to ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader.update_priors_from_feedback", "auto_param_L686_46", 1.0)
         total_prior = sum(
             getattr(self.validated_config.mechanism_type_priors, attr)
             for attr in ['administrativo', 'tecnico', 'financiero', 'politico', 'mixto']
@@ -821,7 +821,7 @@ class ConfigLoader:
             'current_uncertainty': current_uncertainty,
             'iterations_tracked': len(recent_history),
             'criterion_met': False,
-            'reduction_percent': get_parameter_loader().get("farfan_core.analysis.derek_beach.ConfigLoader.check_uncertainty_reduction_criterion").get("reduction_percent", 0.0),
+            'reduction_percent': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ConfigLoader.check_uncertainty_reduction_criterion", "reduction_percent", 0.0),
             'status': 'insufficient_data'
         }
 
@@ -1204,13 +1204,13 @@ class CausalExtractor:
             posterior_std = np.sqrt(posterior_var)
 
             # AUDIT POINT 2.1: Structural Veto (D6-Q2)
-            # TeoriaCambio validation - caps Bayesian posterior ≤get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._extract_causal_links").get("structural_veto_threshold", 0.6) for impermissible links
+            # TeoriaCambio validation - caps Bayesian posterior ≤ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._extract_causal_links", "structural_veto_threshold", 0.6) for impermissible links
             # Implements axiomatic-Bayesian fusion per Goertz & Mahoney 2012
             structural_violation = self._check_structural_violation(source, target)
             if structural_violation:
-                # Deterministic veto: cap posterior at get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._extract_causal_links").get("structural_veto_threshold", 0.6) despite high semantic evidence
+                # Deterministic veto: cap posterior at ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._extract_causal_links", "structural_veto_threshold", 0.6) despite high semantic evidence
                 original_posterior = posterior_mean
-                posterior_mean = min(posterior_mean, get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._extract_causal_links").get("structural_veto_threshold", 0.6))
+                posterior_mean = min(posterior_mean, ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._extract_causal_links", "structural_veto_threshold", 0.6))
                 self.logger.warning(
                     f"STRUCTURAL VETO (D6-Q2): Link {source}→{target} violates causal hierarchy. "
                     f"Posterior capped from {original_posterior:.3f} to {posterior_mean:.3f}. "
@@ -1220,7 +1220,7 @@ class CausalExtractor:
             # Check convergence (require minimum evidence count)
             converged = (len(kl_divs) >= convergence_min_evidence and
                          len(kl_divs) > 0 and kl_divs[-1] < kl_threshold)
-            final_kl = kl_divs[-1] if len(kl_divs) > 0 else get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._extract_causal_links").get("final_kl_default", 0.0)
+            final_kl = kl_divs[-1] if len(kl_divs) > 0 else ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._extract_causal_links", "final_kl_default", 0.0)
 
             # Add edge with posterior distribution
             self.graph.add_edge(
@@ -1273,7 +1273,7 @@ class CausalExtractor:
             target_node = self.nodes.get(target)
 
             if not source_node or not target_node:
-                return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_semantic_distance").get("default", 0.5)
+                return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_semantic_distance", "default", 0.5)
 
             # TODO: Implement embedding cache if performance.cache_embeddings is enabled
             # This would save ~60% computation time on large documents
@@ -1287,11 +1287,11 @@ class CausalExtractor:
                 # Calculate cosine similarity (1 - distance)
                 # PERFORMANCE NOTE: Could vectorize this with numpy.dot for batch operations
                 similarity = 1 - cosine(source_doc.vector, target_doc.vector)
-                return max(get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_semantic_distance").get("min_similarity", 0.0), min(get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_semantic_distance").get("max_similarity", 1.0), similarity))
+                return max(ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_semantic_distance", "min_similarity", 0.0), min(ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_semantic_distance", "max_similarity", 1.0), similarity))
 
-            return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_semantic_distance").get("default", 0.5)
+            return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_semantic_distance", "default", 0.5)
         except Exception:
-            return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_semantic_distance").get("default", 0.5)
+            return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_semantic_distance", "default", 0.5)
 
     @calibrated_method("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior")
     def _calculate_type_transition_prior(self, source: str, target: str) -> float:
@@ -1302,20 +1302,20 @@ class CausalExtractor:
         # Define transition probabilities based on logical flow
         # programa → producto → resultado → impacto
         transition_priors = {
-            ('programa', 'producto'): get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior").get("('programa', 'producto')", 0.85),
-            ('producto', 'resultado'): get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior").get("('producto', 'resultado')", 0.80),
-            ('resultado', 'impacto'): get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior").get("('resultado', 'impacto')", 0.75),
-            ('programa', 'resultado'): get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior").get("('programa', 'resultado')", 0.60),
-            ('producto', 'impacto'): get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior").get("('producto', 'impacto')", 0.50),
-            ('programa', 'impacto'): get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior").get("('programa', 'impacto')", 0.30),
+            ('programa', 'producto'): ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior", "('programa', 'producto')", 0.85),
+            ('producto', 'resultado'): ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior", "('producto', 'resultado')", 0.80),
+            ('resultado', 'impacto'): ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior", "('resultado', 'impacto')", 0.75),
+            ('programa', 'resultado'): ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior", "('programa', 'resultado')", 0.60),
+            ('producto', 'impacto'): ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior", "('producto', 'impacto')", 0.50),
+            ('programa', 'impacto'): ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior", "('programa', 'impacto')", 0.30),
         }
 
         # Reverse transitions are less likely
         reverse_key = (target_type, source_type)
         if reverse_key in transition_priors:
-            return transition_priors[reverse_key] * get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior").get("reverse_multiplier", 0.3)
+            return transition_priors[reverse_key] * ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior", "reverse_multiplier", 0.3)
 
-        return transition_priors.get((source_type, target_type), get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior").get("default", 0.40))
+        return transition_priors.get((source_type, target_type), ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_type_transition_prior", "default", 0.40))
 
     @calibrated_method("farfan_core.analysis.derek_beach.CausalExtractor._check_structural_violation")
     def _check_structural_violation(self, source: str, target: str) -> str | None:
@@ -1381,13 +1381,13 @@ class CausalExtractor:
         keyword_lower = keyword.lower()
 
         # Base score from causal indicators
-        base_score = get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity").get("base_score", 0.6) # Refactored
+        base_score = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity", "base_score", 0.6) # Refactored
         if any(ind in keyword_lower for ind in strong_indicators):
-            base_score = get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity").get("strong_indicator_score", 0.9) # Refactored
+            base_score = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity", "strong_indicator_score", 0.9) # Refactored
         elif any(ind in keyword_lower for ind in moderate_indicators):
-            base_score = get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity").get("moderate_indicator_score", 0.7) # Refactored
+            base_score = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity", "moderate_indicator_score", 0.7) # Refactored
         elif any(ind in keyword_lower for ind in weak_indicators):
-            base_score = get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity").get("weak_indicator_score", 0.5) # Refactored
+            base_score = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity", "weak_indicator_score", 0.5) # Refactored
 
         # HARMONIC FRONT 3 - Enhancement 4: Policy-specific vocabulary boost
         # Check for specialized terminology per policy area
@@ -1448,24 +1448,24 @@ class CausalExtractor:
         ]
 
         # Check for policy-specific vocabulary boost
-        specificity_boost = get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity").get("specificity_boost", 0.0) # Refactored
+        specificity_boost = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity", "specificity_boost", 0.0) # Refactored
         text_to_check = (keyword_lower + ' ' + (context or '')).lower()
 
         if policy_area and policy_area in policy_area_vocabulary:
             for term in policy_area_vocabulary[policy_area]:
                 if term.lower() in text_to_check:
-                    specificity_boost = max(specificity_boost, get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity").get("policy_specificity_boost", 0.15))
+                    specificity_boost = max(specificity_boost, ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity", "policy_specificity_boost", 0.15))
                     self.logger.debug(f"Policy-specific term detected: '{term}' for {policy_area}")
                     break
 
         # Check for general contextual vocabulary (D6-Q5)
         for term in contextual_vocabulary:
             if term.lower() in text_to_check:
-                specificity_boost = max(specificity_boost, get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity").get("contextual_specificity_boost", 0.10))
+                specificity_boost = max(specificity_boost, ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity", "contextual_specificity_boost", 0.10))
                 self.logger.debug(f"Contextual term detected: '{term}'")
                 break
 
-        final_score = min(get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity").get("final_score_max", 1.0), base_score + specificity_boost)
+        final_score = min(ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_language_specificity", "final_score_max", 1.0), base_score + specificity_boost)
 
         return final_score
 
@@ -1476,7 +1476,7 @@ class CausalExtractor:
         target_node = self.nodes.get(target)
 
         if not source_node or not target_node:
-            return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_temporal_coherence").get("default", 0.5)
+            return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_temporal_coherence", "default", 0.5)
 
         # Extract verbs from entity-activity if available
         if source_node.entity_activity and target_node.entity_activity:
@@ -1493,13 +1493,13 @@ class CausalExtractor:
             target_seq = verb_sequences.get(target_verb, 5)
 
             if source_seq < target_seq:
-                return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_temporal_coherence").get("in_sequence", 0.85)
+                return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_temporal_coherence", "in_sequence", 0.85)
             elif source_seq == target_seq:
-                return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_temporal_coherence").get("same_sequence", 0.60)
+                return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_temporal_coherence", "same_sequence", 0.60)
             else:
-                return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_temporal_coherence").get("reverse_sequence", 0.30)
+                return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_temporal_coherence", "reverse_sequence", 0.30)
 
-        return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_temporal_coherence").get("default", 0.50)
+        return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_temporal_coherence", "default", 0.50)
 
     @calibrated_method("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency")
     def _assess_financial_consistency(self, source: str, target: str) -> float:
@@ -1508,7 +1508,7 @@ class CausalExtractor:
         target_node = self.nodes.get(target)
 
         if not source_node or not target_node:
-            return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency").get("default", 0.5)
+            return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency", "default", 0.5)
 
         source_budget = source_node.financial_allocation
         target_budget = target_node.financial_allocation
@@ -1517,14 +1517,14 @@ class CausalExtractor:
             # Check if budgets are aligned (target should be <= source)
             ratio = target_budget / source_budget if source_budget > 0 else 0
 
-            if get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency").get("consistent_min", 0.1) <= ratio <= get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency").get("consistent_max", 1.0):
-                return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency").get("consistent_score", 0.85)
-            elif ratio > get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency").get("consistent_max", 1.0) and ratio <= get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency").get("slightly_inconsistent_max", 1.5):
-                return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency").get("slightly_inconsistent_score", 0.60)
+            if ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency", "consistent_min", 0.1) <= ratio <= ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency", "consistent_max", 1.0):
+                return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency", "consistent_score", 0.85)
+            elif ratio > ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency", "consistent_max", 1.0) and ratio <= ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency", "slightly_inconsistent_max", 1.5):
+                return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency", "slightly_inconsistent_score", 0.60)
             else:
-                return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency").get("very_inconsistent_score", 0.30)
+                return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency", "very_inconsistent_score", 0.30)
 
-        return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency").get("default", 0.50)
+        return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._assess_financial_consistency", "default", 0.50)
 
     @calibrated_method("farfan_core.analysis.derek_beach.CausalExtractor._calculate_textual_proximity")
     def _calculate_textual_proximity(self, source: str, target: str, text: str) -> float:
@@ -1547,7 +1547,7 @@ class CausalExtractor:
             proximity_score = co_occurrences / total_windows
             return proximity_score
 
-        return get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_textual_proximity").get("default", 0.5)
+        return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_textual_proximity", "default", 0.5)
 
     @calibrated_method("farfan_core.analysis.derek_beach.CausalExtractor._initialize_prior")
     def _initialize_prior(self, source: str, target: str) -> tuple[float, float, float]:
@@ -1578,16 +1578,16 @@ class CausalExtractor:
         """
         # Weight different evidence types
         weights = {
-            'semantic_distance': get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood").get("semantic_distance_weight", 0.25),
-            'type_transition_prior': get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood").get("type_transition_prior_weight", 0.20),
-            'language_specificity': get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood").get("language_specificity_weight", 0.20),
-            'temporal_coherence': get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood").get("temporal_coherence_weight", 0.15),
-            'financial_consistency': get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood").get("financial_consistency_weight", 0.10),
-            'textual_proximity': get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood").get("textual_proximity_weight", 0.10)
+            'semantic_distance': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood", "semantic_distance_weight", 0.25),
+            'type_transition_prior': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood", "type_transition_prior_weight", 0.20),
+            'language_specificity': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood", "language_specificity_weight", 0.20),
+            'temporal_coherence': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood", "temporal_coherence_weight", 0.15),
+            'financial_consistency': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood", "financial_consistency_weight", 0.10),
+            'textual_proximity': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood", "textual_proximity_weight", 0.10)
         }
 
         # Basic weighted average
-        likelihood = get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood").get("likelihood", 0.0) # Refactored
+        likelihood = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood", "likelihood", 0.0) # Refactored
         evidence_count = 0
         domain_diversity = set()
 
@@ -1611,20 +1611,20 @@ class CausalExtractor:
         diversity_count = len(domain_diversity)
         if diversity_count >= 3:
             # Strong triangulation across semantic, temporal, and financial domains
-            triangulation_bonus = get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood").get("triangulation_bonus_3", 1.15)
+            triangulation_bonus = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood", "triangulation_bonus_3", 1.15)
         elif diversity_count == 2:
             # Moderate triangulation
-            triangulation_bonus = get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood").get("triangulation_bonus_2", 1.05)
+            triangulation_bonus = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood", "triangulation_bonus_2", 1.05)
         else:
             # Weak or no triangulation
-            triangulation_bonus = get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood").get("triangulation_bonus_default", 1.0) # Refactored
+            triangulation_bonus = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood", "triangulation_bonus_default", 1.0) # Refactored
 
         # Apply nonlinear transformation
-        enhanced_likelihood = min(get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood").get("enhanced_likelihood_max", 1.0), likelihood * triangulation_bonus)
+        enhanced_likelihood = min(ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood", "enhanced_likelihood_max", 1.0), likelihood * triangulation_bonus)
 
         # Penalty for insufficient evidence diversity
         if evidence_count < 3:
-            enhanced_likelihood *= get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood").get("insufficient_evidence_penalty", 0.85)
+            enhanced_likelihood *= ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_composite_likelihood", "insufficient_evidence_penalty", 0.85)
 
         return enhanced_likelihood
 
@@ -1641,13 +1641,13 @@ class CausalExtractor:
         for prod in nodes_by_type.get('producto', []):
             for prog in nodes_by_type.get('programa', []):
                 if not self.graph.has_edge(prog, prod):
-                    self.graph.add_edge(prog, prod, logic='inferido', strength=get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._build_type_hierarchy").get("inferred_strength", 0.5))
+                    self.graph.add_edge(prog, prod, logic='inferido', strength=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._build_type_hierarchy", "inferred_strength", 0.5))
 
         # Connect resultados to productos
         for res in nodes_by_type.get('resultado', []):
             for prod in nodes_by_type.get('producto', []):
                 if not self.graph.has_edge(prod, res):
-                    self.graph.add_edge(prod, res, logic='inferido', strength=get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._build_type_hierarchy").get("inferred_strength", 0.5))
+                    self.graph.add_edge(prod, res, logic='inferido', strength=ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._build_type_hierarchy", "inferred_strength", 0.5))
 
     @calibrated_method("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence")
     def _calculate_confidence(self, node: MetaNode, link_text: str = "") -> float:
@@ -1661,13 +1661,13 @@ class CausalExtractor:
         Returns:
             Confidence score between 0 and 1
         """
-        confidence = get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence").get("confidence", 0.5) # Refactored
+        confidence = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence", "confidence", 0.5) # Refactored
 
         # Increase confidence if node has quantitative targets
         if node.target and node.baseline:
             try:
                 float(str(node.target).replace(',', '').replace('%', ''))
-                confidence += get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence").get("quantitative_target_bonus", 0.2)
+                confidence += ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence", "quantitative_target_bonus", 0.2)
             except (ValueError, TypeError):
                 pass
 
@@ -1675,16 +1675,16 @@ class CausalExtractor:
         if link_text:
             causal_words = ['porque', 'debido', 'mediante', 'a través', 'permite', 'genera', 'produce']
             if any(word in link_text.lower() for word in causal_words):
-                confidence += get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence").get("causal_indicator_bonus", 0.15)
+                confidence += ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence", "causal_indicator_bonus", 0.15)
 
         # Increase confidence based on rigor status
         if hasattr(node, 'rigor_status'):
             if node.rigor_status == 'fuerte':
-                confidence += get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence").get("strong_rigor_bonus", 0.15)
+                confidence += ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence", "strong_rigor_bonus", 0.15)
             elif node.rigor_status == 'débil':
-                confidence -= get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence").get("weak_rigor_penalty", 0.1)
+                confidence -= ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence", "weak_rigor_penalty", 0.1)
 
-        return min(get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence").get("max_confidence", 1.0), max(get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence").get("min_confidence", 0.0), confidence))
+        return min(ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence", "max_confidence", 1.0), max(ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._calculate_confidence", "min_confidence", 0.0), confidence))
 
     @calibrated_method("farfan_core.analysis.derek_beach.CausalExtractor._classify_goal_type")
     def _classify_goal_type(self, text: str) -> str:
@@ -1744,7 +1744,7 @@ class CausalExtractor:
                 justification_text = match.group(1).strip()
                 justifications.append({
                     'text': justification_text,
-                    'confidence': get_parameter_loader().get("farfan_core.analysis.derek_beach.CausalExtractor._extract_causal_justifications").get("confidence", 0.7),
+                    'confidence': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CausalExtractor._extract_causal_justifications", "confidence", 0.7),
                     'type': 'causal_explanation'
                 })
 
@@ -1793,7 +1793,7 @@ class MechanismPartExtractor:
                 entity=entity,
                 activity=main_verb.text,
                 verb_lemma=main_verb.lemma_,
-                confidence = get_parameter_loader().get("farfan_core.analysis.derek_beach.MechanismPartExtractor.extract_entity_activity").get("confidence", 0.85) # Refactored
+                confidence = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.MechanismPartExtractor.extract_entity_activity", "confidence", 0.85) # Refactored
             )
 
         return None
@@ -1817,22 +1817,22 @@ class MechanismPartExtractor:
         Returns:
             Confidence score between 0 and 1
         """
-        confidence = get_parameter_loader().get("farfan_core.analysis.derek_beach.MechanismPartExtractor._calculate_ea_confidence").get("confidence", 0.5) # Refactored
+        confidence = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.MechanismPartExtractor._calculate_ea_confidence", "confidence", 0.5) # Refactored
 
         # Higher confidence if entity is in known aliases
         if entity.upper() in self.entity_aliases:
-            confidence += get_parameter_loader().get("farfan_core.analysis.derek_beach.MechanismPartExtractor._calculate_ea_confidence").get("known_entity_bonus", 0.2)
+            confidence += ParameterLoaderV2.get("farfan_core.analysis.derek_beach.MechanismPartExtractor._calculate_ea_confidence", "known_entity_bonus", 0.2)
 
         # Higher confidence if activity is a strong verb
         strong_verbs = ['ejecutar', 'implementar', 'desarrollar', 'gestionar', 'coordinar']
         if any(verb in activity.lower() for verb in strong_verbs):
-            confidence += get_parameter_loader().get("farfan_core.analysis.derek_beach.MechanismPartExtractor._calculate_ea_confidence").get("strong_verb_bonus", 0.15)
+            confidence += ParameterLoaderV2.get("farfan_core.analysis.derek_beach.MechanismPartExtractor._calculate_ea_confidence", "strong_verb_bonus", 0.15)
 
         # Higher confidence if there's clear grammatical connection in context
         if entity in context and activity in context:
-            confidence += get_parameter_loader().get("farfan_core.analysis.derek_beach.MechanismPartExtractor._calculate_ea_confidence").get("grammatical_connection_bonus", 0.15)
+            confidence += ParameterLoaderV2.get("farfan_core.analysis.derek_beach.MechanismPartExtractor._calculate_ea_confidence", "grammatical_connection_bonus", 0.15)
 
-        return min(get_parameter_loader().get("farfan_core.analysis.derek_beach.MechanismPartExtractor._calculate_ea_confidence").get("max_confidence", 1.0), confidence)
+        return min(ParameterLoaderV2.get("farfan_core.analysis.derek_beach.MechanismPartExtractor._calculate_ea_confidence", "max_confidence", 1.0), confidence)
 
     @calibrated_method("farfan_core.analysis.derek_beach.MechanismPartExtractor._find_action_verb")
     def _find_action_verb(self, text: str) -> str | None:
@@ -2066,7 +2066,7 @@ class FinancialAuditor:
 
             # D1-Q3 / D3-Q3: Apply confidence penalty for non-perfect matches
             if match_ratio < 100:
-                penalty_factor = get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._match_program_to_node").get("penalty_factor", 0.85) # Refactored
+                penalty_factor = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._match_program_to_node", "penalty_factor", 0.85) # Refactored
                 node = nodes[matched_node_id]
 
                 # Track original allocation before penalty
@@ -2085,10 +2085,10 @@ class FinancialAuditor:
 
                 # Store match confidence for D1-Q3 / D3-Q3 scoring
                 if not hasattr(node, 'financial_match_confidence'):
-                    node.financial_match_confidence = match_ratio / get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._match_program_to_node").get("match_confidence_divisor", 100.0)
+                    node.financial_match_confidence = match_ratio / ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._match_program_to_node", "match_confidence_divisor", 100.0)
                 else:
                     # Average if multiple matches
-                    node.financial_match_confidence = (node.financial_match_confidence + match_ratio / get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._match_program_to_node").get("match_confidence_divisor", 100.0)) / 2
+                    node.financial_match_confidence = (node.financial_match_confidence + match_ratio / ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._match_program_to_node", "match_confidence_divisor", 100.0)) / 2
 
             return matched_node_id
 
@@ -2131,24 +2131,24 @@ class FinancialAuditor:
             # Calculate counterfactual necessity score
             # High score = budget is necessary for execution
             # Low score = budget may be generic/disconnected
-            necessity_score = get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check").get("necessity_score", 0.0) # Refactored
+            necessity_score = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check", "necessity_score", 0.0) # Refactored
 
             if has_budget and has_mechanism:
-                necessity_score += get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check").get("budget_mechanism_bonus", 0.40)  # Budget + mechanism present
+                necessity_score += ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check", "budget_mechanism_bonus", 0.40)  # Budget + mechanism present
 
             if has_budget and has_dependencies:
-                necessity_score += get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check").get("budget_dependency_bonus", 0.30)  # Budget supports downstream goals
+                necessity_score += ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check", "budget_dependency_bonus", 0.30)  # Budget supports downstream goals
 
             if is_specific_allocation:
-                necessity_score += get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check").get("specific_allocation_bonus", 0.30)  # Specific allocation (not generic)
+                necessity_score += ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check", "specific_allocation_bonus", 0.30)  # Specific allocation (not generic)
 
             # D3-Q3 quality criteria
             d3_q3_quality = 'insuficiente'
-            if necessity_score >= get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check").get("excellent_threshold", 0.85):
+            if necessity_score >= ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check", "excellent_threshold", 0.85):
                 d3_q3_quality = 'excelente'
-            elif necessity_score >= get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check").get("good_threshold", 0.70):
+            elif necessity_score >= ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check", "good_threshold", 0.70):
                 d3_q3_quality = 'bueno'
-            elif necessity_score >= get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check").get("acceptable_threshold", 0.50):
+            elif necessity_score >= ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check", "acceptable_threshold", 0.50):
                 d3_q3_quality = 'aceptable'
 
             d3_q3_scores[node_id] = {
@@ -2158,17 +2158,17 @@ class FinancialAuditor:
                 'has_mechanism': has_mechanism,
                 'has_dependencies': has_dependencies,
                 'is_specific_allocation': is_specific_allocation,
-                'counterfactual_sufficient': necessity_score < get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check").get("sufficient_threshold", 0.50),  # Would still execute without budget
-                'budget_necessary': necessity_score >= get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check").get("necessary_threshold", 0.70)  # Budget is necessary
+                'counterfactual_sufficient': necessity_score < ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check", "sufficient_threshold", 0.50),  # Would still execute without budget
+                'budget_necessary': necessity_score >= ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check", "necessary_threshold", 0.70)  # Budget is necessary
             }
 
             # Store in node for later retrieval
             node.audit_flags = node.audit_flags or []
-            if necessity_score < get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check").get("sufficient_threshold", 0.50):
+            if necessity_score < ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check", "sufficient_threshold", 0.50):
                 node.audit_flags.append('budget_not_necessary')
                 self.logger.warning(
                     f"D3-Q3: {node_id} may execute without allocated budget (score={necessity_score:.2f})")
-            elif necessity_score >= get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check").get("excellent_threshold", 0.85):
+            elif necessity_score >= ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._perform_counterfactual_budget_check", "excellent_threshold", 0.85):
                 node.audit_flags.append('budget_well_traced')
                 self.logger.info(f"D3-Q3: {node_id} has well-traced, necessary budget (score={necessity_score:.2f})")
 
@@ -2195,17 +2195,17 @@ class FinancialAuditor:
             target: Target value
 
         Returns:
-            Sufficiency ratio (get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._calculate_sufficiency").get("auto_param_L2208_31", 1.0) = exactly sufficient, >get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._calculate_sufficiency").get("auto_param_L2208_58", 1.0) = oversufficient)
+            Sufficiency ratio (ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._calculate_sufficiency", "auto_param_L2208_31", 1.0) = exactly sufficient, >ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._calculate_sufficiency", "auto_param_L2208_58", 1.0) = oversufficient)
         """
         if not target or target == 0:
-            return get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._calculate_sufficiency").get("default", 0.0)
+            return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._calculate_sufficiency", "default", 0.0)
 
         # Calculate unit cost implied by allocation and target
         allocation / target
 
         # Compare with historical/expected unit costs if available
         # For now, return simple ratio
-        return allocation / target if target > 0 else get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._calculate_sufficiency").get("default", 0.0)
+        return allocation / target if target > 0 else ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._calculate_sufficiency", "default", 0.0)
 
     @calibrated_method("farfan_core.analysis.derek_beach.FinancialAuditor._detect_allocation_gaps")
     def _detect_allocation_gaps(self, nodes: dict[str, MetaNode]) -> list[dict[str, Any]]:
@@ -2236,7 +2236,7 @@ class FinancialAuditor:
                     target_val = float(str(node.target).replace(',', '').replace('%', ''))
                     if target_val > 0:
                         sufficiency = self._calculate_sufficiency(node.financial_allocation, target_val)
-                        if sufficiency < get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._detect_allocation_gaps").get("sufficiency_threshold", 0.5):
+                        if sufficiency < ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._detect_allocation_gaps", "sufficiency_threshold", 0.5):
                             gaps.append({
                                 'node_id': node_id,
                                 'type': 'insufficient_allocation',
@@ -2278,7 +2278,7 @@ class FinancialAuditor:
             overlap = len(goal_words & entry_words)
             score = overlap / max(len(goal_words), len(entry_words), 1)
 
-            if score > best_score and score > get_parameter_loader().get("farfan_core.analysis.derek_beach.FinancialAuditor._match_goal_to_budget").get("score_threshold", 0.3):  # Minimum threshold
+            if score > best_score and score > ParameterLoaderV2.get("farfan_core.analysis.derek_beach.FinancialAuditor._match_goal_to_budget", "score_threshold", 0.3):  # Minimum threshold
                 best_score = score
                 best_match = entry
 
@@ -2388,7 +2388,7 @@ class OperationalizationAuditor:
                     result['recommendations'].append(f"D3-Q1 Ficha Técnica completa para {node_id}")
                 elif has_complete_ficha:
                     # Has baseline/target but no quantitative claims verification
-                    producto_nodes_passed += get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor.audit_evidence_traceability").get("partial_credit", 0.5)  # Partial credit
+                    producto_nodes_passed += ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor.audit_evidence_traceability", "partial_credit", 0.5)  # Partial credit
                     result['warnings'].append(f"D3-Q1 parcial: Ficha básica sin verificación cuantitativa en {node_id}")
 
             # Check responsible entity
@@ -2505,8 +2505,8 @@ class OperationalizationAuditor:
                 'total_nodes': len(nodes),
                 'critical_omissions': sum(1 for r in layer1_results.values()
                                           if r.get('omission_severity') == 'critical'),
-                'expected_success_probability': layer3_results.get('success_probability', get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor.bayesian_counterfactual_audit").get("success_probability_default", 0.0)),
-                'risk_score': layer3_results.get('risk_score', get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor.bayesian_counterfactual_audit").get("risk_score_default", 0.0))
+                'expected_success_probability': layer3_results.get('success_probability', ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor.bayesian_counterfactual_audit", "success_probability_default", 0.0)),
+                'risk_score': layer3_results.get('risk_score', ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor.bayesian_counterfactual_audit", "risk_score_default", 0.0))
             }
         }
 
@@ -2543,16 +2543,16 @@ class OperationalizationAuditor:
     def _get_default_historical_priors(self) -> dict[str, Any]:
         """Get default historical priors if no data is available"""
         return {
-            'entity_presence_success_rate': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors").get("entity_presence_success_rate", 0.94),
-            'baseline_presence_success_rate': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors").get("baseline_presence_success_rate", 0.89),
-            'target_presence_success_rate': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors").get("target_presence_success_rate", 0.92),
-            'budget_presence_success_rate': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors").get("budget_presence_success_rate", 0.78),
-            'mechanism_presence_success_rate': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors").get("mechanism_presence_success_rate", 0.65),
-            'complete_documentation_success_rate': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors").get("complete_documentation_success_rate", 0.82),
+            'entity_presence_success_rate': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors", "entity_presence_success_rate", 0.94),
+            'baseline_presence_success_rate': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors", "baseline_presence_success_rate", 0.89),
+            'target_presence_success_rate': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors", "target_presence_success_rate", 0.92),
+            'budget_presence_success_rate': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors", "budget_presence_success_rate", 0.78),
+            'mechanism_presence_success_rate': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors", "mechanism_presence_success_rate", 0.65),
+            'complete_documentation_success_rate': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors", "complete_documentation_success_rate", 0.82),
             'node_type_success_rates': {
-                'producto': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors").get("producto_success_rate", 0.85),
-                'resultado': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors").get("resultado_success_rate", 0.72),
-                'impacto': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors").get("impacto_success_rate", 0.58)
+                'producto': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors", "producto_success_rate", 0.85),
+                'resultado': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors", "resultado_success_rate", 0.72),
+                'impacto': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._get_default_historical_priors", "impacto_success_rate", 0.58)
             }
         }
 
@@ -2577,7 +2577,7 @@ class OperationalizationAuditor:
             },
             'unwanted_effects': {
                 'prior_alpha': 1.8,  # D5-Q5: Effects analysis is also rare
-                'prior_beta': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence").get("unwanted_effects_prior_beta", 10.5),
+                'prior_beta': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence", "unwanted_effects_prior_beta", 10.5),
                 'keywords': ['efectos no deseados', 'efectos adversos', 'impactos negativos',
                              'consecuencias no previstas']
             },
@@ -2608,31 +2608,31 @@ class OperationalizationAuditor:
 
             # Check baseline
             if not node.baseline or str(node.baseline).upper() in ['ND', 'POR DEFINIR', 'N/A', 'NONE']:
-                p_failure_given_omission = 1.0 - historical_data.get('baseline_presence_success_rate', get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence").get("baseline_presence_success_rate", 0.89))
+                p_failure_given_omission = 1.0 - historical_data.get('baseline_presence_success_rate', ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence", "baseline_presence_success_rate", 0.89))
                 omissions.append('baseline')
                 omission_probs['baseline'] = p_failure_given_omission
 
             # Check target
             if not node.target or str(node.target).upper() in ['ND', 'POR DEFINIR', 'N/A', 'NONE']:
-                p_failure_given_omission = 1.0 - historical_data.get('target_presence_success_rate', get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence").get("target_presence_success_rate", 0.92))
+                p_failure_given_omission = 1.0 - historical_data.get('target_presence_success_rate', ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence", "target_presence_success_rate", 0.92))
                 omissions.append('target')
                 omission_probs['target'] = p_failure_given_omission
 
             # Check entity
             if not node.responsible_entity:
-                p_failure_given_omission = 1.0 - historical_data.get('entity_presence_success_rate', get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence").get("entity_presence_success_rate", 0.94))
+                p_failure_given_omission = 1.0 - historical_data.get('entity_presence_success_rate', ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence", "entity_presence_success_rate", 0.94))
                 omissions.append('entity')
                 omission_probs['entity'] = p_failure_given_omission
 
             # Check budget
             if not node.financial_allocation:
-                p_failure_given_omission = 1.0 - historical_data.get('budget_presence_success_rate', get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence").get("budget_presence_success_rate", 0.78))
+                p_failure_given_omission = 1.0 - historical_data.get('budget_presence_success_rate', ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence", "budget_presence_success_rate", 0.78))
                 omissions.append('budget')
                 omission_probs['budget'] = p_failure_given_omission
 
             # Check mechanism
             if not node.entity_activity:
-                p_failure_given_omission = 1.0 - historical_data.get('mechanism_presence_success_rate', get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence").get("mechanism_presence_success_rate", 0.65))
+                p_failure_given_omission = 1.0 - historical_data.get('mechanism_presence_success_rate', ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence", "mechanism_presence_success_rate", 0.65))
                 omissions.append('mechanism')
                 omission_probs['mechanism'] = p_failure_given_omission
 
@@ -2640,11 +2640,11 @@ class OperationalizationAuditor:
             severity = 'none'
             if omission_probs:
                 max_failure_prob = max(omission_probs.values())
-                if max_failure_prob > get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence").get("critical_threshold", 0.15):
+                if max_failure_prob > ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence", "critical_threshold", 0.15):
                     severity = 'critical'
-                elif max_failure_prob > get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence").get("high_threshold", 0.10):
+                elif max_failure_prob > ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence", "high_threshold", 0.10):
                     severity = 'high'
-                elif max_failure_prob > get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence").get("medium_threshold", 0.05):
+                elif max_failure_prob > ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_direct_evidence", "medium_threshold", 0.05):
                     severity = 'medium'
                 else:
                     severity = 'low'
@@ -2674,26 +2674,26 @@ class OperationalizationAuditor:
             if 'baseline' in node_omissions:
                 # P(target_miscalibrated | missing_baseline)
                 causal_effects['target_miscalibration'] = {
-                    'probability': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications").get("target_miscalibration_prob", 0.73),
+                    'probability': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications", "target_miscalibration_prob", 0.73),
                     'description': 'Sin línea base, la meta probablemente está mal calibrada'
                 }
 
             # If entity and high budget are missing
             if 'entity' in node_omissions and node.financial_allocation and node.financial_allocation > 1000000:
                 causal_effects['implementation_failure'] = {
-                    'probability': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications").get("implementation_failure_high_budget_prob", 0.89),
+                    'probability': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications", "implementation_failure_high_budget_prob", 0.89),
                     'description': 'Alto presupuesto sin entidad responsable indica alto riesgo de falla'
                 }
             elif 'entity' in node_omissions:
                 causal_effects['implementation_failure'] = {
-                    'probability': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications").get("implementation_failure_prob", 0.65),
+                    'probability': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications", "implementation_failure_prob", 0.65),
                     'description': 'Sin entidad responsable, la implementación es incierta'
                 }
 
             # If mechanism is missing
             if 'mechanism' in node_omissions:
                 causal_effects['unclear_pathway'] = {
-                    'probability': get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications").get("unclear_pathway_prob", 0.70),
+                    'probability': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications", "unclear_pathway_prob", 0.70),
                     'description': 'Sin mecanismo definido, la vía causal es opaca'
                 }
 
@@ -2701,7 +2701,7 @@ class OperationalizationAuditor:
             successors = list(graph.successors(node_id)) if graph.has_node(node_id) else []
             if node_omissions and successors:
                 causal_effects['cascade_risk'] = {
-                    'probability': min(get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications").get("cascade_risk_max_prob", 0.95), get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications").get("cascade_risk_base_prob", 0.4) + get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications").get("cascade_risk_per_omission_prob", 0.1) * len(node_omissions)),
+                    'probability': min(ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications", "cascade_risk_max_prob", 0.95), ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications", "cascade_risk_base_prob", 0.4) + ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_causal_implications", "cascade_risk_per_omission_prob", 0.1) * len(node_omissions)),
                     'affected_nodes': successors,
                     'description': f'Omisiones pueden afectar {len(successors)} nodos dependientes'
                 }
@@ -2747,7 +2747,7 @@ class OperationalizationAuditor:
         critical_omissions = []
         for node_id, evidence in direct_evidence.items():
             if evidence['omission_severity'] in ['critical', 'high']:
-                node_centrality = centrality.get(node_id, get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("default_centrality", 0.5))
+                node_centrality = centrality.get(node_id, ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "default_centrality", 0.5))
                 critical_omissions.append({
                     'node_id': node_id,
                     'severity': evidence['omission_severity'],
@@ -2759,17 +2759,17 @@ class OperationalizationAuditor:
         if critical_omissions:
             # Weighted by centrality
             risk_score = sum(
-                (get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("critical_severity_multiplier", 1.0) if om['severity'] == 'critical' else get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("high_severity_multiplier", 0.7)) * (om['centrality'] + get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("centrality_bonus", 0.1))
+                (ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "critical_severity_multiplier", 1.0) if om['severity'] == 'critical' else ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "high_severity_multiplier", 0.7)) * (om['centrality'] + ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "centrality_bonus", 0.1))
                 for om in critical_omissions
             ) / len(nodes)
         else:
-            risk_score = get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("risk_score", 0.0) # Refactored
+            risk_score = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "risk_score", 0.0) # Refactored
 
         # AUDIT POINT 2.3: Policy Alignment Dual Constraint
-        # If pdet_alignment ≤ get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("alignment_threshold", 0.60), apply 1.2× multiplier to risk_score
+        # If pdet_alignment ≤ ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "alignment_threshold", 0.60), apply 1.2× multiplier to risk_score
         # This enforces integration between D4-Q5 (Alineación) and D5-Q4 (Riesgos Sistémicos)
         alignment_penalty_applied = False
-        alignment_threshold = get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("alignment_threshold", 0.6) # Refactored
+        alignment_threshold = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "alignment_threshold", 0.6) # Refactored
         alignment_multiplier = 1.2
 
         if pdet_alignment is not None and pdet_alignment <= alignment_threshold:
@@ -2785,18 +2785,18 @@ class OperationalizationAuditor:
         # Calculate P(success | current_state)
         total_omissions = sum(len(e['omissions']) for e in direct_evidence.values())
         total_possible = len(nodes) * 5  # 5 key attributes per node
-        completeness = get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("completeness_factor", 1.0) - (total_omissions / max(total_possible, 1))
+        completeness = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "completeness_factor", 1.0) - (total_omissions / max(total_possible, 1))
 
         # Success probability (simplified Bayesian)
-        base_success_rate = get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("base_success_rate", 0.7) # Refactored
+        base_success_rate = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "base_success_rate", 0.7) # Refactored
         success_probability = base_success_rate * completeness
 
         # D5-Q4 quality criteria check (AUDIT POINT 2.3)
-        # Excellent requires risk_score < get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("risk_threshold_excellent", 0.10) (matching ODS benchmarks per UN 2020)
+        # Excellent requires risk_score < ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "risk_threshold_excellent", 0.10) (matching ODS benchmarks per UN 2020)
         d5_q4_quality = 'insuficiente'
-        risk_threshold_excellent = get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("risk_threshold_excellent", 0.1) # Refactored
-        risk_threshold_good = get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("risk_threshold_good", 0.2) # Refactored
-        risk_threshold_acceptable = get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk").get("risk_threshold_acceptable", 0.35) # Refactored
+        risk_threshold_excellent = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "risk_threshold_excellent", 0.1) # Refactored
+        risk_threshold_good = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "risk_threshold_good", 0.2) # Refactored
+        risk_threshold_acceptable = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._audit_systemic_risk", "risk_threshold_acceptable", 0.35) # Refactored
 
         if risk_score < risk_threshold_excellent:
             d5_q4_quality = 'excelente'
@@ -2847,7 +2847,7 @@ class OperationalizationAuditor:
 
             for omission in evidence['omissions']:
                 # Estimate impact
-                omission_prob = evidence['omission_probabilities'].get(omission, get_parameter_loader().get("farfan_core.analysis.derek_beach.OperationalizationAuditor._generate_optimal_remediations").get("default_omission_prob", 0.1))
+                omission_prob = evidence['omission_probabilities'].get(omission, ParameterLoaderV2.get("farfan_core.analysis.derek_beach.OperationalizationAuditor._generate_optimal_remediations", "default_omission_prob", 0.1))
                 causal_risk = causal_implications[node_id]['total_risk']
 
                 # Expected value = P(failure_avoided) * Impact
@@ -3050,12 +3050,12 @@ class BayesianMechanismInference:
 
             # Track mechanism type uncertainty for quality criteria
             if 'uncertainty' in mechanism:
-                mech_type_uncertainty = mechanism['uncertainty'].get('mechanism_type', get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference.infer_mechanisms").get("default_uncertainty", 1.0))
+                mech_type_uncertainty = mechanism['uncertainty'].get('mechanism_type', ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference.infer_mechanisms", "default_uncertainty", 1.0))
                 mechanism_uncertainties.append(mech_type_uncertainty)
 
         # Calculate mean mechanism uncertainty for Harmonic Front 4 quality criteria
         mean_mech_uncertainty = (
-            np.mean(mechanism_uncertainties) if mechanism_uncertainties else get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference.infer_mechanisms").get("default_mean_uncertainty", 1.0)
+            np.mean(mechanism_uncertainties) if mechanism_uncertainties else ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference.infer_mechanisms", "default_mean_uncertainty", 1.0)
         )
 
         self.logger.info(f"Mecanismos inferidos: {len(self.inferred_mechanisms)}")
@@ -3406,12 +3406,12 @@ class BayesianMechanismInference:
         if mech_probs:
             mech_entropy = -sum(p * np.log(p + 1e-10) for p in mech_probs if p > 0)
             max_entropy = np.log(len(mech_probs))
-            mech_uncertainty = mech_entropy / max_entropy if max_entropy > 0 else get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._quantify_uncertainty").get("default_mech_uncertainty", 1.0)
+            mech_uncertainty = mech_entropy / max_entropy if max_entropy > 0 else ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._quantify_uncertainty", "default_mech_uncertainty", 1.0)
         else:
-            mech_uncertainty = get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._quantify_uncertainty").get("default_mech_uncertainty", 1.0) # Refactored
+            mech_uncertainty = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._quantify_uncertainty", "default_mech_uncertainty", 1.0) # Refactored
 
         # Sequence completeness uncertainty
-        seq_completeness = sequence_posterior.get('sequence_completeness', get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._quantify_uncertainty").get("default_seq_completeness", 0.0))
+        seq_completeness = sequence_posterior.get('sequence_completeness', ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._quantify_uncertainty", "default_seq_completeness", 0.0))
         seq_uncertainty = 1.0 - seq_completeness
 
         # Coherence uncertainty
@@ -3419,9 +3419,9 @@ class BayesianMechanismInference:
 
         # Combined uncertainty
         total_uncertainty = (
-                mech_uncertainty * get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._quantify_uncertainty").get("mech_uncertainty_weight", 0.4) +
-                seq_uncertainty * get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._quantify_uncertainty").get("seq_uncertainty_weight", 0.3) +
-                coherence_uncertainty * get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._quantify_uncertainty").get("coherence_uncertainty_weight", 0.3)
+                mech_uncertainty * ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._quantify_uncertainty", "mech_uncertainty_weight", 0.4) +
+                seq_uncertainty * ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._quantify_uncertainty", "seq_uncertainty_weight", 0.3) +
+                coherence_uncertainty * ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._quantify_uncertainty", "coherence_uncertainty_weight", 0.3)
         )
 
         return {
@@ -3438,7 +3438,7 @@ class BayesianMechanismInference:
         gaps = []
 
         # High total uncertainty
-        if uncertainty['total'] > get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._detect_gaps").get("high_uncertainty_threshold", 0.6):
+        if uncertainty['total'] > ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._detect_gaps", "high_uncertainty_threshold", 0.6):
             gaps.append({
                 'type': 'high_uncertainty',
                 'severity': 'high',
@@ -3487,7 +3487,7 @@ class BayesianMechanismInference:
             Aggregated confidence value
         """
         if not confidences:
-            return get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._aggregate_bayesian_confidence").get("default_confidence", 0.5)  # Default neutral confidence
+            return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._aggregate_bayesian_confidence", "default_confidence", 0.5)  # Default neutral confidence
         return float(np.mean(confidences))
 
     @calibrated_method("farfan_core.analysis.derek_beach.BayesianMechanismInference._build_transition_matrix")
@@ -3508,11 +3508,11 @@ class BayesianMechanismInference:
         # Create a simple sequential transition matrix
         matrix = np.zeros((n, n))
         for i in range(n - 1):
-            matrix[i, i + 1] = get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._build_transition_matrix").get("next_step_prob", 0.7)  # High probability of next step
-            matrix[i, i] = get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._build_transition_matrix").get("stay_prob", 0.2)       # Some probability of staying in same step
+            matrix[i, i + 1] = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._build_transition_matrix", "next_step_prob", 0.7)  # High probability of next step
+            matrix[i, i] = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._build_transition_matrix", "stay_prob", 0.2)       # Some probability of staying in same step
             if i < n - 2:
-                matrix[i, i + 2] = get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._build_transition_matrix").get("skip_prob", 0.1)  # Small probability of skipping
-        matrix[n - 1, n - 1] = get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._build_transition_matrix").get("absorbing_prob", 1.0)  # Final state is absorbing
+                matrix[i, i + 2] = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._build_transition_matrix", "skip_prob", 0.1)  # Small probability of skipping
+        matrix[n - 1, n - 1] = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._build_transition_matrix", "absorbing_prob", 1.0)  # Final state is absorbing
 
         return matrix
 
@@ -3530,7 +3530,7 @@ class BayesianMechanismInference:
         """
         # Same type has high probability
         if from_type == to_type:
-            return get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._calculate_type_transition_prior").get("same_type_prob", 0.7)
+            return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._calculate_type_transition_prior", "same_type_prob", 0.7)
 
         # Related types have medium probability
         related_pairs = [
@@ -3539,10 +3539,10 @@ class BayesianMechanismInference:
             ('financiero', 'administrativo'),
         ]
         if (from_type, to_type) in related_pairs or (to_type, from_type) in related_pairs:
-            return get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._calculate_type_transition_prior").get("related_type_prob", 0.2)
+            return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._calculate_type_transition_prior", "related_type_prob", 0.2)
 
         # Unrelated types have low probability
-        return get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._calculate_type_transition_prior").get("unrelated_type_prob", 0.1)
+        return ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._calculate_type_transition_prior", "unrelated_type_prob", 0.1)
 
     @calibrated_method("farfan_core.analysis.derek_beach.BayesianMechanismInference._classify_mechanism_type")
     def _classify_mechanism_type(self, observations: dict[str, Any]) -> str:
@@ -3563,11 +3563,11 @@ class BayesianMechanismInference:
         # Score each mechanism type
         scores = {}
         for mech_type, typical_verbs in self.mechanism_sequences.items():
-            score = get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._classify_mechanism_type").get("score", 0.0) # Refactored
+            score = ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._classify_mechanism_type", "score", 0.0) # Refactored
             # Count matching verbs
             for verb in verbs:
                 if any(tv in verb.lower() for tv in typical_verbs):
-                    score += get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._classify_mechanism_type").get("verb_match_bonus", 1.0)
+                    score += ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._classify_mechanism_type", "verb_match_bonus", 1.0)
             scores[mech_type] = score
 
         # Adjust for budget presence (indicates financial mechanism)
@@ -3578,9 +3578,9 @@ class BayesianMechanismInference:
         for entity in entities:
             entity_lower = entity.lower()
             if any(word in entity_lower for word in ['alcaldía', 'consejo', 'gobernación']):
-                scores['politico'] = scores.get('politico', 0) + get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._classify_mechanism_type").get("political_entity_bonus", 1.0)
+                scores['politico'] = scores.get('politico', 0) + ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._classify_mechanism_type", "political_entity_bonus", 1.0)
             if any(word in entity_lower for word in ['secretaría', 'dirección', 'oficina']):
-                scores['administrativo'] = scores.get('administrativo', 0) + get_parameter_loader().get("farfan_core.analysis.derek_beach.BayesianMechanismInference._classify_mechanism_type").get("administrative_entity_bonus", 1.0)
+                scores['administrativo'] = scores.get('administrativo', 0) + ParameterLoaderV2.get("farfan_core.analysis.derek_beach.BayesianMechanismInference._classify_mechanism_type", "administrative_entity_bonus", 1.0)
 
         # Return type with highest score, or 'mixto' if tie
         if not scores or all(s == 0 for s in scores.values()):
@@ -3857,10 +3857,10 @@ class ReportingEngine:
         for source, target in graph.edges():
             edge_data = graph.edges[source, target]
             keyword = edge_data.get('keyword', '')
-            strength = edge_data.get('strength', get_parameter_loader().get("farfan_core.analysis.derek_beach.ReportingEngine.generate_causal_diagram").get("default_strength", 0.5))
+            strength = edge_data.get('strength', ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ReportingEngine.generate_causal_diagram", "default_strength", 0.5))
 
             # Determine edge style based on strength
-            style = 'solid' if strength > get_parameter_loader().get("farfan_core.analysis.derek_beach.ReportingEngine.generate_causal_diagram").get("solid_strength_threshold", 0.7) else 'dashed'
+            style = 'solid' if strength > ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ReportingEngine.generate_causal_diagram", "solid_strength_threshold", 0.7) else 'dashed'
 
             dot_edge = Edge(
                 source,
@@ -3991,7 +3991,7 @@ class ReportingEngine:
         report = {
             "metadata": {
                 "policy_code": policy_code,
-                "framework_version": "2." + str(get_parameter_loader().get("farfan_core.analysis.derek_beach.ReportingEngine.generate_confidence_report").get("framework_version", 0)),
+                "framework_version": "2." + str(ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ReportingEngine.generate_confidence_report", "framework_version", 0)),
                 "total_nodes": total_metas,
                 "total_edges": total_edges
             },
@@ -4045,7 +4045,7 @@ class ReportingEngine:
     def _calculate_quality_score(self, traceability: float, financial: float,
                                  logic: float, ea: float) -> float:
         """Calculate overall quality score (0-100)"""
-        weights = {'traceability': get_parameter_loader().get("farfan_core.analysis.derek_beach.ReportingEngine._calculate_quality_score").get("traceability_weight", 0.35), 'financial': get_parameter_loader().get("farfan_core.analysis.derek_beach.ReportingEngine._calculate_quality_score").get("financial_weight", 0.25), 'logic': get_parameter_loader().get("farfan_core.analysis.derek_beach.ReportingEngine._calculate_quality_score").get("logic_weight", 0.25), 'ea': get_parameter_loader().get("farfan_core.analysis.derek_beach.ReportingEngine._calculate_quality_score").get("ea_weight", 0.15)}
+        weights = {'traceability': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ReportingEngine._calculate_quality_score", "traceability_weight", 0.35), 'financial': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ReportingEngine._calculate_quality_score", "financial_weight", 0.25), 'logic': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ReportingEngine._calculate_quality_score", "logic_weight", 0.25), 'ea': ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ReportingEngine._calculate_quality_score", "ea_weight", 0.15)}
         score = (traceability * weights['traceability'] +
                  financial * weights['financial'] +
                  logic * weights['logic'] +
@@ -4079,7 +4079,7 @@ class ReportingEngine:
 
         model_data = {
             "policy_code": policy_code,
-            "framework_version": "2." + str(get_parameter_loader().get("farfan_core.analysis.derek_beach.ReportingEngine.generate_causal_model_json").get("framework_version", 0)),
+            "framework_version": "2." + str(ParameterLoaderV2.get("farfan_core.analysis.derek_beach.ReportingEngine.generate_causal_model_json", "framework_version", 0)),
             "nodes": nodes_data,
             "edges": edges_data,
             "statistics": {
@@ -4438,7 +4438,7 @@ class CDAFFramework:
                 "sector": sector,
                 "descripcion": node.text[:200] if node.text else "",
                 "indicadores": indicadores,
-            "presupuesto": node.financial_allocation or get_parameter_loader().get("farfan_core.analysis.derek_beach.CDAFFramework._validate_dnp_compliance").get("default_presupuesto", 0.0),
+            "presupuesto": node.financial_allocation or ParameterLoaderV2.get("farfan_core.analysis.derek_beach.CDAFFramework._validate_dnp_compliance", "default_presupuesto", 0.0),
                 "es_rural": "rural" in node.text.lower() if node.text else False,
                 "poblacion_victimas": "v ctima" in node.text.lower() if node.text else False
             })

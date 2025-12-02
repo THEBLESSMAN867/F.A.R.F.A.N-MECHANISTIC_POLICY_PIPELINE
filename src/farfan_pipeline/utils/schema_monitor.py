@@ -18,7 +18,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, TypedDict
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 if TYPE_CHECKING:
@@ -213,7 +213,7 @@ class SchemaDriftDetector:
 
         for source, stats in self.stats_by_source.items():
             # Get most common keys (present in >50% of samples)
-            threshold = stats.total_samples * get_parameter_loader().get("farfan_core.utils.schema_monitor.SchemaDriftDetector.save_baseline").get("auto_param_L215_46", 0.5)
+            threshold = stats.total_samples * ParameterLoaderV2.get("farfan_core.utils.schema_monitor.SchemaDriftDetector.save_baseline", "auto_param_L215_46", 0.5)
             common_keys = {
                 key for key, count in stats.key_frequency.items()
                 if count >= threshold
@@ -398,5 +398,5 @@ def get_detector() -> SchemaDriftDetector:
     """Get or create global schema drift detector."""
     global _global_detector
     if _global_detector is None:
-        _global_detector = SchemaDriftDetector(sample_rate=get_parameter_loader().get("farfan_core.utils.schema_monitor.PayloadValidator._load_schemas").get("auto_param_L400_59", 0.05))
+        _global_detector = SchemaDriftDetector(sample_rate=ParameterLoaderV2.get("farfan_core.utils.schema_monitor.PayloadValidator._load_schemas", "auto_param_L400_59", 0.05))
     return _global_detector

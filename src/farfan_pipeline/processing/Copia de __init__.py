@@ -27,7 +27,7 @@ from typing import Any
 from farfan_pipeline.config.paths import QUESTIONNAIRE_FILE
 from farfan_pipeline.processing.cpp_ingestion.models import CanonPolicyPackage
 from farfan_pipeline.processing.spc_ingestion.converter import SmartChunkConverter
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.processing.spc_ingestion.quality_gates import SPCQualityGates
 
 logger = logging.getLogger(__name__)
@@ -241,7 +241,7 @@ class CPPIngestionPipeline:
                 "text": c.text,
                 "chunk_id": c.chunk_id,
                 "strategic_importance": c.strategic_importance,
-                "quality_score": c.confidence_metrics.get("overall_confidence", get_parameter_loader().get("farfan_core.processing.spc_ingestion.__init__.CPPIngestionPipeline._load_document_text").get("auto_param_L243_80", 0.0)),
+                "quality_score": c.confidence_metrics.get("overall_confidence", ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.__init__.CPPIngestionPipeline._load_document_text", "auto_param_L243_80", 0.0)),
             }
             for c in smart_chunks
         ]
@@ -317,12 +317,12 @@ class CPPIngestionPipeline:
                 "provenance_completeness": (
                     canon_package.quality_metrics.provenance_completeness
                     if hasattr(canon_package, 'quality_metrics') and canon_package.quality_metrics
-                    else get_parameter_loader().get("farfan_core.processing.spc_ingestion.__init__.CPPIngestionPipeline._canon_package_to_dict").get("auto_param_L319_25", 0.0)
+                    else ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.__init__.CPPIngestionPipeline._canon_package_to_dict", "auto_param_L319_25", 0.0)
                 ),
                 "structural_consistency": (
                     canon_package.quality_metrics.structural_consistency
                     if hasattr(canon_package, 'quality_metrics') and canon_package.quality_metrics
-                    else get_parameter_loader().get("farfan_core.processing.spc_ingestion.__init__.CPPIngestionPipeline._canon_package_to_dict").get("auto_param_L324_25", 0.0)
+                    else ParameterLoaderV2.get("farfan_core.processing.spc_ingestion.__init__.CPPIngestionPipeline._canon_package_to_dict", "auto_param_L324_25", 0.0)
                 ),
             } if hasattr(canon_package, 'quality_metrics') else {},
         }

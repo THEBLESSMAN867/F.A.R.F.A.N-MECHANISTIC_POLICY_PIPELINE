@@ -579,7 +579,7 @@ class DimensionAggregator:
     @calibrated_method("farfan_core.processing.aggregation.DimensionAggregator.validate_weights")
     def validate_weights(self, weights: list[float]) -> tuple[bool, str]:
         """
-        Ensures that a list of weights sums to get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L582_47", 1.0) within a small tolerance.
+        Ensures that a list of weights sums to ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L582_47", 1.0) within a small tolerance.
 
         Args:
             weights: A list of floating-point weights.
@@ -600,8 +600,8 @@ class DimensionAggregator:
         weight_sum = sum(weights)
         tolerance = 1e-6
 
-        if abs(weight_sum - get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L603_28", 1.0)) > tolerance:
-            expected_weight = get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L604_81", 1.0)
+        if abs(weight_sum - ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L603_28", 1.0)) > tolerance:
+            expected_weight = ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L604_81", 1.0)
             msg = f"Weight sum validation failed: sum={weight_sum:.6f}, expected={expected_weight}"
             logger.error(msg)
             if self.abort_on_insufficient:
@@ -663,11 +663,11 @@ class DimensionAggregator:
             WeightValidationError: If the weights are invalid (e.g., mismatched length).
         """
         if not scores:
-            return get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L665_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L665_19", 0.0)
 
         if weights is None:
             # Equal weights
-            weights = [get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L669_23", 1.0) / len(scores)] * len(scores)
+            weights = [ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L669_23", 1.0) / len(scores)] * len(scores)
 
         # Validate weights length matches scores length
         if len(weights) != len(scores):
@@ -677,7 +677,7 @@ class DimensionAggregator:
             logger.error(msg)
             raise WeightValidationError(msg)
 
-        # Validate weights sum to get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L679_34", 1.0)
+        # Validate weights sum to ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L679_34", 1.0)
         valid, msg = self.validate_weights(weights)
         if not valid:
             # If validation failed and abort_on_insufficient is False,
@@ -712,20 +712,20 @@ class DimensionAggregator:
             Quality level (EXCELENTE, BUENO, ACEPTABLE, INSUFICIENTE)
         """
         # Clamp score to valid range [0, 3]
-        clamped_score = max(get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L714_28", 0.0), min(3.0, score))
+        clamped_score = max(ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L714_28", 0.0), min(3.0, score))
 
         # Normalize to 0-1 range
         normalized_score = clamped_score / 3.0
 
         # Use provided thresholds or defaults
         if thresholds:
-            excellent_threshold = thresholds.get('EXCELENTE', get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L721_62", 0.85))
-            good_threshold = thresholds.get('BUENO', get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L722_53", 0.70))
-            acceptable_threshold = thresholds.get('ACEPTABLE', get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L723_63", 0.55))
+            excellent_threshold = thresholds.get('EXCELENTE', ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L721_62", 0.85))
+            good_threshold = thresholds.get('BUENO', ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L722_53", 0.70))
+            acceptable_threshold = thresholds.get('ACEPTABLE', ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L723_63", 0.55))
         else:
-            excellent_threshold = get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("excellent_threshold", 0.85) # Refactored
-            good_threshold = get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("good_threshold", 0.7) # Refactored
-            acceptable_threshold = get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("acceptable_threshold", 0.55) # Refactored
+            excellent_threshold = ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "excellent_threshold", 0.85) # Refactored
+            good_threshold = ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "good_threshold", 0.7) # Refactored
+            acceptable_threshold = ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "acceptable_threshold", 0.55) # Refactored
 
         # Apply thresholds
         if normalized_score >= excellent_threshold:
@@ -793,7 +793,7 @@ class DimensionAggregator:
             return DimensionScore(
                 dimension_id=dimension_id,
                 area_id=area_id,
-                score=get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L795_22", 0.0),
+                score=ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L795_22", 0.0),
                 quality_level="INSUFICIENTE",
                 contributing_questions=[],
                 validation_passed=False,
@@ -805,7 +805,7 @@ class DimensionAggregator:
             return DimensionScore(
                 dimension_id=dimension_id,
                 area_id=area_id,
-                score=get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L807_22", 0.0),
+                score=ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L807_22", 0.0),
                 quality_level="INSUFICIENTE",
                 contributing_questions=[],
                 validation_passed=False,
@@ -829,7 +829,7 @@ class DimensionAggregator:
             return DimensionScore(
                 dimension_id=dimension_id,
                 area_id=area_id,
-                score=get_parameter_loader().get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights").get("auto_param_L831_22", 0.0),
+                score=ParameterLoaderV2.get("farfan_core.processing.aggregation.DimensionAggregator.validate_weights", "auto_param_L831_22", 0.0),
                 quality_level="INSUFICIENTE",
                 contributing_questions=[r.question_global for r in dim_results],
                 validation_passed=False,
@@ -1146,7 +1146,7 @@ class AreaPolicyAggregator:
         for d in dimension_scores:
             # Extract max_expected from validation_details or default to 3.0
             max_expected = d.validation_details.get('score_max', 3.0) if d.validation_details else 3.0
-            normalized.append(max(get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("auto_param_L1148_34", 0.0), min(max_expected, d.score)) / max_expected)
+            normalized.append(max(ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "auto_param_L1148_34", 0.0), min(max_expected, d.score)) / max_expected)
 
         logger.debug(f"Scores normalized: {normalized}")
         return normalized
@@ -1168,20 +1168,20 @@ class AreaPolicyAggregator:
             Quality level (EXCELENTE, BUENO, ACEPTABLE, INSUFICIENTE)
         """
         # Clamp score to valid range [0, 3]
-        clamped_score = max(get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("auto_param_L1170_28", 0.0), min(3.0, score))
+        clamped_score = max(ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "auto_param_L1170_28", 0.0), min(3.0, score))
 
         # Normalize to 0-1 range
         normalized_score = clamped_score / 3.0
 
         # Use provided thresholds or defaults
         if thresholds:
-            excellent_threshold = thresholds.get('EXCELENTE', get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("auto_param_L1177_62", 0.85))
-            good_threshold = thresholds.get('BUENO', get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("auto_param_L1178_53", 0.70))
-            acceptable_threshold = thresholds.get('ACEPTABLE', get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("auto_param_L1179_63", 0.55))
+            excellent_threshold = thresholds.get('EXCELENTE', ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "auto_param_L1177_62", 0.85))
+            good_threshold = thresholds.get('BUENO', ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "auto_param_L1178_53", 0.70))
+            acceptable_threshold = thresholds.get('ACEPTABLE', ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "auto_param_L1179_63", 0.55))
         else:
-            excellent_threshold = get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("excellent_threshold", 0.85) # Refactored
-            good_threshold = get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("good_threshold", 0.7) # Refactored
-            acceptable_threshold = get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("acceptable_threshold", 0.55) # Refactored
+            excellent_threshold = ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "excellent_threshold", 0.85) # Refactored
+            good_threshold = ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "good_threshold", 0.7) # Refactored
+            acceptable_threshold = ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "acceptable_threshold", 0.55) # Refactored
 
         # Apply thresholds
         if normalized_score >= excellent_threshold:
@@ -1247,7 +1247,7 @@ class AreaPolicyAggregator:
             return AreaScore(
                 area_id=area_id,
                 area_name=area_name,
-                score=get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("auto_param_L1249_22", 0.0),
+                score=ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "auto_param_L1249_22", 0.0),
                 quality_level="INSUFICIENTE",
                 dimension_scores=[],
                 validation_passed=False,
@@ -1264,7 +1264,7 @@ class AreaPolicyAggregator:
             return AreaScore(
                 area_id=area_id,
                 area_name=area_name,
-                score=get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("auto_param_L1266_22", 0.0),
+                score=ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "auto_param_L1266_22", 0.0),
                 quality_level="INSUFICIENTE",
                 dimension_scores=[],
                 validation_passed=False,
@@ -1376,8 +1376,7 @@ class ClusterAggregator:
     - Validate cluster hermeticity
     """
 
-    # PENALTY_WEIGHT = get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("PENALTY_WEIGHT", 0.3) # Refactored
-    PENALTY_WEIGHT = 0.3  # Default value (parameter loader temporarily disabled)
+    PENALTY_WEIGHT = ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "PENALTY_WEIGHT", 0.3)
     MAX_SCORE = 3.0
 
     def __init__(
@@ -1494,7 +1493,7 @@ class ClusterAggregator:
 
         if weights is None:
             # Equal weights
-            weights = [get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("auto_param_L1495_23", 1.0) / len(scores)] * len(scores)
+            weights = [ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "auto_param_L1495_23", 1.0) / len(scores)] * len(scores)
 
         # Validate weights length matches scores length
         if len(weights) != len(scores):
@@ -1506,10 +1505,10 @@ class ClusterAggregator:
             if self.abort_on_insufficient:
                 raise WeightValidationError(msg)
 
-        # Validate weights sum to get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("auto_param_L1507_34", 1.0)
+        # Validate weights sum to ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "auto_param_L1507_34", 1.0)
         weight_sum = sum(weights)
         tolerance = 1e-6
-        if abs(weight_sum - get_parameter_loader().get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores").get("auto_param_L1510_28", 1.0)) > tolerance:
+        if abs(weight_sum - ParameterLoaderV2.get("farfan_core.processing.aggregation.AreaPolicyAggregator.normalize_scores", "auto_param_L1510_28", 1.0)) > tolerance:
             msg = f"Cluster weight validation failed: sum={weight_sum:.6f}"
             logger.error(msg)
             if self.abort_on_insufficient:
@@ -1542,19 +1541,19 @@ class ClusterAggregator:
         scores = [a.score for a in area_scores]
 
         if len(scores) <= 1:
-            return get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1543_19", 1.0)
+            return ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1543_19", 1.0)
 
         # Calculate mean
         mean = sum(scores) / len(scores)
 
         # Calculate standard deviation
         variance = sum((s - mean) ** 2 for s in scores) / len(scores)
-        std_dev = variance ** get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1550_30", 0.5)
+        std_dev = variance ** ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1550_30", 0.5)
 
         # Convert to coherence (inverse relationship)
         # Normalize by max possible std dev (3.0 for 0-3 range)
         max_std = 3.0
-        coherence = max(get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1555_24", 0.0), get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1555_29", 1.0) - (std_dev / max_std))
+        coherence = max(ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1555_24", 0.0), ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1555_29", 1.0) - (std_dev / max_std))
 
         logger.debug(
             f"Coherence analysis: mean={mean:.4f}, "
@@ -1599,9 +1598,9 @@ class ClusterAggregator:
                 cluster_id=cluster_id,
                 cluster_name=cluster_id,
                 areas=[],
-                score=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1600_22", 0.0),
-                coherence=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1601_26", 0.0),
-                variance=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1602_25", 0.0),
+                score=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1600_22", 0.0),
+                coherence=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1601_26", 0.0),
+                variance=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1602_25", 0.0),
                 weakest_area=None,
                 area_scores=[],
                 validation_passed=False,
@@ -1630,9 +1629,9 @@ class ClusterAggregator:
                 cluster_id=cluster_id,
                 cluster_name=cluster_name,
                 areas=expected_areas,
-                score=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1631_22", 0.0),
-                coherence=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1632_26", 0.0),
-                variance=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1633_25", 0.0),
+                score=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1631_22", 0.0),
+                coherence=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1632_26", 0.0),
+                variance=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1633_25", 0.0),
                 weakest_area=None,
                 area_scores=[],
                 validation_passed=False,
@@ -1645,9 +1644,9 @@ class ClusterAggregator:
                 cluster_id=cluster_id,
                 cluster_name=cluster_name,
                 areas=expected_areas,
-                score=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1646_22", 0.0),
-                coherence=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1647_26", 0.0),
-                variance=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1648_25", 0.0),
+                score=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1646_22", 0.0),
+                coherence=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1647_26", 0.0),
+                variance=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1648_25", 0.0),
                 weakest_area=None,
                 area_scores=[],
                 validation_passed=False,
@@ -1669,9 +1668,9 @@ class ClusterAggregator:
                 cluster_id=cluster_id,
                 cluster_name=cluster_name,
                 areas=expected_areas,
-                score=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1670_22", 0.0),
-                coherence=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1671_26", 0.0),
-                variance=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1672_25", 0.0),
+                score=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1670_22", 0.0),
+                coherence=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1671_26", 0.0),
+                variance=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1672_25", 0.0),
                 weakest_area=None,
                 area_scores=cluster_area_scores,
                 validation_passed=False,
@@ -1685,17 +1684,17 @@ class ClusterAggregator:
             mean_score = sum(scores_array) / len(scores_array)
             variance = sum((score - mean_score) ** 2 for score in scores_array) / len(scores_array)
         else:
-            variance = get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("variance", 0.0) # Refactored
+            variance = ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "variance", 0.0) # Refactored
         weakest_area = min(cluster_area_scores, key=lambda a: a.score, default=None)
 
-        std_dev = variance ** get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1689_30", 0.5)
-        normalized_std = min(std_dev / self.MAX_SCORE, get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1690_55", 1.0)) if std_dev > 0 else get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1690_80", 0.0)
-        penalty_factor = get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1691_25", 1.0) - (normalized_std * self.PENALTY_WEIGHT)
+        std_dev = variance ** ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1689_30", 0.5)
+        normalized_std = min(std_dev / self.MAX_SCORE, ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1690_55", 1.0)) if std_dev > 0 else ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1690_80", 0.0)
+        penalty_factor = ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1691_25", 1.0) - (normalized_std * self.PENALTY_WEIGHT)
         adjusted_score = weighted_score * penalty_factor
 
         validation_details["coherence"] = {
             "value": coherence,
-            "interpretation": "high" if coherence > get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1696_52", 0.8) else "medium" if coherence > get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1696_85", 0.6) else "low"
+            "interpretation": "high" if coherence > ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1696_52", 0.8) else "medium" if coherence > ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1696_85", 0.6) else "low"
         }
         validation_details["variance"] = variance
         if weakest_area:
@@ -1846,18 +1845,18 @@ class MacroAggregator:
         scores = [c.score for c in cluster_scores]
 
         if len(scores) <= 1:
-            return get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1847_19", 1.0)
+            return ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1847_19", 1.0)
 
         # Calculate mean
         mean = sum(scores) / len(scores)
 
         # Calculate standard deviation
         variance = sum((s - mean) ** 2 for s in scores) / len(scores)
-        std_dev = variance ** get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1854_30", 0.5)
+        std_dev = variance ** ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1854_30", 0.5)
 
         # Convert to coherence
         max_std = 3.0
-        coherence = max(get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1858_24", 0.0), get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1858_29", 1.0) - (std_dev / max_std))
+        coherence = max(ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1858_24", 0.0), ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1858_29", 1.0) - (std_dev / max_std))
 
         logger.debug(
             f"Cross-cutting coherence: mean={mean:.4f}, "
@@ -1906,15 +1905,15 @@ class MacroAggregator:
         # Calculate average cluster coherence
         cluster_coherence = (
             sum(c.coherence for c in cluster_scores) / len(cluster_scores)
-            if cluster_scores else get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1907_35", 0.0)
+            if cluster_scores else ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1907_35", 0.0)
         )
 
         # Calculate dimension validation rate
         validated_dims = sum(1 for d in dimension_scores if d.validation_passed)
-        validation_rate = validated_dims / len(dimension_scores) if dimension_scores else get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1912_90", 0.0)
+        validation_rate = validated_dims / len(dimension_scores) if dimension_scores else ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1912_90", 0.0)
 
         # Strategic alignment is weighted combination
-        alignment = (get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1915_21", 0.6) * cluster_coherence) + (get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1915_49", 0.4) * validation_rate)
+        alignment = (ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1915_21", 0.6) * cluster_coherence) + (ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1915_49", 0.4) * validation_rate)
 
         logger.debug(
             f"Strategic alignment: cluster_coherence={cluster_coherence:.4f}, "
@@ -1940,20 +1939,20 @@ class MacroAggregator:
             Quality level (EXCELENTE, BUENO, ACEPTABLE, INSUFICIENTE)
         """
         # Clamp score to valid range [0, 3]
-        clamped_score = max(get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1941_28", 0.0), min(3.0, score))
+        clamped_score = max(ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1941_28", 0.0), min(3.0, score))
 
         # Normalize to 0-1 range
         normalized_score = clamped_score / 3.0
 
         # Use provided thresholds or defaults
         if thresholds:
-            excellent_threshold = thresholds.get('EXCELENTE', get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1948_62", 0.85))
-            good_threshold = thresholds.get('BUENO', get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1949_53", 0.70))
-            acceptable_threshold = thresholds.get('ACEPTABLE', get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1950_63", 0.55))
+            excellent_threshold = thresholds.get('EXCELENTE', ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1948_62", 0.85))
+            good_threshold = thresholds.get('BUENO', ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1949_53", 0.70))
+            acceptable_threshold = thresholds.get('ACEPTABLE', ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1950_63", 0.55))
         else:
-            excellent_threshold = get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("excellent_threshold", 0.85) # Refactored
-            good_threshold = get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("good_threshold", 0.7) # Refactored
-            acceptable_threshold = get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("acceptable_threshold", 0.55) # Refactored
+            excellent_threshold = ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "excellent_threshold", 0.85) # Refactored
+            good_threshold = ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "good_threshold", 0.7) # Refactored
+            acceptable_threshold = ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "acceptable_threshold", 0.55) # Refactored
 
         # Apply thresholds
         if normalized_score >= excellent_threshold:
@@ -1996,11 +1995,11 @@ class MacroAggregator:
         if not cluster_scores:
             logger.error("No cluster scores available for macro evaluation")
             return MacroScore(
-                score=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1997_22", 0.0),
+                score=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1997_22", 0.0),
                 quality_level="INSUFICIENTE",
-                cross_cutting_coherence=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L1999_40", 0.0),
+                cross_cutting_coherence=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L1999_40", 0.0),
                 systemic_gaps=[],
-                strategic_alignment=get_parameter_loader().get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence").get("auto_param_L2001_36", 0.0),
+                strategic_alignment=ParameterLoaderV2.get("farfan_core.processing.aggregation.ClusterAggregator.analyze_coherence", "auto_param_L2001_36", 0.0),
                 cluster_scores=[],
                 validation_passed=False,
                 validation_details={"error": "No clusters", "type": "empty"}
@@ -2060,7 +2059,7 @@ class MacroAggregator:
     def _calculate_macro_score(self, cluster_scores: list[ClusterScore]) -> float:
         weights = self.aggregation_settings.macro_cluster_weights
         if not cluster_scores:
-            return get_parameter_loader().get("farfan_core.processing.aggregation.MacroAggregator._calculate_macro_score").get("auto_param_L2061_19", 0.0)
+            return ParameterLoaderV2.get("farfan_core.processing.aggregation.MacroAggregator._calculate_macro_score", "auto_param_L2061_19", 0.0)
         if not weights:
             return sum(c.score for c in cluster_scores) / len(cluster_scores)
 

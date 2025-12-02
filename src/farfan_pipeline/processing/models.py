@@ -12,7 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 
@@ -165,13 +165,13 @@ class QualityMetrics:
     """
     Quality metrics for the ingestion process.
     """
-    boundary_f1: float = get_parameter_loader().get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge").get("auto_param_L167_25", 0.0)
-    kpi_linkage_rate: float = get_parameter_loader().get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge").get("auto_param_L168_30", 0.0)
-    budget_consistency_score: float = get_parameter_loader().get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge").get("auto_param_L169_38", 0.0)
-    provenance_completeness: float = get_parameter_loader().get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge").get("auto_param_L170_37", 0.0)
-    structural_consistency: float = get_parameter_loader().get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge").get("auto_param_L171_36", 0.0)
-    temporal_robustness: float = get_parameter_loader().get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge").get("auto_param_L172_33", 0.0)
-    chunk_context_coverage: float = get_parameter_loader().get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge").get("auto_param_L173_36", 0.0)
+    boundary_f1: float = ParameterLoaderV2.get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge", "auto_param_L167_25", 0.0)
+    kpi_linkage_rate: float = ParameterLoaderV2.get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge", "auto_param_L168_30", 0.0)
+    budget_consistency_score: float = ParameterLoaderV2.get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge", "auto_param_L169_38", 0.0)
+    provenance_completeness: float = ParameterLoaderV2.get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge", "auto_param_L170_37", 0.0)
+    structural_consistency: float = ParameterLoaderV2.get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge", "auto_param_L171_36", 0.0)
+    temporal_robustness: float = ParameterLoaderV2.get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge", "auto_param_L172_33", 0.0)
+    chunk_context_coverage: float = ParameterLoaderV2.get("farfan_core.processing.cpp_ingestion.models.ChunkGraph.add_edge", "auto_param_L173_36", 0.0)
 
 
 @dataclass

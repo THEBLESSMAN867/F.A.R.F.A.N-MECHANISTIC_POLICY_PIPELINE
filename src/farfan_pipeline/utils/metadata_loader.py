@@ -12,7 +12,7 @@ from typing import Any
 import yaml
 
 from farfan_pipeline.utils.paths import proj_root
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 try:
@@ -103,7 +103,7 @@ class MetadataLoader:
         Args:
             path: Path to metadata file (JSON or YAML)
             schema_ref: Schema file name (e.g., "rubric.schema.json")
-            required_version: Required version string (e.g., "2.get_parameter_loader().get("farfan_core.utils.metadata_loader.MetadataLoader.__init__").get("auto_param_L105_64", 0.0)")
+            required_version: Required version string (e.g., "2.ParameterLoaderV2.get("farfan_core.utils.metadata_loader.MetadataLoader.__init__", "auto_param_L105_64", 0.0)")
             expected_checksum: Expected SHA-256 checksum (hex)
             checksum_algorithm: Hash algorithm ("sha256", "md5")
 

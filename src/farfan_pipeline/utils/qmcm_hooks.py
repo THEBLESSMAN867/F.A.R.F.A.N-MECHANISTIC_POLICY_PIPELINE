@@ -11,7 +11,7 @@ from datetime import datetime
 from functools import wraps
 from pathlib import Path
 from typing import Any
-from farfan_pipeline import get_parameter_loader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 logger = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ class QMCMRecorder:
             input_types: dict[str, str],
             output_type: str,
             execution_status: str = "success",
-            execution_time_ms: float = get_parameter_loader().get("farfan_core.utils.qmcm_hooks.QMCMRecorder.__init__").get("auto_param_L45_39", 0.0),
+            execution_time_ms: float = ParameterLoaderV2.get("farfan_core.utils.qmcm_hooks.QMCMRecorder.__init__", "auto_param_L45_39", 0.0),
             monolith_hash: str | None = None
     ) -> None:
         """
@@ -92,7 +92,7 @@ class QMCMRecorder:
                 "total_calls": 0,
                 "unique_methods": 0,
                 "method_frequency": {},
-                "success_rate": get_parameter_loader().get("farfan_core.utils.qmcm_hooks.QMCMRecorder.get_statistics").get("auto_param_L94_32", 0.0),
+                "success_rate": ParameterLoaderV2.get("farfan_core.utils.qmcm_hooks.QMCMRecorder.get_statistics", "auto_param_L94_32", 0.0),
                 "most_called_method": None
             }
 
@@ -114,7 +114,7 @@ class QMCMRecorder:
             "total_calls": len(self.calls),
             "unique_methods": len(method_counts),
             "method_frequency": method_counts,
-            "success_rate": success_count / len(self.calls) if self.calls else get_parameter_loader().get("farfan_core.utils.qmcm_hooks.QMCMRecorder.get_statistics").get("auto_param_L116_79", 0.0),
+            "success_rate": success_count / len(self.calls) if self.calls else ParameterLoaderV2.get("farfan_core.utils.qmcm_hooks.QMCMRecorder.get_statistics", "auto_param_L116_79", 0.0),
             "most_called_method": most_called
         }
 

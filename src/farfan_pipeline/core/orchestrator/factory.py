@@ -543,13 +543,36 @@ def build_processor(
     )
 
 def create_orchestrator() -> "Orchestrator":
-    """Create a fully configured orchestrator instance."""
+    """Create a fully configured orchestrator instance with recommendation engine."""
+    from ...config.paths import RULES_DIR
+    from ...infrastructure.recommendation_engine_adapter import create_recommendation_engine_adapter
+    
     processor_bundle = build_processor()
-    return Orchestrator(
+    
+    recommendation_engine_port = None
+    try:
+        questionnaire_provider = get_questionnaire_provider()
+        recommendation_engine_port = create_recommendation_engine_adapter(
+            rules_path=RULES_DIR / "recommendation_rules_enhanced.json",
+            schema_path=RULES_DIR / "recommendation_rules_enhanced.schema.json",
+            questionnaire_provider=questionnaire_provider,
+            orchestrator=None
+        )
+        logger.info("RecommendationEngine adapter created successfully")
+    except Exception as e:
+        logger.warning(f"Failed to create RecommendationEngine adapter: {e}")
+    
+    orchestrator = Orchestrator(
         method_executor=processor_bundle.method_executor,
         questionnaire=processor_bundle.questionnaire,
         executor_config=processor_bundle.executor_config,
+        recommendation_engine_port=recommendation_engine_port,
     )
+    
+    if recommendation_engine_port is not None:
+        recommendation_engine_port.set_orchestrator(orchestrator)
+    
+    return orchestrator
 
 def get_questionnaire_provider():
     """Get a questionnaire provider instance."""

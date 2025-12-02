@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 
     from .factory import CanonicalQuestionnaire
 
-from ...analysis.recommendation_engine import RecommendationEngine
+from ..analysis_port import RecommendationEnginePort
 from ...config.paths import PROJECT_ROOT, RULES_DIR, CONFIG_DIR
 from ...processing.aggregation import (
     AggregationSettings,
@@ -1115,8 +1115,8 @@ class Orchestrator:
         executor_config: "ExecutorConfig",
         calibration_orchestrator: Any | None = None,
         resource_limits: ResourceLimits | None = None,
-        recommendation_engine: Any | None = None,
         resource_snapshot_interval: int = 10,
+        recommendation_engine_port: RecommendationEnginePort | None = None,
     ) -> None:
         """Initialize the orchestrator with all dependencies injected.
 
@@ -1127,6 +1127,7 @@ class Orchestrator:
             calibration_orchestrator: The calibration orchestrator instance.
             resource_limits: Resource limit configuration.
             resource_snapshot_interval: Interval for resource snapshots.
+            recommendation_engine_port: Optional recommendation engine port (injected via DI).
         """
         from .factory import _validate_questionnaire_structure
 
@@ -1205,17 +1206,12 @@ class Orchestrator:
             f"Orchestrator dependency mode: {self.dependency_lockdown.get_mode_description()}"
         )
 
-        try:
-            self.recommendation_engine = RecommendationEngine(
-                rules_path=RULES_DIR / "recommendation_rules_enhanced.json",
-                schema_path=RULES_DIR / "recommendation_rules_enhanced.schema.json",
-                questionnaire_provider=self.questionnaire_provider,
-                orchestrator=self,
-            )
-            logger.info("RecommendationEngine initialized with enhanced v2.0 rules")
-        except Exception as e:
-            logger.warning(f"Failed to initialize RecommendationEngine: {e}")
-            self.recommendation_engine = None
+
+        self.recommendation_engine = recommendation_engine_port
+        if self.recommendation_engine is not None:
+            logger.info("RecommendationEngine port injected successfully")
+        else:
+            logger.warning("No RecommendationEngine port provided - recommendations will be unavailable")
 
     async def run(
         self,

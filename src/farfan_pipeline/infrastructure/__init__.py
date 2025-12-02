@@ -8,6 +8,15 @@ Structure:
 - environment.py: Environment variable access
 - clock.py: Time operations
 - log_adapters.py: Logging operations (renamed from logging.py to avoid shadowing)
+- recommendation_engine_adapter.py: Recommendation engine adapter
 """
 
-__all__ = []
+from .recommendation_engine_adapter import (
+    RecommendationEngineAdapter,
+    create_recommendation_engine_adapter,
+)
+
+__all__ = [
+    "RecommendationEngineAdapter",
+    "create_recommendation_engine_adapter",
+]

@@ -71,3 +71,21 @@ migrate_to_pep420.py
 # Build artifacts
 *.whl
 pip-wheel-metadata/
+
+# CI/CD Artifacts (GitHub Actions)
+test-results/
+*.xml
+coverage.xml
+mutation_report.txt
+.mutmut-cache/
+release_certificates_*/
+release_notes.md
+summary.md
+health_report.md
+historical_certs/
+validation_log.txt
+contract-badge.json
+
+# Contract Certificates (generated, not committed)
+*_certificate.json
+!.github/workflows/

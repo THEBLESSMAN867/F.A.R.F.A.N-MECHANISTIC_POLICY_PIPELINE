@@ -1,6 +1,7 @@
 """
 Tests for Retriever Contract (ReC)
 """
+import sys
 import pytest
 from farfan_pipeline.contracts.retriever_contract import RetrieverContract
 

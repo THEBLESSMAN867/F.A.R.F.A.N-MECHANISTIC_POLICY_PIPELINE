@@ -1,6 +1,7 @@
 """
 Tests for Failure & Fallback Contract (FFC)
 """
+import sys
 import pytest
 from farfan_pipeline.contracts.failure_fallback import FailureFallbackContract
 

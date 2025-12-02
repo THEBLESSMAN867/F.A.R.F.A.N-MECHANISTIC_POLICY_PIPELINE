@@ -1,6 +1,7 @@
 """
 Tests for Routing Contract (RC)
 """
+import sys
 import pytest
 from hypothesis import given, strategies as st
 import hashlib

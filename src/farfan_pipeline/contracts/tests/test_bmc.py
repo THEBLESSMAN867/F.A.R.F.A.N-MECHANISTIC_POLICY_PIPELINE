@@ -1,6 +1,7 @@
 """
 Tests for Budget & Monotonicity Contract (BMC)
 """
+import sys
 import pytest
 from farfan_pipeline.contracts.budget_monotonicity import BudgetMonotonicityContract
 

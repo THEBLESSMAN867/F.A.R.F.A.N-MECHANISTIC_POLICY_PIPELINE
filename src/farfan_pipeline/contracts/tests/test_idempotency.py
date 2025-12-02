@@ -1,6 +1,7 @@
 """
 Tests for Idempotency & De-dup Contract (IDC)
 """
+import sys
 import pytest
 import random
 from farfan_pipeline.contracts.idempotency_dedup import IdempotencyContract, EvidenceStore

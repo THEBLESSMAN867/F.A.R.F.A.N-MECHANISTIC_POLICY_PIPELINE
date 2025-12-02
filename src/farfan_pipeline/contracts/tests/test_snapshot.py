@@ -1,6 +1,7 @@
 """
 Tests for Snapshot Contract (SC)
 """
+import sys
 import pytest
 import json
 from farfan_pipeline.contracts.snapshot_contract import SnapshotContract

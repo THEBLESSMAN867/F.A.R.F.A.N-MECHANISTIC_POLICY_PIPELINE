@@ -1,6 +1,7 @@
 """
 Tests for Risk Certificate Contract (RCC)
 """
+import sys
 import pytest
 import numpy as np
 from farfan_pipeline.contracts.risk_certificate import RiskCertificateContract

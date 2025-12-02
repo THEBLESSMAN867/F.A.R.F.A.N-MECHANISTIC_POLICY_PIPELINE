@@ -1,6 +1,7 @@
 """
 Tests for Refusal Contract (RefC)
 """
+import sys
 import pytest
 from farfan_pipeline.contracts.refusal import RefusalContract, RefusalError
 

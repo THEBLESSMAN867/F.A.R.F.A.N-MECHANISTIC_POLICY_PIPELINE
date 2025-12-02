@@ -1,6 +1,7 @@
 """
 Tests for Permutation-Invariance Contract (PIC)
 """
+import sys
 import pytest
 from hypothesis import given, strategies as st
 import random

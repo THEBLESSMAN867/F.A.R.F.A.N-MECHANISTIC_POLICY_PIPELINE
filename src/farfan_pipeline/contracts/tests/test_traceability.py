@@ -1,6 +1,7 @@
 """
 Tests for Traceability Contract (TC)
 """
+import sys
 import pytest
 from farfan_pipeline.contracts.traceability import TraceabilityContract, MerkleTree
 

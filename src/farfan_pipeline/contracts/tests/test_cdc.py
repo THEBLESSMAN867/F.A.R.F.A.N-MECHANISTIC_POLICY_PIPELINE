@@ -1,6 +1,7 @@
 """
 Tests for Concurrency Determinism Contract (CDC)
 """
+import sys
 import pytest
 from farfan_pipeline.contracts.concurrency_determinism import ConcurrencyDeterminismContract
 

@@ -1,6 +1,7 @@
 """
 Tests for Alignment Stability Contract (ASC)
 """
+import sys
 import pytest
 from farfan_pipeline.contracts.alignment_stability import AlignmentStabilityContract
 

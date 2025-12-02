@@ -1,6 +1,7 @@
 """
 Tests for Total Ordering Contract (TOC)
 """
+import sys
 import pytest
 from farfan_pipeline.contracts.total_ordering import TotalOrderingContract
 

@@ -1,6 +1,7 @@
 """
 Tests for Monotone Compliance Contract (MCC)
 """
+import sys
 import pytest
 from farfan_pipeline.contracts.monotone_compliance import MonotoneComplianceContract, Label
 

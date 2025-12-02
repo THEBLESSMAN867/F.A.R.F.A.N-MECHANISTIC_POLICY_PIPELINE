@@ -23,7 +23,6 @@ Status: Refactored to be fully aligned with questionnaire.py
 """
 
 import copy
-import hashlib
 import json
 import logging
 import threading
@@ -43,6 +42,7 @@ from ...utils.core_contracts import (
     SemanticChunkingInputContract,
     TeoriaCambioInputContract,
 )
+from ...utils.hash_utils import compute_hash
 from .core import MethodExecutor, Orchestrator
 from .executor_config import ExecutorConfig
 from .method_registry import MethodRegistry
@@ -107,11 +107,6 @@ def _validate_questionnaire_structure(data: dict[str, Any]) -> None:
         raise ValueError("blocks.micro_questions is required")
     # (A full validation would check all fields and types recursively)
 
-def _compute_hash(data: dict[str, Any]) -> str:
-    """Compute deterministic SHA-256 hash of questionnaire data."""
-    canonical_json = json.dumps(data, sort_keys=True, ensure_ascii=True, separators=(',', ':'))
-    return hashlib.sha256(canonical_json.encode('utf-8')).hexdigest()
-
 _questionnaire_cache: Optional[CanonicalQuestionnaire] = None
 
 def load_questionnaire() -> CanonicalQuestionnaire:
@@ -130,7 +125,7 @@ def load_questionnaire() -> CanonicalQuestionnaire:
     data = json.loads(content)
 
     _validate_questionnaire_structure(data)
-    sha256 = _compute_hash(data)
+    sha256 = compute_hash(data)
 
     blocks = data['blocks']
     micro_questions = tuple(MappingProxyType(q) for q in blocks['micro_questions'])

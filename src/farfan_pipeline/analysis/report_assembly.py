@@ -571,9 +571,9 @@ class ReportAssembler:
                     stage="questionnaire_loading"
                 )
 
-            # Import factory for hash computation (not for I/O)
-            from ..core.orchestrator.factory import _compute_hash
-            monolith_hash = _compute_hash(questionnaire_data)
+            # Import hash utility for content verification
+            from ..utils.hash_utils import compute_hash
+            monolith_hash = compute_hash(questionnaire_data)
 
             # Validate hash format
             if not isinstance(monolith_hash, str) or len(monolith_hash) != 64:

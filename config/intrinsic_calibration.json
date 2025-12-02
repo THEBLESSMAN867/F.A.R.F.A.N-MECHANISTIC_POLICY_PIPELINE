@@ -1,0 +1,1546 @@
+{
+  "_metadata": {
+    "version": "1.0.0",
+    "generated": "2025-01-15T10:30:00Z",
+    "description": "Intrinsic calibration single source with strict @b-only enforcement",
+    "total_methods": 128,
+    "computed_methods": 108,
+    "coverage_percent": 84.4
+  },
+  "FinancialAuditor._calculate_sufficiency": {
+    "intrinsic_score": [
+      0.78,
+      0.83
+    ],
+    "b_theory": 0.8,
+    "b_impl": 0.81,
+    "b_deploy": 0.8,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896093Z"
+  },
+  "FinancialAuditor._match_program_to_node": {
+    "intrinsic_score": [
+      0.76,
+      0.88
+    ],
+    "b_theory": 0.83,
+    "b_impl": 0.86,
+    "b_deploy": 0.78,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896128Z"
+  },
+  "FinancialAuditor._match_goal_to_budget": {
+    "intrinsic_score": [
+      0.72,
+      0.86
+    ],
+    "b_theory": 0.76,
+    "b_impl": 0.74,
+    "b_deploy": 0.84,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896152Z"
+  },
+  "PDETMunicipalPlanAnalyzer._assess_financial_sustainability": {
+    "intrinsic_score": [
+      0.74,
+      0.82
+    ],
+    "b_theory": 0.76,
+    "b_impl": 0.8,
+    "b_deploy": 0.77,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896174Z"
+  },
+  "PDETMunicipalPlanAnalyzer.analyze_financial_feasibility": {
+    "intrinsic_score": [
+      0.72,
+      0.84
+    ],
+    "b_theory": 0.81,
+    "b_impl": 0.74,
+    "b_deploy": 0.82,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896195Z"
+  },
+  "PDETMunicipalPlanAnalyzer._score_indicators": {
+    "intrinsic_score": [
+      0.72,
+      0.86
+    ],
+    "b_theory": 0.78,
+    "b_impl": 0.74,
+    "b_deploy": 0.84,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896216Z"
+  },
+  "PDETMunicipalPlanAnalyzer._interpret_risk": {
+    "intrinsic_score": [
+      0.69,
+      0.82
+    ],
+    "b_theory": 0.71,
+    "b_impl": 0.72,
+    "b_deploy": 0.8,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896236Z"
+  },
+  "PDETMunicipalPlanAnalyzer._extract_from_responsibility_tables": {
+    "intrinsic_score": [
+      0.75,
+      0.83
+    ],
+    "b_theory": 0.81,
+    "b_impl": 0.77,
+    "b_deploy": 0.8,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896257Z"
+  },
+  "PDETMunicipalPlanAnalyzer._consolidate_entities": {
+    "intrinsic_score": [
+      0.66,
+      0.81
+    ],
+    "b_theory": 0.79,
+    "b_impl": 0.68,
+    "b_deploy": 0.72,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896278Z"
+  },
+  "PDETMunicipalPlanAnalyzer._extract_entities_syntax": {
+    "intrinsic_score": [
+      0.7,
+      0.86
+    ],
+    "b_theory": 0.77,
+    "b_impl": 0.72,
+    "b_deploy": 0.84,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896298Z"
+  },
+  "PDETMunicipalPlanAnalyzer._extract_entities_ner": {
+    "intrinsic_score": [
+      0.64,
+      0.9
+    ],
+    "b_theory": 0.7,
+    "b_impl": 0.66,
+    "b_deploy": 0.88,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896318Z"
+  },
+  "PDETMunicipalPlanAnalyzer.identify_responsible_entities": {
+    "intrinsic_score": [
+      0.72,
+      0.83
+    ],
+    "b_theory": 0.74,
+    "b_impl": 0.8,
+    "b_deploy": 0.81,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896339Z"
+  },
+  "PDETMunicipalPlanAnalyzer._score_responsibility_clarity": {
+    "intrinsic_score": [
+      0.78,
+      0.84
+    ],
+    "b_theory": 0.81,
+    "b_impl": 0.82,
+    "b_deploy": 0.8,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896359Z"
+  },
+  "PDETMunicipalPlanAnalyzer._refine_edge_probabilities": {
+    "intrinsic_score": [
+      0.64,
+      0.8
+    ],
+    "b_theory": 0.69,
+    "b_impl": 0.66,
+    "b_deploy": 0.78,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896379Z"
+  },
+  "PDETMunicipalPlanAnalyzer.construct_causal_dag": {
+    "intrinsic_score": [
+      0.68,
+      0.83
+    ],
+    "b_theory": 0.7,
+    "b_impl": 0.78,
+    "b_deploy": 0.81,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896399Z"
+  },
+  "PDETMunicipalPlanAnalyzer.estimate_causal_effects": {
+    "intrinsic_score": [
+      0.7,
+      0.84
+    ],
+    "b_theory": 0.82,
+    "b_impl": 0.72,
+    "b_deploy": 0.81,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896420Z"
+  },
+  "PDETMunicipalPlanAnalyzer.generate_counterfactuals": {
+    "intrinsic_score": [
+      0.75,
+      0.86
+    ],
+    "b_theory": 0.77,
+    "b_impl": 0.78,
+    "b_deploy": 0.84,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896440Z"
+  },
+  "PDETMunicipalPlanAnalyzer._identify_confounders": {
+    "intrinsic_score": [
+      0.67,
+      0.85
+    ],
+    "b_theory": 0.69,
+    "b_impl": 0.75,
+    "b_deploy": 0.83,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896460Z"
+  },
+  "PDETMunicipalPlanAnalyzer._effect_to_dict": {
+    "intrinsic_score": [
+      0.68,
+      0.84
+    ],
+    "b_theory": 0.78,
+    "b_impl": 0.7,
+    "b_deploy": 0.82,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896480Z"
+  },
+  "PDETMunicipalPlanAnalyzer._scenario_to_dict": {
+    "intrinsic_score": [
+      0.67,
+      0.81
+    ],
+    "b_theory": 0.69,
+    "b_impl": 0.71,
+    "b_deploy": 0.79,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896500Z"
+  },
+  "PDETMunicipalPlanAnalyzer._get_spanish_stopwords": {
+    "intrinsic_score": [
+      0.65,
+      0.86
+    ],
+    "b_theory": 0.7,
+    "b_impl": 0.67,
+    "b_deploy": 0.84,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896520Z"
+  },
+  "AdaptivePriorCalculator.calculate_likelihood_adaptativo": {
+    "intrinsic_score": [
+      0.76,
+      0.84
+    ],
+    "b_theory": 0.78,
+    "b_impl": 0.8,
+    "b_deploy": 0.82,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896540Z"
+  },
+  "AdaptivePriorCalculator._adjust_domain_weights": {
+    "intrinsic_score": [
+      0.78,
+      0.9
+    ],
+    "b_theory": 0.8,
+    "b_impl": 0.88,
+    "b_deploy": 0.86,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896560Z"
+  },
+  "BayesianMechanismInference._test_sufficiency": {
+    "intrinsic_score": [
+      0.73,
+      0.94
+    ],
+    "b_theory": 0.78,
+    "b_impl": 0.75,
+    "b_deploy": 0.92,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896580Z"
+  },
+  "BayesianMechanismInference._test_necessity": {
+    "intrinsic_score": [
+      0.76,
+      0.88
+    ],
+    "b_theory": 0.86,
+    "b_impl": 0.78,
+    "b_deploy": 0.8,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896600Z"
+  },
+  "BayesianMechanismInference._log_refactored_components": {
+    "intrinsic_score": [
+      0.72,
+      0.9
+    ],
+    "b_theory": 0.83,
+    "b_impl": 0.74,
+    "b_deploy": 0.88,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896620Z"
+  },
+  "BayesianMechanismInference._infer_activity_sequence": {
+    "intrinsic_score": [
+      0.75,
+      0.86
+    ],
+    "b_theory": 0.84,
+    "b_impl": 0.79,
+    "b_deploy": 0.77,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896640Z"
+  },
+  "BayesianMechanismInference.infer_mechanisms": {
+    "intrinsic_score": [
+      0.77,
+      0.86
+    ],
+    "b_theory": 0.79,
+    "b_impl": 0.84,
+    "b_deploy": 0.82,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896660Z"
+  },
+  "AdvancedDAGValidator.calculate_acyclicity_pvalue": {
+    "intrinsic_score": [
+      0.74,
+      0.84
+    ],
+    "b_theory": 0.82,
+    "b_impl": 0.76,
+    "b_deploy": 0.79,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896680Z"
+  },
+  "AdvancedDAGValidator._is_acyclic": {
+    "intrinsic_score": [
+      0.73,
+      0.85
+    ],
+    "b_theory": 0.75,
+    "b_impl": 0.83,
+    "b_deploy": 0.83,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896700Z"
+  },
+  "AdvancedDAGValidator._calculate_bayesian_posterior": {
+    "intrinsic_score": [
+      0.73,
+      0.82
+    ],
+    "b_theory": 0.75,
+    "b_impl": 0.77,
+    "b_deploy": 0.8,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896720Z"
+  },
+  "AdvancedDAGValidator._calculate_confidence_interval": {
+    "intrinsic_score": [
+      0.7,
+      0.83
+    ],
+    "b_theory": 0.75,
+    "b_impl": 0.72,
+    "b_deploy": 0.81,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896740Z"
+  },
+  "AdvancedDAGValidator._calculate_statistical_power": {
+    "intrinsic_score": [
+      0.78,
+      0.91
+    ],
+    "b_theory": 0.84,
+    "b_impl": 0.8,
+    "b_deploy": 0.89,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896760Z"
+  },
+  "AdvancedDAGValidator._generate_subgraph": {
+    "intrinsic_score": [
+      0.76,
+      0.85
+    ],
+    "b_theory": 0.83,
+    "b_impl": 0.83,
+    "b_deploy": 0.78,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896788Z"
+  },
+  "AdvancedDAGValidator._get_node_validator": {
+    "intrinsic_score": [
+      0.8,
+      0.94
+    ],
+    "b_theory": 0.83,
+    "b_impl": 0.82,
+    "b_deploy": 0.92,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896808Z"
+  },
+  "AdvancedDAGValidator._create_empty_result": {
+    "intrinsic_score": [
+      0.81,
+      0.89
+    ],
+    "b_theory": 0.85,
+    "b_impl": 0.83,
+    "b_deploy": 0.87,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896828Z"
+  },
+  "AdvancedDAGValidator._initialize_rng": {
+    "intrinsic_score": [
+      0.71,
+      0.88
+    ],
+    "b_theory": 0.75,
+    "b_impl": 0.73,
+    "b_deploy": 0.86,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896848Z"
+  },
+  "AdvancedDAGValidator.get_graph_stats": {
+    "intrinsic_score": [
+      0.73,
+      0.85
+    ],
+    "b_theory": 0.81,
+    "b_impl": 0.75,
+    "b_deploy": 0.83,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896868Z"
+  },
+  "AdvancedDAGValidator._calculate_node_importance": {
+    "intrinsic_score": [
+      0.75,
+      0.87
+    ],
+    "b_theory": 0.85,
+    "b_impl": 0.77,
+    "b_deploy": 0.82,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896888Z"
+  },
+  "AdvancedDAGValidator.export_nodes": {
+    "intrinsic_score": [
+      0.77,
+      0.91
+    ],
+    "b_theory": 0.8,
+    "b_impl": 0.79,
+    "b_deploy": 0.89,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896915Z"
+  },
+  "AdvancedDAGValidator.add_node": {
+    "intrinsic_score": [
+      0.74,
+      0.89
+    ],
+    "b_theory": 0.76,
+    "b_impl": 0.87,
+    "b_deploy": 0.8,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896941Z"
+  },
+  "AdvancedDAGValidator.add_edge": {
+    "intrinsic_score": [
+      0.75,
+      0.84
+    ],
+    "b_theory": 0.81,
+    "b_impl": 0.77,
+    "b_deploy": 0.82,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.896962Z"
+  },
+  "IndustrialGradeValidator.execute_suite": {
+    "intrinsic_score": [
+      0.72,
+      0.82
+    ],
+    "b_theory": 0.74,
+    "b_impl": 0.8,
+    "b_deploy": 0.76,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.896982Z"
+  },
+  "IndustrialGradeValidator.validate_connection_matrix": {
+    "intrinsic_score": [
+      0.76,
+      0.89
+    ],
+    "b_theory": 0.81,
+    "b_impl": 0.78,
+    "b_deploy": 0.87,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897002Z"
+  },
+  "IndustrialGradeValidator.run_performance_benchmarks": {
+    "intrinsic_score": [
+      0.67,
+      0.81
+    ],
+    "b_theory": 0.69,
+    "b_impl": 0.72,
+    "b_deploy": 0.79,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897022Z"
+  },
+  "IndustrialGradeValidator._benchmark_operation": {
+    "intrinsic_score": [
+      0.72,
+      0.85
+    ],
+    "b_theory": 0.81,
+    "b_impl": 0.74,
+    "b_deploy": 0.83,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897042Z"
+  },
+  "IndustrialGradeValidator.validate_causal_categories": {
+    "intrinsic_score": [
+      0.74,
+      0.88
+    ],
+    "b_theory": 0.77,
+    "b_impl": 0.76,
+    "b_deploy": 0.86,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897061Z"
+  },
+  "IndustrialGradeValidator._log_metric": {
+    "intrinsic_score": [
+      0.74,
+      0.87
+    ],
+    "b_theory": 0.76,
+    "b_impl": 0.82,
+    "b_deploy": 0.85,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897081Z"
+  },
+  "PerformanceAnalyzer.analyze_performance": {
+    "intrinsic_score": [
+      0.73,
+      0.82
+    ],
+    "b_theory": 0.8,
+    "b_impl": 0.75,
+    "b_deploy": 0.77,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897102Z"
+  },
+  "PerformanceAnalyzer._calculate_loss_functions": {
+    "intrinsic_score": [
+      0.67,
+      0.78
+    ],
+    "b_theory": 0.71,
+    "b_impl": 0.69,
+    "b_deploy": 0.76,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897122Z"
+  },
+  "HierarchicalGenerativeModel._calculate_ess": {
+    "intrinsic_score": [
+      0.76,
+      0.92
+    ],
+    "b_theory": 0.89,
+    "b_impl": 0.78,
+    "b_deploy": 0.9,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.897142Z"
+  },
+  "HierarchicalGenerativeModel._calculate_likelihood": {
+    "intrinsic_score": [
+      0.76,
+      0.85
+    ],
+    "b_theory": 0.78,
+    "b_impl": 0.83,
+    "b_deploy": 0.79,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.897164Z"
+  },
+  "HierarchicalGenerativeModel._calculate_r_hat": {
+    "intrinsic_score": [
+      0.75,
+      0.88
+    ],
+    "b_theory": 0.84,
+    "b_impl": 0.86,
+    "b_deploy": 0.77,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.897185Z"
+  },
+  "ReportingEngine.generate_accountability_matrix": {
+    "intrinsic_score": [
+      0.67,
+      0.75
+    ],
+    "b_theory": 0.69,
+    "b_impl": 0.73,
+    "b_deploy": 0.73,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897205Z"
+  },
+  "ReportingEngine._calculate_quality_score": {
+    "intrinsic_score": [
+      0.64,
+      0.77
+    ],
+    "b_theory": 0.74,
+    "b_impl": 0.66,
+    "b_deploy": 0.75,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897225Z"
+  },
+  "PolicyAnalysisEmbedder.generate_pdq_report": {
+    "intrinsic_score": [
+      0.72,
+      0.84
+    ],
+    "b_theory": 0.78,
+    "b_impl": 0.76,
+    "b_deploy": 0.82,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-01-15T10:30:00Z"
+  },
+  "PolicyAnalysisEmbedder.compare_policy_interventions": {
+    "intrinsic_score": [
+      0.79,
+      0.85
+    ],
+    "b_theory": 0.81,
+    "b_impl": 0.82,
+    "b_deploy": 0.83,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897295Z"
+  },
+  "PolicyAnalysisEmbedder.evaluate_policy_numerical_consistency": {
+    "intrinsic_score": [
+      0.64,
+      0.81
+    ],
+    "b_theory": 0.71,
+    "b_impl": 0.66,
+    "b_deploy": 0.79,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897337Z"
+  },
+  "PolicyAnalysisEmbedder.process_document": {
+    "intrinsic_score": [
+      0.69,
+      0.85
+    ],
+    "b_theory": 0.71,
+    "b_impl": 0.71,
+    "b_deploy": 0.83,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897366Z"
+  },
+  "PolicyAnalysisEmbedder.semantic_search": {
+    "intrinsic_score": [
+      0.65,
+      0.81
+    ],
+    "b_theory": 0.79,
+    "b_impl": 0.67,
+    "b_deploy": 0.78,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897391Z"
+  },
+  "PolicyAnalysisEmbedder._apply_mmr": {
+    "intrinsic_score": [
+      0.67,
+      0.76
+    ],
+    "b_theory": 0.69,
+    "b_impl": 0.71,
+    "b_deploy": 0.74,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897413Z"
+  },
+  "PolicyAnalysisEmbedder._generate_query_from_pdq": {
+    "intrinsic_score": [
+      0.67,
+      0.82
+    ],
+    "b_theory": 0.69,
+    "b_impl": 0.71,
+    "b_deploy": 0.8,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897434Z"
+  },
+  "PolicyAnalysisEmbedder._filter_by_pdq": {
+    "intrinsic_score": [
+      0.65,
+      0.79
+    ],
+    "b_theory": 0.7,
+    "b_impl": 0.67,
+    "b_deploy": 0.77,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897456Z"
+  },
+  "PolicyAnalysisEmbedder._extract_numerical_values": {
+    "intrinsic_score": [
+      0.7,
+      0.89
+    ],
+    "b_theory": 0.77,
+    "b_impl": 0.72,
+    "b_deploy": 0.87,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897477Z"
+  },
+  "PolicyAnalysisEmbedder._compute_overall_confidence": {
+    "intrinsic_score": [
+      0.79,
+      0.85
+    ],
+    "b_theory": 0.83,
+    "b_impl": 0.81,
+    "b_deploy": 0.83,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897497Z"
+  },
+  "PolicyAnalysisEmbedder._embed_texts": {
+    "intrinsic_score": [
+      0.72,
+      0.81
+    ],
+    "b_theory": 0.79,
+    "b_impl": 0.75,
+    "b_deploy": 0.74,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897518Z"
+  },
+  "SemanticAnalyzer._classify_policy_domain": {
+    "intrinsic_score": [
+      0.72,
+      0.87
+    ],
+    "b_theory": 0.82,
+    "b_impl": 0.74,
+    "b_deploy": 0.85,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897538Z"
+  },
+  "SemanticAnalyzer._empty_semantic_cube": {
+    "intrinsic_score": [
+      0.69,
+      0.85
+    ],
+    "b_theory": 0.83,
+    "b_impl": 0.71,
+    "b_deploy": 0.79,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897559Z"
+  },
+  "SemanticAnalyzer._classify_cross_cutting_themes": {
+    "intrinsic_score": [
+      0.72,
+      0.8
+    ],
+    "b_theory": 0.74,
+    "b_impl": 0.76,
+    "b_deploy": 0.78,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897579Z"
+  },
+  "SemanticAnalyzer._classify_value_chain_link": {
+    "intrinsic_score": [
+      0.71,
+      0.79
+    ],
+    "b_theory": 0.77,
+    "b_impl": 0.73,
+    "b_deploy": 0.77,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897599Z"
+  },
+  "SemanticAnalyzer._vectorize_segments": {
+    "intrinsic_score": [
+      0.7,
+      0.81
+    ],
+    "b_theory": 0.79,
+    "b_impl": 0.76,
+    "b_deploy": 0.72,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897619Z"
+  },
+  "SemanticAnalyzer._calculate_semantic_complexity": {
+    "intrinsic_score": [
+      0.67,
+      0.86
+    ],
+    "b_theory": 0.84,
+    "b_impl": 0.69,
+    "b_deploy": 0.78,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897639Z"
+  },
+  "SemanticAnalyzer._process_segment": {
+    "intrinsic_score": [
+      0.71,
+      0.85
+    ],
+    "b_theory": 0.79,
+    "b_impl": 0.73,
+    "b_deploy": 0.83,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897660Z"
+  },
+  "PDETMunicipalPlanAnalyzer._entity_to_dict": {
+    "intrinsic_score": [
+      0.7,
+      0.89
+    ],
+    "b_theory": 0.74,
+    "b_impl": 0.72,
+    "b_deploy": 0.87,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897680Z"
+  },
+  "PDETMunicipalPlanAnalyzer._quality_to_dict": {
+    "intrinsic_score": [
+      0.73,
+      0.77
+    ],
+    "b_theory": 0.75,
+    "b_impl": 0.75,
+    "b_deploy": 0.75,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897700Z"
+  },
+  "PDETMunicipalPlanAnalyzer._deduplicate_tables": {
+    "intrinsic_score": [
+      0.68,
+      0.79
+    ],
+    "b_theory": 0.7,
+    "b_impl": 0.71,
+    "b_deploy": 0.77,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897720Z"
+  },
+  "PDETMunicipalPlanAnalyzer._indicator_to_dict": {
+    "intrinsic_score": [
+      0.67,
+      0.83
+    ],
+    "b_theory": 0.69,
+    "b_impl": 0.81,
+    "b_deploy": 0.72,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897740Z"
+  },
+  "PDETMunicipalPlanAnalyzer._generate_recommendations": {
+    "intrinsic_score": [
+      0.71,
+      0.83
+    ],
+    "b_theory": 0.74,
+    "b_impl": 0.81,
+    "b_deploy": 0.73,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897761Z"
+  },
+  "PDETMunicipalPlanAnalyzer._simulate_intervention": {
+    "intrinsic_score": [
+      0.73,
+      0.82
+    ],
+    "b_theory": 0.8,
+    "b_impl": 0.78,
+    "b_deploy": 0.75,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897781Z"
+  },
+  "PDETMunicipalPlanAnalyzer._identify_causal_nodes": {
+    "intrinsic_score": [
+      0.71,
+      0.88
+    ],
+    "b_theory": 0.8,
+    "b_impl": 0.73,
+    "b_deploy": 0.86,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897801Z"
+  },
+  "PDETMunicipalPlanAnalyzer._match_text_to_node": {
+    "intrinsic_score": [
+      0.71,
+      0.84
+    ],
+    "b_theory": 0.73,
+    "b_impl": 0.82,
+    "b_deploy": 0.77,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.897821Z"
+  },
+  "TeoriaCambio._validar_orden_causal": {
+    "intrinsic_score": [
+      0.73,
+      0.84
+    ],
+    "b_theory": 0.82,
+    "b_impl": 0.75,
+    "b_deploy": 0.78,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.897841Z"
+  },
+  "TeoriaCambio._generar_sugerencias_internas": {
+    "intrinsic_score": [
+      0.82,
+      0.92
+    ],
+    "b_theory": 0.86,
+    "b_impl": 0.84,
+    "b_deploy": 0.9,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.897861Z"
+  },
+  "TeoriaCambio._extraer_categorias": {
+    "intrinsic_score": [
+      0.73,
+      0.9
+    ],
+    "b_theory": 0.75,
+    "b_impl": 0.88,
+    "b_deploy": 0.85,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.897881Z"
+  },
+  "BayesianMechanismInference._extract_observations": {
+    "intrinsic_score": [
+      0.76,
+      0.86
+    ],
+    "b_theory": 0.84,
+    "b_impl": 0.78,
+    "b_deploy": 0.82,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.897901Z"
+  },
+  "BayesianMechanismInference._generate_necessity_remediation": {
+    "intrinsic_score": [
+      0.72,
+      0.82
+    ],
+    "b_theory": 0.74,
+    "b_impl": 0.79,
+    "b_deploy": 0.8,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.897923Z"
+  },
+  "BayesianMechanismInference._quantify_uncertainty": {
+    "intrinsic_score": [
+      0.78,
+      0.91
+    ],
+    "b_theory": 0.8,
+    "b_impl": 0.83,
+    "b_deploy": 0.89,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.897944Z"
+  },
+  "CausalExtractor._build_type_hierarchy": {
+    "intrinsic_score": [
+      0.73,
+      0.95
+    ],
+    "b_theory": 0.75,
+    "b_impl": 0.81,
+    "b_deploy": 0.93,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.897964Z"
+  },
+  "CausalExtractor._check_structural_violation": {
+    "intrinsic_score": [
+      0.75,
+      0.9
+    ],
+    "b_theory": 0.8,
+    "b_impl": 0.77,
+    "b_deploy": 0.88,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.897984Z"
+  },
+  "CausalExtractor._calculate_type_transition_prior": {
+    "intrinsic_score": [
+      0.71,
+      0.9
+    ],
+    "b_theory": 0.88,
+    "b_impl": 0.73,
+    "b_deploy": 0.86,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898004Z"
+  },
+  "CausalExtractor._calculate_textual_proximity": {
+    "intrinsic_score": [
+      0.8,
+      0.92
+    ],
+    "b_theory": 0.83,
+    "b_impl": 0.82,
+    "b_deploy": 0.9,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898024Z"
+  },
+  "CausalExtractor._calculate_language_specificity": {
+    "intrinsic_score": [
+      0.78,
+      0.95
+    ],
+    "b_theory": 0.89,
+    "b_impl": 0.8,
+    "b_deploy": 0.93,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898044Z"
+  },
+  "CausalExtractor._calculate_composite_likelihood": {
+    "intrinsic_score": [
+      0.74,
+      0.86
+    ],
+    "b_theory": 0.76,
+    "b_impl": 0.81,
+    "b_deploy": 0.84,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898064Z"
+  },
+  "CausalExtractor._assess_financial_consistency": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898336Z"
+  },
+  "CausalExtractor._calculate_semantic_distance": {
+    "intrinsic_score": [
+      0.75,
+      0.89
+    ],
+    "b_theory": 0.86,
+    "b_impl": 0.77,
+    "b_deploy": 0.87,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898104Z"
+  },
+  "CausalExtractor._extract_goals": {
+    "intrinsic_score": [
+      0.75,
+      0.8
+    ],
+    "b_theory": 0.77,
+    "b_impl": 0.78,
+    "b_deploy": 0.78,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898125Z"
+  },
+  "CausalExtractor._parse_goal_context": {
+    "intrinsic_score": [
+      0.76,
+      0.9
+    ],
+    "b_theory": 0.78,
+    "b_impl": 0.84,
+    "b_deploy": 0.88,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898156Z"
+  },
+  "CausalExtractor._classify_goal_type": {
+    "intrinsic_score": [
+      0.75,
+      0.86
+    ],
+    "b_theory": 0.77,
+    "b_impl": 0.84,
+    "b_deploy": 0.83,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898175Z"
+  },
+  "TemporalLogicVerifier._parse_temporal_marker": {
+    "intrinsic_score": [
+      0.71,
+      0.8
+    ],
+    "b_theory": 0.78,
+    "b_impl": 0.73,
+    "b_deploy": 0.77,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898196Z"
+  },
+  "TemporalLogicVerifier._classify_temporal_type": {
+    "intrinsic_score": [
+      0.8,
+      0.87
+    ],
+    "b_theory": 0.82,
+    "b_impl": 0.84,
+    "b_deploy": 0.85,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898215Z"
+  },
+  "TemporalLogicVerifier._extract_resources": {
+    "intrinsic_score": [
+      0.76,
+      0.88
+    ],
+    "b_theory": 0.82,
+    "b_impl": 0.80,
+    "b_deploy": 0.86,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-01-15T10:30:00Z"
+  },
+  "TemporalLogicVerifier._should_precede": {
+    "intrinsic_score": [
+      0.78,
+      0.90
+    ],
+    "b_theory": 0.84,
+    "b_impl": 0.82,
+    "b_deploy": 0.88,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-01-15T10:30:00Z"
+  },
+  "AdaptivePriorCalculator.generate_traceability_record": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898272Z"
+  },
+  "ReportingEngine.generate_confidence_report": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "computed",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.898281Z"
+  },
+  "PolicyTextProcessor.segment_into_sentences": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "computed",
+    "layer": "utility",
+    "last_updated": "2025-12-02T07:30:13.898286Z"
+  },
+  "PolicyTextProcessor.normalize_unicode": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "computed",
+    "layer": "utility",
+    "last_updated": "2025-12-02T07:30:13.898290Z"
+  },
+  "PolicyTextProcessor.compile_pattern": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "computed",
+    "layer": "utility",
+    "last_updated": "2025-12-02T07:30:13.898294Z"
+  },
+  "PolicyTextProcessor.extract_contextual_window": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "computed",
+    "layer": "utility",
+    "last_updated": "2025-12-02T07:30:13.898298Z"
+  },
+  "BayesianCounterfactualAuditor.aggregate_risk_and_prioritize": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "computed",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898303Z"
+  },
+  "BayesianCounterfactualAuditor.refutation_and_sanity_checks": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898321Z"
+  },
+  "BayesianCounterfactualAuditor._evaluate_factual": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898326Z"
+  },
+  "BayesianCounterfactualAuditor._evaluate_counterfactual": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898331Z"
+  },
+  "IndustrialPolicyProcessor._load_questionnaire": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.898340Z"
+  },
+  "IndustrialPolicyProcessor._compile_pattern_registry": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.898345Z"
+  },
+  "IndustrialPolicyProcessor._build_point_patterns": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.898349Z"
+  },
+  "IndustrialPolicyProcessor._empty_result": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.898354Z"
+  },
+  "IndustrialPolicyProcessor._compute_evidence_confidence": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.898358Z"
+  },
+  "IndustrialPolicyProcessor._compute_avg_confidence": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.898362Z"
+  },
+  "IndustrialPolicyProcessor._construct_evidence_bundle": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.898367Z"
+  },
+  "PDETMunicipalPlanAnalyzer.generate_executive_report": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.898371Z"
+  },
+  "IndustrialPolicyProcessor.export_results": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.898375Z"
+  },
+  "TeoriaCambio.construir_grafo_causal": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898380Z"
+  },
+  "TeoriaCambio._es_conexion_valida": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898384Z"
+  },
+  "CausalExtractor.extract_causal_hierarchy": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898388Z"
+  },
+  "BayesianMechanismInference._infer_single_mechanism": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898393Z"
+  },
+  "BayesianMechanismInference._infer_mechanism_type": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898398Z"
+  },
+  "BeachEvidentialTest.classify_test": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "engine",
+    "last_updated": "2025-12-02T07:30:13.898402Z"
+  },
+  "IndustrialPolicyProcessor._analyze_causal_dimensions": {
+    "intrinsic_score": [
+      0.0,
+      0.0
+    ],
+    "b_theory": 0.0,
+    "b_impl": 0.0,
+    "b_deploy": 0.0,
+    "calibration_status": "excluded",
+    "layer": "processor",
+    "last_updated": "2025-12-02T07:30:13.898406Z"
+  }
+}

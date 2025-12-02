@@ -49,33 +49,35 @@ except ImportError:
 class EnrichedSignalPack:
     """
     Enhanced SignalPack with intelligence layer.
-    
+
     This wraps a standard SignalPack with the 4 refactoring enhancements:
     - Semantically expanded patterns
     - Context-aware filtering
     - Contract validation
     - Structured evidence extraction
     """
-    
+
     def __init__(self, base_signal_pack, enable_semantic_expansion: bool = True):
         """
         Initialize enriched signal pack.
-        
+
         Args:
             base_signal_pack: Original SignalPack from signal_loader
             enable_semantic_expansion: If True, expand patterns semantically
         """
         self.base_pack = base_signal_pack
         self.patterns = base_signal_pack.patterns
-        
+        self._semantic_expansion_enabled = enable_semantic_expansion
+        self._original_pattern_count = len(base_signal_pack.patterns)
+
         # Apply semantic expansion
         if enable_semantic_expansion:
             self.patterns = expand_all_patterns(self.patterns, enable_logging=True)
             logger.info(
                 "semantic_expansion_applied",
-                original_count=len(base_signal_pack.patterns),
+                original_count=self._original_pattern_count,
                 expanded_count=len(self.patterns),
-                multiplier=len(self.patterns) / len(base_signal_pack.patterns)
+                multiplier=len(self.patterns) / self._original_pattern_count
             )
     
     def get_patterns_for_context(
@@ -126,15 +128,101 @@ class EnrichedSignalPack:
     ) -> ValidationResult:
         """
         Validate result using failure contracts and validations.
-        
+
         Args:
             result: Analysis result to validate
             signal_node: Signal node with failure_contract and validations
-        
+
         Returns:
             ValidationResult with validation status
         """
         return validate_with_contract(result, signal_node)
+
+    def expand_patterns(self, patterns: list[str]) -> list[str]:
+        """
+        Expand patterns semantically if enabled.
+
+        Args:
+            patterns: List of base pattern strings
+
+        Returns:
+            List of expanded patterns (may be 5x larger)
+        """
+        if not self._semantic_expansion_enabled:
+            return patterns
+
+        # Convert strings to pattern specs if needed
+        pattern_specs = []
+        for p in patterns:
+            if isinstance(p, str):
+                pattern_specs.append({'pattern': p})
+            elif isinstance(p, dict):
+                pattern_specs.append(p)
+
+        expanded = expand_all_patterns(pattern_specs, enable_logging=False)
+        return [p.get('pattern', p) if isinstance(p, dict) else p for p in expanded]
+
+    def get_average_confidence(self, patterns_used: list[str]) -> float:
+        """
+        Get average confidence of patterns used in analysis.
+
+        Args:
+            patterns_used: List of pattern IDs or pattern strings used
+
+        Returns:
+            Average confidence weight (0.0-1.0)
+        """
+        if not patterns_used:
+            return 0.5  # Default confidence if no patterns used
+
+        confidences = []
+        for pattern_ref in patterns_used:
+            # Find pattern in self.patterns
+            for p_spec in self.patterns:
+                if isinstance(p_spec, dict):
+                    pattern_id = p_spec.get('id', '')
+                    pattern_str = p_spec.get('pattern', '')
+
+                    # Match by ID or pattern string
+                    if pattern_ref == pattern_id or pattern_ref == pattern_str:
+                        conf = p_spec.get('confidence_weight', 0.5)
+                        confidences.append(conf)
+                        break
+
+        if not confidences:
+            return 0.5  # Default if patterns not found
+
+        return sum(confidences) / len(confidences)
+
+    def get_node(self, signal_id: str) -> dict[str, Any] | None:
+        """
+        Get signal node by ID from base pack.
+
+        Args:
+            signal_id: Signal/micro-question ID
+
+        Returns:
+            Signal node dict or None if not found
+        """
+        # Try to get from base_pack if it has a get_node method or similar
+        if hasattr(self.base_pack, 'get_node'):
+            return self.base_pack.get_node(signal_id)
+
+        # Try to get from base_pack.micro_questions if it's a list
+        if hasattr(self.base_pack, 'micro_questions'):
+            for node in self.base_pack.micro_questions:
+                if isinstance(node, dict) and node.get('id') == signal_id:
+                    return node
+
+        # Try base_pack as dict
+        if isinstance(self.base_pack, dict):
+            micro_questions = self.base_pack.get('micro_questions', [])
+            for node in micro_questions:
+                if isinstance(node, dict) and node.get('id') == signal_id:
+                    return node
+
+        logger.warning("signal_node_not_found", signal_id=signal_id)
+        return None
 
 
 def create_enriched_signal_pack(

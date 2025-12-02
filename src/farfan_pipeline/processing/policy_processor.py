@@ -33,74 +33,32 @@ import numpy as np
 # Import runtime error fixes for defensive programming
 from farfan_pipeline.utils.runtime_error_fixes import ensure_list_return
 
+from farfan_pipeline.analysis.financiero_viabilidad_tablas import PDETAnalysisException, QualityScore
+from farfan_pipeline.core.parameters import ParameterLoaderV2
+from farfan_pipeline.core.calibration.decorators import calibrated_method
+from farfan_pipeline.core.ports import (
+    PortDocumentLoader,
+    PortMunicipalOntology,
+    PortSemanticAnalyzer,
+    PortPerformanceAnalyzer,
+    PortContradictionDetector,
+    PortTemporalLogicVerifier,
+    PortBayesianConfidenceCalculator,
+    PortMunicipalAnalyzer,
+)
+
 try:
-    from farfan_pipeline.analysis.contradiction_deteccion import (
-        BayesianConfidenceCalculator,
-        PolicyContradictionDetector,
-        TemporalLogicVerifier,
-    )
     from farfan_pipeline.analysis.contradiction_deteccion import (
         PolicyDimension as ContradictionPolicyDimension,
     )
     CONTRADICTION_MODULE_AVAILABLE = True
-except Exception as import_error:  # pragma: no cover - safety net for heavy deps
+except Exception as import_error:
     CONTRADICTION_MODULE_AVAILABLE = False
-
-    # In production/CI, require the module to be available
-    import os
-    if os.getenv('REQUIRE_CONTRADICTION_MODULE', '').lower() in ('true', '1', 'yes'):
-        raise ImportError(f"Contradiction detection module is required but not available: {import_error}")
-
     logger = logging.getLogger(__name__)
     logger.warning(
         "Falling back to lightweight contradiction components due to import error: %s",
         import_error,
     )
-
-    class BayesianConfidenceCalculator:  # type: ignore[misc]
-        """Fallback Bayesian calculator when advanced module is unavailable."""
-
-        def __init__(self) -> None:
-            self.prior_alpha = ParameterLoaderV2.get("farfan_core.processing.policy_processor.BayesianConfidenceCalculator.__init__", "auto_param_L64_31", 1.0)
-            self.prior_beta = ParameterLoaderV2.get("farfan_core.processing.policy_processor.BayesianConfidenceCalculator.__init__", "auto_param_L65_30", 1.0)
-
-        def calculate_posterior(
-            self, evidence_strength: float, observations: int, domain_weight: float = ParameterLoaderV2.get("farfan_core.processing.policy_processor.BayesianConfidenceCalculator.__init__", "auto_param_L68_86", 1.0)
-        ) -> float:
-            alpha_post = self.prior_alpha + evidence_strength * observations * domain_weight
-            beta_post = self.prior_beta + (1 - evidence_strength) * observations * domain_weight
-            return alpha_post / (alpha_post + beta_post)
-
-    class TemporalLogicVerifier:  # type: ignore[misc]
-        """Fallback temporal verifier providing graceful degradation."""
-
-        @calibrated_method("farfan_core.processing.policy_processor.TemporalLogicVerifier.verify_temporal_consistency")
-        def verify_temporal_consistency(self, statements: list[Any]) -> tuple[bool, list[dict[str, Any]]]:
-            return True, []
-
-    class _FallbackContradictionDetector:
-        def detect(
-            self,
-            text: str,
-            plan_name: str = "PDM",
-            dimension: Any = None,
-        ) -> dict[str, Any]:
-            return {
-                "plan_name": plan_name,
-                "dimension": getattr(dimension, "value", "unknown"),
-                "contradictions": [],
-                "total_contradictions": 0,
-                "high_severity_count": 0,
-                "coherence_metrics": {},
-                "recommendations": [],
-                "knowledge_graph_stats": {"nodes": 0, "edges": 0, "components": 0},
-            }
-
-        @calibrated_method("farfan_core.processing.policy_processor._FallbackContradictionDetector._extract_policy_statements")
-        def _extract_policy_statements(self, text: str, dimension: Any) -> list[Any]:
-            return []
-
-    PolicyContradictionDetector = _FallbackContradictionDetector  # type: ignore[misc]
 
     class ContradictionPolicyDimension(Enum):  # type: ignore[misc]
         DIAGNOSTICO = "diagnóstico"
@@ -110,16 +68,53 @@ except Exception as import_error:  # pragma: no cover - safety net for heavy dep
         SEGUIMIENTO = "seguimiento y evaluación"
         TERRITORIAL = "ordenamiento territorial"
 
-from farfan_pipeline.analysis.Analyzer_one import (
-    DocumentProcessor,
-    MunicipalAnalyzer,
-    MunicipalOntology,
-    PerformanceAnalyzer,
-    SemanticAnalyzer,
-)
-from farfan_pipeline.analysis.financiero_viabilidad_tablas import PDETAnalysisException, QualityScore
-from farfan_pipeline.core.parameters import ParameterLoaderV2
-from farfan_pipeline.core.calibration.decorators import calibrated_method
+
+class _FallbackBayesianCalculator:
+    """Fallback Bayesian calculator when advanced module is unavailable."""
+
+    def __init__(self) -> None:
+        self.prior_alpha = ParameterLoaderV2.get("farfan_core.processing.policy_processor._FallbackBayesianCalculator.__init__", "auto_param_L64_31", 1.0)
+        self.prior_beta = ParameterLoaderV2.get("farfan_core.processing.policy_processor._FallbackBayesianCalculator.__init__", "auto_param_L65_30", 1.0)
+
+    def calculate_posterior(
+        self, evidence_strength: float, observations: int, domain_weight: float = ParameterLoaderV2.get("farfan_core.processing.policy_processor._FallbackBayesianCalculator.__init__", "auto_param_L68_86", 1.0)
+    ) -> float:
+        alpha_post = self.prior_alpha + evidence_strength * observations * domain_weight
+        beta_post = self.prior_beta + (1 - evidence_strength) * observations * domain_weight
+        return alpha_post / (alpha_post + beta_post)
+
+
+class _FallbackTemporalVerifier:
+    """Fallback temporal verifier providing graceful degradation."""
+
+    @calibrated_method("farfan_core.processing.policy_processor._FallbackTemporalVerifier.verify_temporal_consistency")
+    def verify_temporal_consistency(self, statements: list[Any]) -> tuple[bool, list[dict[str, Any]]]:
+        return True, []
+
+
+class _FallbackContradictionDetector:
+    """Fallback contradiction detector providing graceful degradation."""
+
+    def detect(
+        self,
+        text: str,
+        plan_name: str = "PDM",
+        dimension: Any = None,
+    ) -> dict[str, Any]:
+        return {
+            "plan_name": plan_name,
+            "dimension": getattr(dimension, "value", "unknown"),
+            "contradictions": [],
+            "total_contradictions": 0,
+            "high_severity_count": 0,
+            "coherence_metrics": {},
+            "recommendations": [],
+            "knowledge_graph_stats": {"nodes": 0, "edges": 0, "components": 0},
+        }
+
+    @calibrated_method("farfan_core.processing.policy_processor._FallbackContradictionDetector._extract_policy_statements")
+    def _extract_policy_statements(self, text: str, dimension: Any) -> list[Any]:
+        return []
 
 # ============================================================================
 # LOGGING CONFIGURATION
@@ -684,13 +679,13 @@ class IndustrialPolicyProcessor:
         config: ProcessorConfig | None = None,
         questionnaire_path: Path | None = None,  # DEPRECATED: Kept for API compatibility only
         *,
-        ontology: MunicipalOntology | None = None,
-        semantic_analyzer: SemanticAnalyzer | None = None,
-        performance_analyzer: PerformanceAnalyzer | None = None,
-        contradiction_detector: Optional["PolicyContradictionDetector"] = None,
-        temporal_verifier: TemporalLogicVerifier | None = None,
-        confidence_calculator: BayesianConfidenceCalculator | None = None,
-        municipal_analyzer: MunicipalAnalyzer | None = None,
+        ontology: PortMunicipalOntology | None = None,
+        semantic_analyzer: PortSemanticAnalyzer | None = None,
+        performance_analyzer: PortPerformanceAnalyzer | None = None,
+        contradiction_detector: PortContradictionDetector | None = None,
+        temporal_verifier: PortTemporalLogicVerifier | None = None,
+        confidence_calculator: PortBayesianConfidenceCalculator | None = None,
+        municipal_analyzer: PortMunicipalAnalyzer | None = None,
     ) -> None:
         # DEPRECATION WARNING: questionnaire_path parameter is deprecated
         if questionnaire_path is not None:
@@ -712,13 +707,39 @@ class IndustrialPolicyProcessor:
             entropy_weight=self.config.bayesian_entropy_weight,
         )
 
-        self.ontology = ontology or MunicipalOntology()
-        self.semantic_analyzer = semantic_analyzer or SemanticAnalyzer(self.ontology)
-        self.performance_analyzer = performance_analyzer or PerformanceAnalyzer(self.ontology)
-        self.contradiction_detector = contradiction_detector or PolicyContradictionDetector()
-        self.temporal_verifier = temporal_verifier or TemporalLogicVerifier()
-        self.confidence_calculator = confidence_calculator or BayesianConfidenceCalculator()
-        self.municipal_analyzer = municipal_analyzer or MunicipalAnalyzer()
+        if ontology is None or semantic_analyzer is None or performance_analyzer is None:
+            from farfan_pipeline.core.wiring.analysis_factory import (
+                create_municipal_ontology,
+                create_semantic_analyzer,
+                create_performance_analyzer,
+            )
+            ontology = ontology or create_municipal_ontology()
+            semantic_analyzer = semantic_analyzer or create_semantic_analyzer(ontology)
+            performance_analyzer = performance_analyzer or create_performance_analyzer(ontology)
+
+        if contradiction_detector is None:
+            from farfan_pipeline.core.wiring.analysis_factory import create_contradiction_detector
+            contradiction_detector = create_contradiction_detector()
+
+        if temporal_verifier is None:
+            from farfan_pipeline.core.wiring.analysis_factory import create_temporal_logic_verifier
+            temporal_verifier = create_temporal_logic_verifier()
+
+        if confidence_calculator is None:
+            from farfan_pipeline.core.wiring.analysis_factory import create_bayesian_confidence_calculator
+            confidence_calculator = create_bayesian_confidence_calculator()
+
+        if municipal_analyzer is None:
+            from farfan_pipeline.core.wiring.analysis_factory import create_municipal_analyzer
+            municipal_analyzer = create_municipal_analyzer()
+
+        self.ontology = ontology
+        self.semantic_analyzer = semantic_analyzer
+        self.performance_analyzer = performance_analyzer
+        self.contradiction_detector = contradiction_detector
+        self.temporal_verifier = temporal_verifier
+        self.confidence_calculator = confidence_calculator
+        self.municipal_analyzer = municipal_analyzer
 
         # LEGACY: Questionnaire loading removed - this component is deprecated
         # Modern SPC pipeline handles questionnaire injection separately
@@ -1499,14 +1520,17 @@ class PolicyAnalysisPipeline:
         self.config = config or ProcessorConfig()
         self.sanitizer = AdvancedTextSanitizer(self.config)
 
-        # Initialize shared domain components
-        self.ontology = MunicipalOntology()
-        self.semantic_analyzer = SemanticAnalyzer(self.ontology)
-        self.performance_analyzer = PerformanceAnalyzer(self.ontology)
-        self.temporal_verifier = TemporalLogicVerifier()
-        self.confidence_calculator = BayesianConfidenceCalculator()
-        self.contradiction_detector = PolicyContradictionDetector()
-        self.municipal_analyzer = MunicipalAnalyzer()
+        from farfan_pipeline.core.wiring.analysis_factory import create_analysis_components
+
+        components = create_analysis_components()
+        self.document_loader = components['document_loader']
+        self.ontology = components['ontology']
+        self.semantic_analyzer = components['semantic_analyzer']
+        self.performance_analyzer = components['performance_analyzer']
+        self.temporal_verifier = components['temporal_verifier']
+        self.confidence_calculator = components['confidence_calculator']
+        self.contradiction_detector = components['contradiction_detector']
+        self.municipal_analyzer = components['municipal_analyzer']
 
         self.processor = IndustrialPolicyProcessor(
             self.config,
@@ -1543,9 +1567,9 @@ class PolicyAnalysisPipeline:
         raw_text = ""
         suffix = input_path.suffix.lower()
         if suffix == ".pdf":
-            raw_text = DocumentProcessor.load_pdf(str(input_path))
+            raw_text = self.document_loader.load_pdf(str(input_path))
         elif suffix in {".docx", ".doc"}:
-            raw_text = DocumentProcessor.load_docx(str(input_path))
+            raw_text = self.document_loader.load_docx(str(input_path))
 
         if not raw_text:
             raw_text = self.file_handler.read_text(input_path)

@@ -19,6 +19,29 @@ Key Modules:
 - bootstrap: Deterministic initialization engine
 - validation: Contract validation between links
 - observability: Tracing and metrics
+- analysis_factory: Factory for analysis module dependency injection
 """
 
-__all__ = []
+from farfan_pipeline.core.wiring.analysis_factory import (
+    create_analysis_components,
+    create_bayesian_confidence_calculator,
+    create_contradiction_detector,
+    create_document_loader,
+    create_municipal_analyzer,
+    create_municipal_ontology,
+    create_performance_analyzer,
+    create_semantic_analyzer,
+    create_temporal_logic_verifier,
+)
+
+__all__ = [
+    'create_analysis_components',
+    'create_bayesian_confidence_calculator',
+    'create_contradiction_detector',
+    'create_document_loader',
+    'create_municipal_analyzer',
+    'create_municipal_ontology',
+    'create_performance_analyzer',
+    'create_semantic_analyzer',
+    'create_temporal_logic_verifier',
+]

@@ -522,6 +522,197 @@ class PortReport(Protocol):
         ...
 
 
+class PortDocumentLoader(Protocol):
+    """Port for loading documents from various formats.
+
+    Loads policy documents from PDF, DOCX, and other formats.
+    """
+
+    def load_pdf(self, path: str) -> str:
+        """Load text from PDF file.
+
+        Args:
+            path: Path to PDF file
+
+        Returns:
+            Extracted text content
+
+        Raises:
+            FileNotFoundError: If file does not exist
+        """
+        ...
+
+    def load_docx(self, path: str) -> str:
+        """Load text from DOCX file.
+
+        Args:
+            path: Path to DOCX file
+
+        Returns:
+            Extracted text content
+
+        Raises:
+            FileNotFoundError: If file does not exist
+        """
+        ...
+
+
+class PortMunicipalOntology(Protocol):
+    """Port for municipal policy ontology.
+
+    Provides domain knowledge for policy analysis.
+    """
+
+    def __init__(self) -> None:
+        """Initialize ontology."""
+        ...
+
+
+class PortSemanticAnalyzer(Protocol):
+    """Port for semantic analysis of policy text.
+
+    Extracts semantic features from policy documents.
+    """
+
+    def extract_semantic_cube(self, sentences: list[str]) -> dict[str, Any]:
+        """Extract semantic features from sentences.
+
+        Args:
+            sentences: List of policy text sentences
+
+        Returns:
+            Dictionary containing semantic analysis results
+
+        Requires:
+            - sentences is non-empty list
+        """
+        ...
+
+
+class PortPerformanceAnalyzer(Protocol):
+    """Port for performance analysis.
+
+    Analyzes performance metrics and indicators in policy text.
+    """
+
+    def analyze_performance(self, text: str, semantic_data: dict[str, Any]) -> dict[str, Any]:
+        """Analyze performance indicators and metrics.
+
+        Args:
+            text: Policy text to analyze
+            semantic_data: Semantic features from semantic analyzer
+
+        Returns:
+            Dictionary containing performance analysis results
+        """
+        ...
+
+
+class PortContradictionDetector(Protocol):
+    """Port for detecting contradictions in policy text.
+
+    Identifies logical contradictions and inconsistencies.
+    """
+
+    def detect(
+        self,
+        text: str,
+        plan_name: str,
+        dimension: Any,
+    ) -> dict[str, Any]:
+        """Detect contradictions in policy text.
+
+        Args:
+            text: Policy text to analyze
+            plan_name: Name of policy plan
+            dimension: Policy dimension to analyze
+
+        Returns:
+            Dictionary containing contradiction analysis results
+        """
+        ...
+
+    def _extract_policy_statements(self, text: str, dimension: Any) -> list[Any]:
+        """Extract policy statements for analysis.
+
+        Args:
+            text: Policy text
+            dimension: Policy dimension
+
+        Returns:
+            List of extracted policy statements
+        """
+        ...
+
+
+class PortTemporalLogicVerifier(Protocol):
+    """Port for temporal logic verification.
+
+    Verifies temporal consistency in policy statements.
+    """
+
+    def verify_temporal_consistency(self, statements: list[Any]) -> tuple[bool, list[dict[str, Any]]]:
+        """Verify temporal consistency of statements.
+
+        Args:
+            statements: List of policy statements to verify
+
+        Returns:
+            Tuple of (is_consistent, list_of_conflicts)
+        """
+        ...
+
+
+class PortBayesianConfidenceCalculator(Protocol):
+    """Port for Bayesian confidence calculation.
+
+    Calculates posterior confidence scores using Bayesian methods.
+    """
+
+    def calculate_posterior(
+        self,
+        evidence_strength: float,
+        observations: int,
+        domain_weight: float = 1.0,
+    ) -> float:
+        """Calculate posterior confidence score.
+
+        Args:
+            evidence_strength: Strength of evidence (0-1)
+            observations: Number of observations
+            domain_weight: Domain-specific weight
+
+        Returns:
+            Posterior probability (0-1)
+        """
+        ...
+
+
+class PortMunicipalAnalyzer(Protocol):
+    """Port for municipal policy analysis.
+
+    Performs comprehensive municipal policy analysis.
+    """
+
+    def _generate_summary(
+        self,
+        text: str,
+        evidence_by_dimension: dict[str, Any],
+        dimension_scores: dict[str, float],
+    ) -> dict[str, Any]:
+        """Generate analysis summary.
+
+        Args:
+            text: Policy text
+            evidence_by_dimension: Evidence organized by dimension
+            dimension_scores: Scores for each dimension
+
+        Returns:
+            Dictionary containing analysis summary
+        """
+        ...
+
+
 __all__ = [
     'FilePort',
     'JsonPort',
@@ -538,4 +729,12 @@ __all__ = [
     'PortAggregate',
     'PortScore',
     'PortReport',
+    'PortDocumentLoader',
+    'PortMunicipalOntology',
+    'PortSemanticAnalyzer',
+    'PortPerformanceAnalyzer',
+    'PortContradictionDetector',
+    'PortTemporalLogicVerifier',
+    'PortBayesianConfidenceCalculator',
+    'PortMunicipalAnalyzer',
 ]

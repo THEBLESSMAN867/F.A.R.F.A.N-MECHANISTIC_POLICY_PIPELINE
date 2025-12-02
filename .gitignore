@@ -52,6 +52,7 @@ test-results/
 *.junit.xml
 calibration_system_failure_report.md
 calibration_triage.log
+artifacts/test_runs/
 
 # Jupyter
 .ipynb_checkpoints/

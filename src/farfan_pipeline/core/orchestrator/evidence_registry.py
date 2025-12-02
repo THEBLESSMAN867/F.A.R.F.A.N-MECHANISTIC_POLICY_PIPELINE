@@ -531,7 +531,8 @@ class EvidenceRegistry:
             return
 
         loaded_count = 0
-        loaded_records = []
+        BATCH_SIZE = 1000
+        batch_records = []
 
         try:
             with open(self.storage_path, encoding='utf-8') as f:
@@ -539,19 +540,25 @@ class EvidenceRegistry:
                     try:
                         data = json.loads(line.strip())
                         evidence = EvidenceRecord.from_dict(data)
-                        loaded_records.append((line_num, evidence))
+                        batch_records.append((line_num, evidence))
                         loaded_count += 1
+
+                        if len(batch_records) >= BATCH_SIZE:
+                            self._assert_chain(batch_records)
+                            for _, ev in batch_records:
+                                self._index_evidence(ev, persist=False)
+                            batch_records.clear()
+
                     except json.JSONDecodeError as e:
                         logger.warning(f"Failed to parse line {line_num}: {e}")
                     except Exception as e:
                         logger.warning(f"Failed to load evidence on line {line_num}: {e}")
 
-            # Assert chain integrity during load
-            self._assert_chain(loaded_records)
-
-            # Index all loaded records in order
-            for line_num, evidence in loaded_records:
-                self._index_evidence(evidence, persist=False)
+            if batch_records:
+                self._assert_chain(batch_records)
+                for _, ev in batch_records:
+                    self._index_evidence(ev, persist=False)
+                batch_records.clear()
 
             logger.info(f"Loaded {loaded_count} evidence records from storage")
 

@@ -119,5 +119,7 @@ class EvidenceAssembler:
         try:
             float(value)
             return not isinstance(value, bool)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError) as e:
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug(f"Non-numeric value: {value!r} ({type(value).__name__}): {e}")
             return False

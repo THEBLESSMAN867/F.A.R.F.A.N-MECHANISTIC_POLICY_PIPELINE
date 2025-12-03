@@ -55,9 +55,17 @@ from farfan_pipeline.utils.paths import safe_join
 from farfan_pipeline.core.dependency_lockdown import get_dependency_lockdown
 from farfan_pipeline.core.types import PreprocessedDocument
 from farfan_pipeline.core.orchestrator import executors_contract as executors
-from farfan_pipeline.core.orchestrator.arg_router import ArgRouterError, ArgumentValidationError, ExtendedArgRouter
+from farfan_pipeline.core.orchestrator.arg_router import (
+    ArgRouterError,
+    ArgumentValidationError,
+    ExtendedArgRouter,
+)
 from farfan_pipeline.core.orchestrator.class_registry import ClassRegistryError
 from farfan_pipeline.core.orchestrator.executor_config import ExecutorConfig
+from farfan_pipeline.core.orchestrator.irrigation_synchronizer import (
+    IrrigationSynchronizer,
+    ExecutionPlan,
+)
 
 logger = logging.getLogger(__name__)
 _CORE_MODULE_DIR = Path(__file__).resolve().parent
@@ -785,7 +793,10 @@ class MethodExecutor:
         signal_registry: Any | None = None,
         method_registry: Any | None = None,  # MethodRegistry instance
     ) -> None:
-        from farfan_pipeline.core.orchestrator.method_registry import MethodRegistry, setup_default_instantiation_rules
+        from farfan_pipeline.core.orchestrator.method_registry import (
+            MethodRegistry,
+            setup_default_instantiation_rules,
+        )
 
         self.degraded_mode = False
         self.degraded_reasons: list[str] = []
@@ -810,7 +821,9 @@ class MethodExecutor:
         # Build minimal class type registry for ArgRouter compatibility
         # Note: This doesn't instantiate classes, just loads types
         try:
-            from farfan_pipeline.core.orchestrator.class_registry import build_class_registry
+            from farfan_pipeline.core.orchestrator.class_registry import (
+                build_class_registry,
+            )
 
             registry = build_class_registry()
         except (ClassRegistryError, ModuleNotFoundError, ImportError) as exc:
@@ -848,7 +861,9 @@ class MethodExecutor:
             AttributeError: If method doesn't exist
             MethodRegistryError: If method cannot be retrieved
         """
-        from farfan_pipeline.core.orchestrator.method_registry import MethodRegistryError
+        from farfan_pipeline.core.orchestrator.method_registry import (
+            MethodRegistryError,
+        )
 
         # Get method from registry (lazy instantiation)
         try:
@@ -1131,7 +1146,9 @@ class Orchestrator:
             resource_snapshot_interval: Interval for resource snapshots.
             recommendation_engine_port: Optional recommendation engine port (injected via DI).
         """
-        from farfan_pipeline.core.orchestrator.factory import _validate_questionnaire_structure
+        from farfan_pipeline.core.orchestrator.factory import (
+            _validate_questionnaire_structure,
+        )
 
         validate_phase_definitions(self.FASES, self.__class__)
 
@@ -1208,12 +1225,13 @@ class Orchestrator:
             f"Orchestrator dependency mode: {self.dependency_lockdown.get_mode_description()}"
         )
 
-
         self.recommendation_engine = recommendation_engine_port
         if self.recommendation_engine is not None:
             logger.info("RecommendationEngine port injected successfully")
         else:
-            logger.warning("No RecommendationEngine port provided - recommendations will be unavailable")
+            logger.warning(
+                "No RecommendationEngine port provided - recommendations will be unavailable"
+            )
 
     async def run(
         self,
@@ -1519,7 +1537,9 @@ class Orchestrator:
 
         # 2. Load signals
         from farfan_pipeline.core.orchestrator.questionnaire import load_questionnaire
-        from farfan_pipeline.core.orchestrator.signal_loader import build_signal_pack_from_monolith
+        from farfan_pipeline.core.orchestrator.signal_loader import (
+            build_signal_pack_from_monolith,
+        )
 
         questionnaire = load_questionnaire()
         signal_pack = build_signal_pack_from_monolith(
@@ -1649,6 +1669,7 @@ class Orchestrator:
             self._context["preprocessed_override"] = preprocessed_document
         self._phase_status = {phase_id: "not_started" for phase_id, *_ in self.FASES}
         self._start_time = time.perf_counter()
+        self._execution_plan: ExecutionPlan | None = None
 
         for phase_id, mode, handler_name, phase_label in self.FASES:
             self._ensure_not_aborted()
@@ -1731,6 +1752,27 @@ class Orchestrator:
                 if out_key:
                     self._context[out_key] = data
                 self._phase_status[phase_id] = "completed"
+
+                if phase_id == 1:
+                    try:
+                        logger.info("Building execution plan after Phase 1 completion")
+                        document = self._context.get("document")
+                        chunks = getattr(document, "chunks", []) if document else []
+
+                        synchronizer = IrrigationSynchronizer(
+                            questionnaire=self._monolith_data, document_chunks=chunks
+                        )
+                        self._execution_plan = synchronizer.build_execution_plan()
+
+                        logger.info(
+                            f"Execution plan built: {len(self._execution_plan.tasks)} tasks, "
+                            f"plan_id={self._execution_plan.plan_id}, "
+                            f"integrity_hash={self._execution_plan.integrity_hash}"
+                        )
+                    except ValueError as e:
+                        logger.error(f"Failed to build execution plan: {e}")
+                        self.request_abort(f"Synchronization failed: {e}")
+                        raise
             elif aborted:
                 self._phase_status[phase_id] = "aborted"
                 break

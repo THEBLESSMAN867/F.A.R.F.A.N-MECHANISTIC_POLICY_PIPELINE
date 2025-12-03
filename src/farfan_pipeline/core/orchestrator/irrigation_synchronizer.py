@@ -1,0 +1,346 @@
+"""Irrigation Synchronizer - Question→Chunk→Task→Plan Coordination.
+
+This module implements the synchronization layer that maps questionnaire questions
+to document chunks, generating an ExecutionPlan with 300 tasks (6 dimensions × 50
+questions/dimension × 10 policy areas) for deterministic pipeline execution.
+
+Architecture:
+- IrrigationSynchronizer: Orchestrates chunk→question→task→plan flow
+- ExecutionPlan: Immutable plan with deterministic plan_id and integrity_hash
+- Task: Single unit of work (question + chunk + policy_area)
+- Observability: Structured JSON logs with correlation_id tracking
+
+Design Principles:
+- Deterministic task generation (stable ordering, reproducible plan_id)
+- Full observability (correlation_id propagates through all 10 phases)
+- Prometheus metrics for synchronization health
+- Blake3-based integrity hashing for plan verification
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import logging
+import time
+import uuid
+from dataclasses import dataclass
+from typing import Any
+
+try:
+    import blake3
+
+    BLAKE3_AVAILABLE = True
+except ImportError:
+    BLAKE3_AVAILABLE = False
+
+try:
+    from prometheus_client import Counter, Histogram
+
+    PROMETHEUS_AVAILABLE = True
+except ImportError:
+    PROMETHEUS_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
+
+if PROMETHEUS_AVAILABLE:
+    synchronization_duration = Histogram(
+        "synchronization_duration_seconds",
+        "Time spent building execution plan",
+        buckets=[0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
+    )
+    tasks_constructed = Counter(
+        "synchronization_tasks_constructed_total",
+        "Total number of tasks constructed",
+        ["dimension", "policy_area"],
+    )
+    synchronization_failures = Counter(
+        "synchronization_failures_total",
+        "Total synchronization failures",
+        ["error_type"],
+    )
+else:
+
+    class DummyMetric:
+        def time(self):
+            class DummyContextManager:
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *args):
+                    pass
+
+            return DummyContextManager()
+
+        def labels(self, **kwargs):
+            return self
+
+        def inc(self, *args, **kwargs) -> None:
+            pass
+
+    synchronization_duration = DummyMetric()
+    tasks_constructed = DummyMetric()
+    synchronization_failures = DummyMetric()
+
+
+@dataclass(frozen=True)
+class Task:
+    """Single unit of work in the execution plan.
+
+    Represents the mapping of one question to one chunk in a specific policy area.
+    """
+
+    task_id: str
+    dimension: str
+    question_id: str
+    policy_area: str
+    chunk_id: str
+    chunk_index: int
+    question_text: str
+
+
+@dataclass(frozen=True)
+class ExecutionPlan:
+    """Immutable execution plan with deterministic identifiers.
+
+    Contains all tasks to be executed, with cryptographic integrity verification.
+    """
+
+    plan_id: str
+    tasks: tuple[Task, ...]
+    chunk_count: int
+    question_count: int
+    integrity_hash: str
+    created_at: str
+    correlation_id: str
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert plan to dictionary for serialization."""
+        return {
+            "plan_id": self.plan_id,
+            "tasks": [
+                {
+                    "task_id": t.task_id,
+                    "dimension": t.dimension,
+                    "question_id": t.question_id,
+                    "policy_area": t.policy_area,
+                    "chunk_id": t.chunk_id,
+                    "chunk_index": t.chunk_index,
+                    "question_text": t.question_text,
+                }
+                for t in self.tasks
+            ],
+            "chunk_count": self.chunk_count,
+            "question_count": self.question_count,
+            "integrity_hash": self.integrity_hash,
+            "created_at": self.created_at,
+            "correlation_id": self.correlation_id,
+        }
+
+
+class IrrigationSynchronizer:
+    """Synchronizes questionnaire questions with document chunks.
+
+    Generates deterministic execution plans mapping questions to chunks across
+    all policy areas, with full observability and integrity verification.
+    """
+
+    def __init__(
+        self, questionnaire: dict[str, Any], document_chunks: list[dict[str, Any]]
+    ) -> None:
+        """Initialize synchronizer with questionnaire and document chunks.
+
+        Args:
+            questionnaire: Loaded questionnaire_monolith.json data
+            document_chunks: List of document chunks from Phase 1
+        """
+        self.questionnaire = questionnaire
+        self.document_chunks = document_chunks
+        self.correlation_id = str(uuid.uuid4())
+        self.question_count = self._count_questions()
+        self.chunk_count = len(document_chunks)
+
+        logger.info(
+            json.dumps(
+                {
+                    "event": "irrigation_synchronizer_init",
+                    "correlation_id": self.correlation_id,
+                    "question_count": self.question_count,
+                    "chunk_count": self.chunk_count,
+                    "timestamp": time.time(),
+                }
+            )
+        )
+
+    def _count_questions(self) -> int:
+        """Count total questions across all dimensions."""
+        count = 0
+        blocks = self.questionnaire.get("blocks", {})
+
+        for dimension_key in ["D1", "D2", "D3", "D4", "D5", "D6"]:
+            for i in range(1, 51):
+                question_key = f"D{dimension_key[1]}_Q{i:02d}"
+                if question_key in blocks:
+                    count += 1
+
+        return count
+
+    def _extract_questions(self) -> list[dict[str, Any]]:
+        """Extract all questions from questionnaire in deterministic order."""
+        questions = []
+        blocks = self.questionnaire.get("blocks", {})
+
+        for dimension in range(1, 7):
+            dim_key = f"D{dimension}"
+
+            for q_num in range(1, 51):
+                question_key = f"{dim_key}_Q{q_num:02d}"
+
+                if question_key in blocks:
+                    block = blocks[question_key]
+                    questions.append(
+                        {
+                            "dimension": dim_key,
+                            "question_id": question_key,
+                            "question_num": q_num,
+                            "question_text": block.get("question", ""),
+                            "patterns": block.get("patterns", []),
+                        }
+                    )
+
+        return questions
+
+    def _compute_integrity_hash(self, tasks: list[Task]) -> str:
+        """Compute Blake3 or SHA256 integrity hash of execution plan."""
+        task_data = json.dumps(
+            [
+                {
+                    "task_id": t.task_id,
+                    "dimension": t.dimension,
+                    "question_id": t.question_id,
+                    "policy_area": t.policy_area,
+                    "chunk_id": t.chunk_id,
+                }
+                for t in tasks
+            ],
+            sort_keys=True,
+        ).encode("utf-8")
+
+        if BLAKE3_AVAILABLE:
+            return blake3.blake3(task_data).hexdigest()
+        else:
+            return hashlib.sha256(task_data).hexdigest()
+
+    @synchronization_duration.time()
+    def build_execution_plan(self) -> ExecutionPlan:
+        """Build deterministic execution plan mapping questions to chunks.
+
+        Generates 300 tasks (6 dimensions × 50 questions × 10 policy areas / 10 areas)
+        by mapping each question to each chunk in round-robin fashion.
+
+        Returns:
+            ExecutionPlan with deterministic plan_id and integrity_hash
+
+        Raises:
+            ValueError: If question or chunk data is invalid
+        """
+        logger.info(
+            json.dumps(
+                {
+                    "event": "build_execution_plan_start",
+                    "correlation_id": self.correlation_id,
+                    "question_count": self.question_count,
+                    "chunk_count": self.chunk_count,
+                    "phase": "synchronization_phase_0",
+                }
+            )
+        )
+
+        try:
+            if not self.document_chunks:
+                synchronization_failures.labels(error_type="empty_chunks").inc()
+                raise ValueError("No document chunks provided")
+
+            if self.question_count == 0:
+                synchronization_failures.labels(error_type="empty_questions").inc()
+                raise ValueError("No questions found in questionnaire")
+
+            questions = self._extract_questions()
+            policy_areas = [f"PA{i:02d}" for i in range(1, 11)]
+
+            tasks: list[Task] = []
+
+            for question in questions:
+                for policy_area in policy_areas:
+                    for chunk_idx, chunk in enumerate(self.document_chunks):
+                        chunk_id = chunk.get("chunk_id", f"chunk_{chunk_idx:04d}")
+
+                        task_id = f"{question['question_id']}_{policy_area}_{chunk_id}"
+
+                        task = Task(
+                            task_id=task_id,
+                            dimension=question["dimension"],
+                            question_id=question["question_id"],
+                            policy_area=policy_area,
+                            chunk_id=chunk_id,
+                            chunk_index=chunk_idx,
+                            question_text=question["question_text"],
+                        )
+
+                        tasks.append(task)
+
+                        tasks_constructed.labels(
+                            dimension=question["dimension"], policy_area=policy_area
+                        ).inc()
+
+            integrity_hash = self._compute_integrity_hash(tasks)
+
+            plan_id = f"plan_{integrity_hash[:16]}"
+
+            plan = ExecutionPlan(
+                plan_id=plan_id,
+                tasks=tuple(tasks),
+                chunk_count=self.chunk_count,
+                question_count=len(questions),
+                integrity_hash=integrity_hash,
+                created_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                correlation_id=self.correlation_id,
+            )
+
+            logger.info(
+                json.dumps(
+                    {
+                        "event": "build_execution_plan_complete",
+                        "correlation_id": self.correlation_id,
+                        "plan_id": plan_id,
+                        "task_count": len(tasks),
+                        "chunk_count": self.chunk_count,
+                        "question_count": len(questions),
+                        "integrity_hash": integrity_hash,
+                        "phase": "synchronization_phase_complete",
+                    }
+                )
+            )
+
+            return plan
+
+        except Exception as e:
+            synchronization_failures.labels(error_type=type(e).__name__).inc()
+            logger.error(
+                json.dumps(
+                    {
+                        "event": "build_execution_plan_error",
+                        "correlation_id": self.correlation_id,
+                        "error": str(e),
+                        "error_type": type(e).__name__,
+                    }
+                )
+            )
+            raise
+
+
+__all__ = [
+    "IrrigationSynchronizer",
+    "ExecutionPlan",
+    "Task",
+]

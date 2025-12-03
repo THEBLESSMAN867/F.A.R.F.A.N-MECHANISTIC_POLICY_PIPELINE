@@ -49,12 +49,18 @@ if os.environ.get("PIPELINE_DEBUG"):
 
 # Import contract enforcement infrastructure
 from farfan_pipeline.core.runtime_config import RuntimeConfig, get_runtime_config
-from farfan_pipeline.core.boot_checks import run_boot_checks, get_boot_check_summary, BootCheckError
-from farfan_pipeline.core.observability.structured_logging import log_runtime_config_loaded
+from farfan_pipeline.core.boot_checks import (
+    run_boot_checks,
+    get_boot_check_summary,
+    BootCheckError,
+)
+from farfan_pipeline.core.observability.structured_logging import (
+    log_runtime_config_loaded,
+)
 from farfan_pipeline.core.orchestrator.seed_registry import get_global_seed_registry
 from farfan_pipeline.core.orchestrator.verification_manifest import (
     VerificationManifest as VerificationManifestBuilder,
-    verify_manifest_integrity
+    verify_manifest_integrity,
 )
 from farfan_pipeline.core.phases.phase2_types import validate_phase2_result
 from farfan_pipeline.core.orchestrator.versions import get_all_versions
@@ -63,12 +69,13 @@ from farfan_pipeline.core.orchestrator.versions import get_all_versions
 @dataclass
 class ExecutionClaim:
     """Structured claim about a pipeline operation."""
+
     timestamp: str
     claim_type: str  # "start", "complete", "error", "artifact", "hash"
     component: str
     message: str
     data: Optional[Dict[str, Any]] = None
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return asdict(self)
@@ -77,6 +84,7 @@ class ExecutionClaim:
 @dataclass
 class VerificationManifest:
     """Complete verification manifest for pipeline execution."""
+
     success: bool
     execution_id: str
     start_time: str
@@ -89,7 +97,7 @@ class VerificationManifest:
     phases_failed: int
     total_claims: int
     errors: List[str]
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return asdict(self)
@@ -98,7 +106,12 @@ class VerificationManifest:
 class VerifiedPipelineRunner:
     """Executes pipeline with cryptographic verification and claim logging."""
 
-    def __init__(self, plan_pdf_path: Path, artifacts_dir: Path, questionnaire_path: Optional[Path] = None):
+    def __init__(
+        self,
+        plan_pdf_path: Path,
+        artifacts_dir: Path,
+        questionnaire_path: Optional[Path] = None,
+    ):
         """
         Initialize verified runner.
 
@@ -127,6 +140,7 @@ class VerifiedPipelineRunner:
         # Set questionnaire path (explicit input, SIN_CARRETA compliance)
         if questionnaire_path is None:
             from farfan_pipeline.config.paths import QUESTIONNAIRE_FILE
+
             questionnaire_path = QUESTIONNAIRE_FILE
 
         self.questionnaire_path = questionnaire_path
@@ -136,53 +150,65 @@ class VerifiedPipelineRunner:
         self.seed_snapshot = self._initialize_determinism_context()
 
         # Initialize verification manifest builder
-        manifest_secret = (
-            os.getenv("VERIFICATION_HMAC_SECRET")
-            or os.getenv("MANIFEST_SECRET_KEY")
+        manifest_secret = os.getenv("VERIFICATION_HMAC_SECRET") or os.getenv(
+            "MANIFEST_SECRET_KEY"
         )
         self.manifest_builder = VerificationManifestBuilder(hmac_secret=manifest_secret)
         self.manifest_builder.manifest_data["versions"] = dict(self.versions)
-        
+
         # Initialize path and import policies
         try:
             from farfan_pipeline.observability.policy_builder import (
-                compute_repo_root, build_import_policy, build_path_policy
+                compute_repo_root,
+                build_import_policy,
+                build_path_policy,
             )
+
             self.repo_root = compute_repo_root()
             self.import_policy = build_import_policy(self.repo_root)
             self.path_policy = build_path_policy(self.repo_root)
             self.path_import_report = None
         except Exception as e:
-            self.log_claim("error", "policy_init", f"Failed to initialize policies: {e}")
+            self.log_claim(
+                "error", "policy_init", f"Failed to initialize policies: {e}"
+            )
             self.errors.append(f"Failed to initialize policies: {e}")
             self._bootstrap_failed = True
             self.path_import_report = None
-
 
         # Ensure artifacts directory exists
         try:
             self.artifacts_dir.mkdir(parents=True, exist_ok=True)
         except Exception as e:
-            self.log_claim("error", "bootstrap", f"Failed to create artifacts directory: {e}")
+            self.log_claim(
+                "error", "bootstrap", f"Failed to create artifacts directory: {e}"
+            )
             self.errors.append(f"Failed to create artifacts directory: {e}")
             self._bootstrap_failed = True
-        
+
         # Initialize runtime configuration
         self.runtime_config: Optional[RuntimeConfig] = None
         try:
             self.runtime_config = RuntimeConfig.from_env()
-            self.log_claim("start", "runtime_config", 
-                          f"Runtime configuration loaded: {self.runtime_config}",
-                          {"mode": self.runtime_config.mode.value,
-                           "strict_mode": self.runtime_config.is_strict_mode()})
-            
+            self.log_claim(
+                "start",
+                "runtime_config",
+                f"Runtime configuration loaded: {self.runtime_config}",
+                {
+                    "mode": self.runtime_config.mode.value,
+                    "strict_mode": self.runtime_config.is_strict_mode(),
+                },
+            )
+
             # Log runtime config for observability
             log_runtime_config_loaded(
                 config_repr=repr(self.runtime_config),
-                runtime_mode=self.runtime_config.mode
+                runtime_mode=self.runtime_config.mode,
             )
         except Exception as e:
-            self.log_claim("error", "runtime_config", f"Failed to load runtime config: {e}")
+            self.log_claim(
+                "error", "runtime_config", f"Failed to load runtime config: {e}"
+            )
             self.errors.append(f"Failed to load runtime config: {e}")
             self._bootstrap_failed = True
             self.runtime_config = None
@@ -190,14 +216,15 @@ class VerifiedPipelineRunner:
         # Log bootstrap complete claim
         if not self._bootstrap_failed:
             self.log_claim(
-                "start", "bootstrap",
+                "start",
+                "bootstrap",
                 "Bootstrap complete",
                 {
-                  "execution_id": self.execution_id,
-                  "policy_unit_id": self.policy_unit_id,
-                  "plan_pdf_path": str(self.plan_pdf_path),
-                  "questionnaire_path": str(self.questionnaire_path),
-                  "versions": dict(self.versions),
+                    "execution_id": self.execution_id,
+                    "policy_unit_id": self.policy_unit_id,
+                    "plan_pdf_path": str(self.plan_pdf_path),
+                    "questionnaire_path": str(self.questionnaire_path),
+                    "versions": dict(self.versions),
                 },
             )
 
@@ -217,7 +244,9 @@ class VerifiedPipelineRunner:
         if python_seed is not None:
             random.seed(python_seed)
         else:
-            self.log_claim("error", "determinism", "Missing python seed in registry response")
+            self.log_claim(
+                "error", "determinism", "Missing python seed in registry response"
+            )
             self.errors.append("Missing python seed in registry response")
             self._bootstrap_failed = True
 
@@ -236,20 +265,29 @@ class VerifiedPipelineRunner:
                 )
 
         if not self._bootstrap_failed:
-             self.log_claim(
+            self.log_claim(
                 "start",
                 "determinism",
                 "Deterministic seeds applied",
-                {"seeds": seeds, "policy_unit_id": self.policy_unit_id, "correlation_id": self.correlation_id},
+                {
+                    "seeds": seeds,
+                    "policy_unit_id": self.policy_unit_id,
+                    "correlation_id": self.correlation_id,
+                },
             )
 
         return seeds
 
-    def log_claim(self, claim_type: str, component: str, message: str, 
-                  data: Optional[Dict[str, Any]] = None) -> None:
+    def log_claim(
+        self,
+        claim_type: str,
+        component: str,
+        message: str,
+        data: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """
         Log a structured claim.
-        
+
         Args:
             claim_type: Type of claim (start, complete, error, artifact, hash)
             component: Component making the claim
@@ -261,14 +299,14 @@ class VerifiedPipelineRunner:
             claim_type=claim_type,
             component=component,
             message=message,
-            data=data or {}
+            data=data or {},
         )
         self.claims.append(claim)
-        
+
         # Also print for real-time monitoring
-        claim_json = json.dumps(claim.to_dict(), separators=(',', ':'))
+        claim_json = json.dumps(claim.to_dict(), separators=(",", ":"))
         print(f"CLAIM: {claim_json}", flush=True)
-    
+
     def compute_sha256(self, file_path: Path) -> str:
         """
         Compute SHA256 hash of a file.
@@ -285,7 +323,9 @@ class VerifiedPipelineRunner:
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
 
-    def _verify_and_hash_file(self, file_path: Path, file_type: str, attr_name: str) -> bool:
+    def _verify_and_hash_file(
+        self, file_path: Path, file_type: str, attr_name: str
+    ) -> bool:
         """
         Verify file exists and compute its SHA256 hash.
 
@@ -308,9 +348,12 @@ class VerifiedPipelineRunner:
         try:
             file_hash = self.compute_sha256(file_path)
             setattr(self, attr_name, file_hash)
-            self.log_claim("hash", "input_verification",
-                          f"{file_type} SHA256: {file_hash}",
-                          {"file": str(file_path), "hash": file_hash})
+            self.log_claim(
+                "hash",
+                "input_verification",
+                f"{file_type} SHA256: {file_hash}",
+                {"file": str(file_path), "hash": file_hash},
+            )
             return True
         except Exception as e:
             error_msg = f"Failed to hash {file_type}: {str(e)}"
@@ -325,129 +368,170 @@ class VerifiedPipelineRunner:
         Returns:
             True if all inputs are valid
         """
-        self.log_claim("start", "input_verification", "Verifying input files (PDF + questionnaire)")
+        self.log_claim(
+            "start", "input_verification", "Verifying input files (PDF + questionnaire)"
+        )
 
         # Verify and hash PDF
-        if not self._verify_and_hash_file(self.plan_pdf_path, "Input PDF", "input_pdf_sha256"):
+        if not self._verify_and_hash_file(
+            self.plan_pdf_path, "Input PDF", "input_pdf_sha256"
+        ):
             return False
 
         # Verify and hash questionnaire (CRITICAL for SIN_CARRETA compliance)
-        if not self._verify_and_hash_file(self.questionnaire_path, "Questionnaire", "questionnaire_sha256"):
+        if not self._verify_and_hash_file(
+            self.questionnaire_path, "Questionnaire", "questionnaire_sha256"
+        ):
             return False
 
-        self.log_claim("complete", "input_verification",
-                      "Input verification successful (PDF + questionnaire)",
-                       {"pdf_path": str(self.plan_pdf_path),
-                        "questionnaire_path": str(self.questionnaire_path)})
+        self.log_claim(
+            "complete",
+            "input_verification",
+            "Input verification successful (PDF + questionnaire)",
+            {
+                "pdf_path": str(self.plan_pdf_path),
+                "questionnaire_path": str(self.questionnaire_path),
+            },
+        )
         return True
-    
+
     def run_boot_checks(self) -> bool:
         """
         Run boot-time validation checks.
-        
+
         Returns:
             True if all checks pass or fallbacks are allowed
-            
+
         Raises:
             BootCheckError: If critical check fails in PROD mode
         """
         self.log_claim("start", "boot_checks", "Running boot-time validation checks")
-        
+
         try:
             results = run_boot_checks(self.runtime_config)
             summary = get_boot_check_summary(results)
-            
+
             # Log summary
-            self.log_claim("complete", "boot_checks",
-                          f"Boot checks completed\n{summary}",
-                          {"results": results})
-            
+            self.log_claim(
+                "complete",
+                "boot_checks",
+                f"Boot checks completed\n{summary}",
+                {"results": results},
+            )
+
             # Print summary for visibility
             print("\n" + summary + "\n", flush=True)
-            
+
             return True
-            
+
         except BootCheckError as e:
             error_msg = f"Boot check failed: {e}"
-            
+
             # In PROD mode, this is fatal
             if self.runtime_config.mode.value == "prod":
-                self.log_claim("error", "boot_checks", error_msg,
-                              {"component": e.component,
-                               "code": e.code,
-                               "reason": e.reason})
+                self.log_claim(
+                    "error",
+                    "boot_checks",
+                    error_msg,
+                    {"component": e.component, "code": e.code, "reason": e.reason},
+                )
                 self.errors.append(error_msg)
                 print(f"\n❌ FATAL: {error_msg}\n", flush=True)
                 raise
-            
+
             # In DEV/EXPLORATORY, log warning but continue
             # CRITICAL: Do NOT append to self.errors if we intend to continue,
             # as Phase 0 exit condition requires self.errors to be empty.
-            self.log_claim("warning", "boot_checks", error_msg,
-                          {"component": e.component,
-                           "code": e.code,
-                           "reason": e.reason})
-            
-            print(f"\n⚠️  WARNING: {error_msg} (continuing in {self.runtime_config.mode.value} mode)\n", flush=True)
+            self.log_claim(
+                "warning",
+                "boot_checks",
+                error_msg,
+                {"component": e.component, "code": e.code, "reason": e.reason},
+            )
+
+            print(
+                f"\n⚠️  WARNING: {error_msg} (continuing in {self.runtime_config.mode.value} mode)\n",
+                flush=True,
+            )
             return False
 
     async def run(self) -> bool:
         """
         Execute the complete verified pipeline.
-        
+
         Returns:
             True if pipeline succeeded, False otherwise
         """
         # Check for bootstrap failures (Phase 0.0)
         if self._bootstrap_failed or self.errors:
-             self.generate_verification_manifest([], {})
-             return False
+            self.generate_verification_manifest([], {})
+            return False
 
         self.log_claim("start", "pipeline", "Starting verified pipeline execution")
-        
+
         # Step 1: Verify input
         if not self.verify_input():
             self.generate_verification_manifest([], {})
             return False
-            
+
         # STRICT PHASE 0 EXIT GATE: Input Verification
         if self.errors:
-            self.log_claim("error", "phase0_gate", "Phase 0 failure: Errors detected after input verification")
+            self.log_claim(
+                "error",
+                "phase0_gate",
+                "Phase 0 failure: Errors detected after input verification",
+            )
             self.generate_verification_manifest([], {})
             return False
-        
+
         # Step 1.5: Run boot checks
         try:
             # Ensure runtime_config is available (should be if bootstrap passed, but be safe)
             if self.runtime_config is None:
-                raise BootCheckError("Runtime config is None", "BOOT_CONFIG_MISSING", "Runtime config not initialized")
+                raise BootCheckError(
+                    "Runtime config is None",
+                    "BOOT_CONFIG_MISSING",
+                    "Runtime config not initialized",
+                )
 
             if not self.run_boot_checks():
                 # Boot checks failed but we're in DEV mode - log warning
-                self.log_claim("warning", "boot_checks", 
-                              "Boot checks failed but continuing in non-PROD mode")
+                self.log_claim(
+                    "warning",
+                    "boot_checks",
+                    "Boot checks failed but continuing in non-PROD mode",
+                )
         except BootCheckError:
             # Boot check failed in PROD mode - abort
             self.generate_verification_manifest([], {})
             return False
-            
+
         # STRICT PHASE 0 EXIT GATE: Boot Checks
         # If run_boot_checks returned False (Dev mode warning), self.errors should be empty.
         # If it raised (Prod mode), we caught it and returned False above.
         # If any other errors accumulated, abort.
         if self.errors:
-             self.log_claim("error", "phase0_gate", "Phase 0 failure: Errors detected after boot checks")
-             self.generate_verification_manifest([], {})
-             return False
-        
+            self.log_claim(
+                "error",
+                "phase0_gate",
+                "Phase 0 failure: Errors detected after boot checks",
+            )
+            self.generate_verification_manifest([], {})
+            return False
+
         # Step 1.75: Run path and import verification
-        self.log_claim("start", "path_import_verification", "Running path and import verification")
-        
+        self.log_claim(
+            "start", "path_import_verification", "Running path and import verification"
+        )
+
         try:
             from farfan_pipeline.observability.import_scanner import validate_imports
             from farfan_pipeline.observability.path_guard import guard_paths_and_imports
-            from farfan_pipeline.observability.path_import_policy import PolicyReport, merge_policy_reports
-            
+            from farfan_pipeline.observability.path_import_policy import (
+                PolicyReport,
+                merge_policy_reports,
+            )
+
             # Static import analysis
             static_report = validate_imports(
                 roots=[
@@ -456,89 +540,105 @@ class VerifiedPipelineRunner:
                     self.repo_root / "farfan_core" / "farfan_core" / "processing",
                 ],
                 import_policy=self.import_policy,
-                repo_root=self.repo_root
+                repo_root=self.repo_root,
             )
-            
+
             self.log_claim(
-                "complete", "static_import_verification",
+                "complete",
+                "static_import_verification",
                 f"Static import analysis complete: {len(static_report.static_import_violations)} violations",
-                {"violation_count": len(static_report.static_import_violations)}
+                {"violation_count": len(static_report.static_import_violations)},
             )
-            
+
             # Dynamic runtime verification (wraps rest of pipeline)
             dynamic_report = PolicyReport()
-        
+
         except Exception as e:
             error_msg = f"Path/import verification setup failed: {e}"
             self.log_claim("error", "path_import_verification", error_msg)
             self.errors.append(error_msg)
             self.generate_verification_manifest([], {})
             return False
-        
+
         # Wrap pipeline execution in path guard
         try:
-            with guard_paths_and_imports(self.path_policy, self.import_policy, dynamic_report):
+            with guard_paths_and_imports(
+                self.path_policy, self.import_policy, dynamic_report
+            ):
                 # Step 2: Run SPC ingestion (canonical phase-one)
                 cpp = await self.run_spc_ingestion()
                 if cpp is None:
-                    self.path_import_report = merge_policy_reports([static_report, dynamic_report])
+                    self.path_import_report = merge_policy_reports(
+                        [static_report, dynamic_report]
+                    )
                     self.generate_verification_manifest([], {})
                     return False
-                
+
                 # Step 3: Run CPP adapter
                 preprocessed_doc = await self.run_cpp_adapter(cpp)
                 if preprocessed_doc is None:
-                    self.path_import_report = merge_policy_reports([static_report, dynamic_report])
+                    self.path_import_report = merge_policy_reports(
+                        [static_report, dynamic_report]
+                    )
                     self.generate_verification_manifest([], {})
                     return False
-                
+
                 # Step 4: Run orchestrator
                 results = await self.run_orchestrator(preprocessed_doc)
                 if results is None:
-                    self.path_import_report = merge_policy_reports([static_report, dynamic_report])
+                    self.path_import_report = merge_policy_reports(
+                        [static_report, dynamic_report]
+                    )
                     self.generate_verification_manifest([], {})
                     return False
-        
+
         except Exception as e:
             error_msg = f"Pipeline execution failed under path guard: {e}"
             self.log_claim("error", "guarded_pipeline", error_msg)
             self.errors.append(error_msg)
-            self.path_import_report = merge_policy_reports([static_report, dynamic_report])
+            self.path_import_report = merge_policy_reports(
+                [static_report, dynamic_report]
+            )
             self.generate_verification_manifest([], {})
             return False
-        
+
         # Merge static and dynamic reports
         self.path_import_report = merge_policy_reports([static_report, dynamic_report])
-        
+
         self.log_claim(
-            "complete", "path_import_verification",
+            "complete",
+            "path_import_verification",
             f"Path/import verification complete: {self.path_import_report.violation_count()} total violations",
             {
                 "static_violations": len(static_report.static_import_violations),
-                "dynamic_violations": len(dynamic_report.dynamic_import_violations) + len(dynamic_report.path_violations),
-                "success": self.path_import_report.ok()
-            }
+                "dynamic_violations": len(dynamic_report.dynamic_import_violations)
+                + len(dynamic_report.path_violations),
+                "success": self.path_import_report.ok(),
+            },
         )
 
-        
         # Step 5: Save artifacts
         artifacts, artifact_hashes = self.save_artifacts(cpp, preprocessed_doc, results)
-        
+
         # Step 6: Generate verification manifest with chunk metrics
         manifest_path = self.generate_verification_manifest(
             artifacts, artifact_hashes, preprocessed_doc, results
         )
-        
-        self.log_claim("complete", "pipeline", 
-                      "Pipeline execution completed",
-                      {
-                          "success": self._last_manifest_success,
-                          "phases_completed": self.phases_completed,
-                          "phases_failed": self.phases_failed,
-                          "manifest_path": str(manifest_path)
-                      })
-        
+
+        self.log_claim(
+            "complete",
+            "pipeline",
+            "Pipeline execution completed",
+            {
+                "success": self._last_manifest_success,
+                "phases_completed": self.phases_completed,
+                "phases_failed": self.phases_failed,
+                "manifest_path": str(manifest_path),
+            },
+        )
+
         return bool(self._last_manifest_success)
+
 
 def cli() -> None:
     """Synchronous entrypoint for console scripts."""
@@ -551,11 +651,17 @@ def cli() -> None:
         # Wait, this IS the module. When run as script, the global code runs.
         # To strictly comply, we should wrap the global check or move it.
         # Moving it to cli() is safer.
-        
+
         # Check for module shadowing
-        _expected_farfan_pipeline_prefix = (PROJECT_ROOT / "src" / "farfan_pipeline").resolve()
-        if not Path(farfan_pipeline.__file__).resolve().is_relative_to(_expected_farfan_pipeline_prefix):
-             raise RuntimeError(
+        _expected_farfan_pipeline_prefix = (
+            PROJECT_ROOT / "src" / "farfan_pipeline"
+        ).resolve()
+        if (
+            not Path(farfan_pipeline.__file__)
+            .resolve()
+            .is_relative_to(_expected_farfan_pipeline_prefix)
+        ):
+            raise RuntimeError(
                 "MODULE SHADOWING DETECTED!\n"
                 f"  Expected farfan_pipeline from: {_expected_farfan_pipeline_prefix}\n"
                 f"  Actually loaded from:  {farfan_pipeline.__file__}\n"
@@ -563,18 +669,18 @@ def cli() -> None:
             )
 
         asyncio.run(main())
-        
+
     except RuntimeError as e:
         if "MODULE SHADOWING DETECTED" in str(e):
             print(f"\n❌ FATAL: {e}\n", flush=True)
-            
+
             # Attempt to write minimal manifest
             try:
                 # We need to guess artifacts dir since we haven't parsed args yet
                 # Default is artifacts/plan1
                 artifacts_dir = PROJECT_ROOT / "artifacts" / "plan1"
                 artifacts_dir.mkdir(parents=True, exist_ok=True)
-                
+
                 manifest_path = artifacts_dir / "verification_manifest.json"
                 manifest = {
                     "success": False,
@@ -585,17 +691,17 @@ def cli() -> None:
                     "artifacts_generated": [],
                     "artifact_hashes": {},
                     "phases_completed": 0,
-                    "phases_failed": 1
+                    "phases_failed": 1,
                 }
-                
-                with open(manifest_path, 'w') as f:
+
+                with open(manifest_path, "w") as f:
                     json.dump(manifest, f, indent=2)
-                    
+
                 print(f"Manifest written to: {manifest_path}", flush=True)
-                
+
             except Exception as manifest_err:
                 print(f"Failed to write failure manifest: {manifest_err}", flush=True)
-            
+
             print("PIPELINE_VERIFIED=0", flush=True)
             sys.exit(1)
         else:
@@ -608,8 +714,7 @@ def cli() -> None:
         Returns:
             SPC object if successful, None otherwise
         """
-        self.log_claim("start", "spc_ingestion",
-                      "Starting SPC ingestion (phase-one)")
+        self.log_claim("start", "spc_ingestion", "Starting SPC ingestion (phase-one)")
 
         try:
             from farfan_pipeline.processing.spc_ingestion import CPPIngestionPipeline
@@ -620,31 +725,38 @@ def cli() -> None:
             cpp = await pipeline.process(self.plan_pdf_path)
 
             self.phases_completed += 1
-            self.log_claim("complete", "spc_ingestion",
-                          "SPC ingestion (phase-one) completed successfully",
-                          {"phases_completed": self.phases_completed})
+            self.log_claim(
+                "complete",
+                "spc_ingestion",
+                "SPC ingestion (phase-one) completed successfully",
+                {"phases_completed": self.phases_completed},
+            )
             return cpp
 
         except Exception as e:
             self.phases_failed += 1
             error_msg = f"SPC ingestion failed: {str(e)}"
-            self.log_claim("error", "spc_ingestion", error_msg,
-                          {"traceback": traceback.format_exc()})
+            self.log_claim(
+                "error",
+                "spc_ingestion",
+                error_msg,
+                {"traceback": traceback.format_exc()},
+            )
             self.errors.append(error_msg)
             return None
-    
+
     async def run_cpp_adapter(self, cpp: Any) -> Optional[Any]:
         """
         Run SPC adapter to convert to PreprocessedDocument.
-        
+
         Args:
             cpp: CPP/SPC object from ingestion
-            
+
         Returns:
             PreprocessedDocument if successful, None otherwise
         """
         self.log_claim("start", "spc_adapter", "Starting SPC adaptation")
-        
+
         try:
             from farfan_pipeline.utils.spc_adapter import SPCAdapter
 
@@ -657,50 +769,57 @@ def cli() -> None:
 
             adapter = SPCAdapter()
             # Pass document_id as required by SPCAdapter API
-            preprocessed = adapter.to_preprocessed_document(cpp, document_id=document_id)
+            preprocessed = adapter.to_preprocessed_document(
+                cpp, document_id=document_id
+            )
 
             self.phases_completed += 1
-            self.log_claim("complete", "spc_adapter", 
-                          "SPC adaptation completed successfully",
-                          {"phases_completed": self.phases_completed})
+            self.log_claim(
+                "complete",
+                "spc_adapter",
+                "SPC adaptation completed successfully",
+                {"phases_completed": self.phases_completed},
+            )
             return preprocessed
-            
+
         except Exception as e:
             self.phases_failed += 1
             error_msg = f"SPC adaptation failed: {str(e)}"
-            self.log_claim("error", "spc_adapter", error_msg,
-                          {"traceback": traceback.format_exc()})
+            self.log_claim(
+                "error", "spc_adapter", error_msg, {"traceback": traceback.format_exc()}
+            )
             self.errors.append(error_msg)
             return None
-    
+
     async def run_orchestrator(self, preprocessed_doc: Any) -> Optional[list[Any]]:
         """
         Run orchestrator with all phases and verify Phase 2 success.
-        
+
         Args:
             preprocessed_doc: PreprocessedDocument
-            
+
         Returns:
             List of PhaseResult objects if successful, None otherwise
         """
         self.log_claim("start", "orchestrator", "Starting orchestrator execution")
-        
+
         try:
             # This is not the PhaseOrchestrator from the other file, but the core one.
             from farfan_pipeline.core.orchestrator.factory import build_processor
-            
+
             processor = build_processor()
-            
+
             # The core orchestrator is at processor.orchestrator
             results = await processor.orchestrator.process_development_plan_async(
-                pdf_path=str(self.plan_pdf_path),
-                preprocessed_document=preprocessed_doc
+                pdf_path=str(self.plan_pdf_path), preprocessed_document=preprocessed_doc
             )
 
             # Capture Phase 2 metrics directly from orchestrator
-            if hasattr(processor.orchestrator, '_execution_metrics'):
-                self.phase2_metrics = processor.orchestrator._execution_metrics.get('phase_2')
-            
+            if hasattr(processor.orchestrator, "_execution_metrics"):
+                self.phase2_metrics = processor.orchestrator._execution_metrics.get(
+                    "phase_2"
+                )
+
             if not results:
                 raise RuntimeError("Orchestrator returned no results.")
 
@@ -710,23 +829,37 @@ def cli() -> None:
             if len(results) >= 3:
                 phase2_result = results[2]  # This is a PhaseResult dataclass
                 if phase2_result.success:
-                    is_valid, validation_errors, normalized_questions = validate_phase2_result(
-                        phase2_result.data
+                    is_valid, validation_errors, normalized_questions = (
+                        validate_phase2_result(phase2_result.data)
                     )
                     if is_valid:
                         phase2_ok = True
                         phase2_report["success"] = True
-                        phase2_report["question_count"] = len(normalized_questions or [])
+                        phase2_report["question_count"] = len(
+                            normalized_questions or []
+                        )
                     else:
                         error_msg = "Orchestrator Phase 2 failed structural invariant: questions list is empty or missing."
                         phase2_report["errors"].extend(validation_errors or [])
                         phase2_report["errors"].append(error_msg)
-                        self.log_claim("error", "orchestrator", error_msg, {"phase_id": phase2_result.phase_id})
+                        self.log_claim(
+                            "error",
+                            "orchestrator",
+                            error_msg,
+                            {"phase_id": phase2_result.phase_id},
+                        )
                         self.errors.append(error_msg)
                 else:
-                    error_msg = f"Orchestrator Phase 2 failed internally: {phase2_result.error}"
+                    error_msg = (
+                        f"Orchestrator Phase 2 failed internally: {phase2_result.error}"
+                    )
                     phase2_report["errors"].append(error_msg)
-                    self.log_claim("error", "orchestrator", error_msg, {"phase_id": phase2_result.phase_id})
+                    self.log_claim(
+                        "error",
+                        "orchestrator",
+                        error_msg,
+                        {"phase_id": phase2_result.phase_id},
+                    )
                     self.errors.append(error_msg)
             else:
                 error_msg = "Orchestrator did not produce a result for Phase 2."
@@ -744,41 +877,55 @@ def cli() -> None:
             # Correctly count completed phases from the results list
             completed_phases = sum(1 for r in results if r.success)
             self.phases_completed += completed_phases
-            
-            self.log_claim("complete", "orchestrator", 
-                          "Orchestrator execution completed successfully",
-                          {"phases_completed": self.phases_completed, 
-                           "core_phases_run": len(results)})
+
+            self.log_claim(
+                "complete",
+                "orchestrator",
+                "Orchestrator execution completed successfully",
+                {
+                    "phases_completed": self.phases_completed,
+                    "core_phases_run": len(results),
+                },
+            )
             return results
-            
+
         except Exception as e:
             self.phases_failed += 1
             error_msg = f"Orchestrator execution failed: {str(e)}"
-            self.log_claim("error", "orchestrator", error_msg,
-                          {"traceback": traceback.format_exc()})
+            self.log_claim(
+                "error",
+                "orchestrator",
+                error_msg,
+                {"traceback": traceback.format_exc()},
+            )
             self.errors.append(error_msg)
             if self.phase2_report is None:
-                self.phase2_report = {"success": False, "question_count": 0, "errors": [error_msg]}
+                self.phase2_report = {
+                    "success": False,
+                    "question_count": 0,
+                    "errors": [error_msg],
+                }
             return None
-    
-    def save_artifacts(self, cpp: Any, preprocessed_doc: Any, 
-                      results: Any) -> tuple[List[str], Dict[str, str]]:
+
+    def save_artifacts(
+        self, cpp: Any, preprocessed_doc: Any, results: Any
+    ) -> tuple[List[str], Dict[str, str]]:
         """
         Save artifacts and compute hashes.
-        
+
         Args:
             cpp: CPP object
             preprocessed_doc: PreprocessedDocument
             results: Orchestrator results
-            
+
         Returns:
             List of artifact file paths
         """
         self.log_claim("start", "artifact_generation", "Saving artifacts")
-        
+
         artifacts = []
         artifact_hashes = {}
-        
+
         try:
             # Save complete CanonPolicyPackage if available (HOSTILE AUDIT REQUIREMENT)
             if cpp:
@@ -803,72 +950,100 @@ def cli() -> None:
 
                     cpp_dict = asdict(cpp) if is_dataclass(cpp) else {}
 
-                    with open(cpp_path, 'w') as f:
+                    with open(cpp_path, "w") as f:
                         json.dump(cpp_dict, f, indent=2, default=cpp_to_dict)
 
                     artifacts.append(str(cpp_path))
                     artifact_hashes[str(cpp_path)] = self.compute_sha256(cpp_path)
 
-                    self.log_claim("artifact", "cpp_serialization",
-                                  f"Serialized complete CanonPolicyPackage",
-                                  {"file": str(cpp_path),
-                                   "size_bytes": cpp_path.stat().st_size})
+                    self.log_claim(
+                        "artifact",
+                        "cpp_serialization",
+                        f"Serialized complete CanonPolicyPackage",
+                        {"file": str(cpp_path), "size_bytes": cpp_path.stat().st_size},
+                    )
 
                 except Exception as e:
-                    self.log_claim("error", "artifact_generation",
-                                  f"Failed to serialize CPP: {str(e)}")
-            
+                    self.log_claim(
+                        "error",
+                        "artifact_generation",
+                        f"Failed to serialize CPP: {str(e)}",
+                    )
+
             # Save preprocessed document metadata
             if preprocessed_doc:
-                doc_metadata_path = self.artifacts_dir / "preprocessed_doc_metadata.json"
+                doc_metadata_path = (
+                    self.artifacts_dir / "preprocessed_doc_metadata.json"
+                )
                 try:
-                    with open(doc_metadata_path, 'w') as f:
-                        json.dump({
-                            "execution_id": self.execution_id,
-                            "doc_generated": True,
-                            "timestamp": datetime.utcnow().isoformat()
-                        }, f, indent=2)
+                    with open(doc_metadata_path, "w") as f:
+                        json.dump(
+                            {
+                                "execution_id": self.execution_id,
+                                "doc_generated": True,
+                                "timestamp": datetime.utcnow().isoformat(),
+                            },
+                            f,
+                            indent=2,
+                        )
                     artifacts.append(str(doc_metadata_path))
-                    artifact_hashes[str(doc_metadata_path)] = self.compute_sha256(doc_metadata_path)
+                    artifact_hashes[str(doc_metadata_path)] = self.compute_sha256(
+                        doc_metadata_path
+                    )
                 except Exception as e:
-                    self.log_claim("error", "artifact_generation", 
-                                  f"Failed to save doc metadata: {str(e)}")
-            
+                    self.log_claim(
+                        "error",
+                        "artifact_generation",
+                        f"Failed to save doc metadata: {str(e)}",
+                    )
+
             # Save results summary
             if results:
                 results_path = self.artifacts_dir / "results_summary.json"
                 try:
-                    with open(results_path, 'w') as f:
-                        json.dump({
-                            "execution_id": self.execution_id,
-                            "results_generated": True,
-                            "timestamp": datetime.utcnow().isoformat()
-                        }, f, indent=2)
+                    with open(results_path, "w") as f:
+                        json.dump(
+                            {
+                                "execution_id": self.execution_id,
+                                "results_generated": True,
+                                "timestamp": datetime.utcnow().isoformat(),
+                            },
+                            f,
+                            indent=2,
+                        )
                     artifacts.append(str(results_path))
-                    artifact_hashes[str(results_path)] = self.compute_sha256(results_path)
+                    artifact_hashes[str(results_path)] = self.compute_sha256(
+                        results_path
+                    )
                 except Exception as e:
-                    self.log_claim("error", "artifact_generation", 
-                                  f"Failed to save results: {str(e)}")
-            
+                    self.log_claim(
+                        "error",
+                        "artifact_generation",
+                        f"Failed to save results: {str(e)}",
+                    )
+
             # Save all claims
             claims_path = self.artifacts_dir / "execution_claims.json"
-            with open(claims_path, 'w') as f:
+            with open(claims_path, "w") as f:
                 json.dump([claim.to_dict() for claim in self.claims], f, indent=2)
             artifacts.append(str(claims_path))
             artifact_hashes[str(claims_path)] = self.compute_sha256(claims_path)
-            
-            self.log_claim("complete", "artifact_generation", 
-                          f"Saved {len(artifacts)} artifacts",
-                          {"artifact_count": len(artifacts)})
-            
+
+            self.log_claim(
+                "complete",
+                "artifact_generation",
+                f"Saved {len(artifacts)} artifacts",
+                {"artifact_count": len(artifacts)},
+            )
+
             return artifacts, artifact_hashes
-            
+
         except Exception as e:
             error_msg = f"Failed to save artifacts: {str(e)}"
             self.log_claim("error", "artifact_generation", error_msg)
             self.errors.append(error_msg)
             return artifacts, artifact_hashes
-    
+
     def _collect_calibration_manifest_data(self) -> Dict[str, Any]:
         """Collect calibration metadata for manifest inclusion."""
         calibration_file = PROJECT_ROOT / "config" / "intrinsic_calibration.json"
@@ -898,32 +1073,37 @@ def cli() -> None:
             )
             return {}
 
-    def _calculate_chunk_metrics(self, preprocessed_doc: Any, results: Any, phase2_metrics: Dict[str, Any] | None = None) -> Dict[str, Any]:
+    def _calculate_chunk_metrics(
+        self,
+        preprocessed_doc: Any,
+        results: Any,
+        phase2_metrics: Dict[str, Any] | None = None,
+    ) -> Dict[str, Any]:
         """
         Calculate SPC utilization metrics for verification manifest.
-        
+
         Args:
             preprocessed_doc: PreprocessedDocument with chunk information
             results: Orchestrator execution results
             phase2_metrics: Optional metrics dictionary from orchestrator
-            
+
         Returns:
             Dictionary with chunk metrics
         """
         if preprocessed_doc is None:
             return {}
-        
-        processing_mode = getattr(preprocessed_doc, 'processing_mode', 'flat')
-        
-        if processing_mode != 'chunked':
+
+        processing_mode = getattr(preprocessed_doc, "processing_mode", "flat")
+
+        if processing_mode != "chunked":
             return {
                 "processing_mode": "flat",
-                "note": "Document processed in flat mode (no chunk utilization)"
+                "note": "Document processed in flat mode (no chunk utilization)",
             }
-        
-        chunks = getattr(preprocessed_doc, 'chunks', [])
-        chunk_graph = getattr(preprocessed_doc, 'chunk_graph', {})
-        
+
+        chunks = getattr(preprocessed_doc, "chunks", [])
+        chunk_graph = getattr(preprocessed_doc, "chunk_graph", {})
+
         chunk_metrics = {
             "processing_mode": "chunked",
             "total_chunks": len(chunks),
@@ -931,63 +1111,72 @@ def cli() -> None:
             "chunk_routing": {},
             "graph_metrics": {},
             "execution_savings": {},
-            "provenance_coverage": 0.0
+            "provenance_coverage": 0.0,
         }
-        
+
         # Count chunk types and provenance
         chunks_with_provenance = 0
         for chunk in chunks:
-            chunk_type = getattr(chunk, 'chunk_type', 'unknown')
-            chunk_metrics["chunk_types"][chunk_type] = \
+            chunk_type = getattr(chunk, "chunk_type", "unknown")
+            chunk_metrics["chunk_types"][chunk_type] = (
                 chunk_metrics["chunk_types"].get(chunk_type, 0) + 1
-                
+            )
+
             # Check provenance
-            if hasattr(chunk, 'provenance') and chunk.provenance:
+            if hasattr(chunk, "provenance") and chunk.provenance:
                 # Strict check: must have page_number
-                if getattr(chunk.provenance, 'page_number', None) is not None:
+                if getattr(chunk.provenance, "page_number", None) is not None:
                     chunks_with_provenance += 1
-                    
+
         if len(chunks) > 0:
-            chunk_metrics["provenance_coverage"] = round(chunks_with_provenance / len(chunks), 4)
-            
+            chunk_metrics["provenance_coverage"] = round(
+                chunks_with_provenance / len(chunks), 4
+            )
+
         # Calculate graph metrics if networkx available
         try:
             import networkx as nx
-            
+
             if chunk_graph and isinstance(chunk_graph, dict):
                 nodes = chunk_graph.get("nodes", [])
                 edges = chunk_graph.get("edges", [])
-                
+
                 # Build networkx graph for analysis
                 G = nx.DiGraph()
                 for node in nodes:
                     node_id = node.get("id")
                     if node_id is not None:
                         G.add_node(node_id)
-                
+
                 for edge in edges:
                     source = edge.get("source")
                     target = edge.get("target")
                     if source is not None and target is not None:
                         G.add_edge(source, target)
-                
+
                 chunk_metrics["graph_metrics"] = {
                     "nodes": G.number_of_nodes(),
                     "edges": G.number_of_edges(),
                     "is_dag": nx.is_directed_acyclic_graph(G),
-                    "is_connected": nx.is_weakly_connected(G) if G.number_of_nodes() > 0 else False,
-                    "density": round(nx.density(G), 4) if G.number_of_nodes() > 0 else 0.0,
+                    "is_connected": (
+                        nx.is_weakly_connected(G) if G.number_of_nodes() > 0 else False
+                    ),
+                    "density": (
+                        round(nx.density(G), 4) if G.number_of_nodes() > 0 else 0.0
+                    ),
                 }
-                
+
                 # Calculate diameter if connected
                 if chunk_metrics["graph_metrics"]["is_connected"]:
                     try:
-                        chunk_metrics["graph_metrics"]["diameter"] = nx.diameter(G.to_undirected())
+                        chunk_metrics["graph_metrics"]["diameter"] = nx.diameter(
+                            G.to_undirected()
+                        )
                     except Exception:
                         chunk_metrics["graph_metrics"]["diameter"] = -1
                 else:
                     chunk_metrics["graph_metrics"]["diameter"] = -1
-                    
+
         except ImportError:
             chunk_metrics["graph_metrics"] = {
                 "note": "NetworkX not available for graph analysis"
@@ -996,44 +1185,56 @@ def cli() -> None:
             chunk_metrics["graph_metrics"] = {
                 "error": f"Graph analysis failed: {str(e)}"
             }
-        
+
         # Calculate execution savings
         # Use actual metrics from orchestrator if available
         if phase2_metrics:
             metrics = phase2_metrics
             chunk_metrics["execution_savings"] = {
-                "chunk_executions": metrics.get('chunk_executions', 0),
-                "full_doc_executions": metrics.get('full_doc_executions', 0),
-                "total_possible_executions": metrics.get('total_possible_executions', 0),
-                "actual_executions": metrics.get('actual_executions', 0),
-                "savings_percent": round(metrics.get('savings_percent', 0.0), 2),
-                "routing_table_version": metrics.get('routing_table_version', 'unknown'),
-                "note": "Actual execution counts from orchestrator Phase 2"
+                "chunk_executions": metrics.get("chunk_executions", 0),
+                "full_doc_executions": metrics.get("full_doc_executions", 0),
+                "total_possible_executions": metrics.get(
+                    "total_possible_executions", 0
+                ),
+                "actual_executions": metrics.get("actual_executions", 0),
+                "savings_percent": round(metrics.get("savings_percent", 0.0), 2),
+                "routing_table_version": metrics.get(
+                    "routing_table_version", "unknown"
+                ),
+                "note": "Actual execution counts from orchestrator Phase 2",
             }
         elif results:
             # Fallback to estimation if real metrics not available
             total_possible_executions = 30 * len(chunks)  # 30 executors per chunk max
             # Assume chunk routing reduces executions by using type-specific executors
-            estimated_actual = len(chunks) * 10  # ~10 executors per chunk (conservative)
-            
+            estimated_actual = (
+                len(chunks) * 10
+            )  # ~10 executors per chunk (conservative)
+
             chunk_metrics["execution_savings"] = {
                 "total_possible_executions": total_possible_executions,
                 "estimated_actual_executions": estimated_actual,
-                "estimated_savings_percent": round(
-                    (1 - estimated_actual / max(total_possible_executions, 1)) * 100, 2
-                ) if total_possible_executions > 0 else 0.0,
-                "note": "Estimated savings based on chunk-aware routing (orchestrator metrics not available)"
+                "estimated_savings_percent": (
+                    round(
+                        (1 - estimated_actual / max(total_possible_executions, 1))
+                        * 100,
+                        2,
+                    )
+                    if total_possible_executions > 0
+                    else 0.0
+                ),
+                "note": "Estimated savings based on chunk-aware routing (orchestrator metrics not available)",
             }
-        
+
         return chunk_metrics
-    
+
     def _calculate_signal_metrics(self, results: Any) -> Dict[str, Any]:
         """
         Calculate signal utilization metrics for verification manifest.
-        
+
         Args:
             results: Orchestrator execution results
-            
+
         Returns:
             Dictionary with signal metrics
         """
@@ -1044,47 +1245,97 @@ def cli() -> None:
                 "transport": "memory",
                 "policy_areas_loaded": 10,
             }
-            
+
             # Check if results have executor information
-            if results and hasattr(results, 'executor_metadata'):
+            if results and hasattr(results, "executor_metadata"):
                 # Count executors that used signals
                 executors_with_signals = 0
                 total_executors = 0
-                
+
                 for metadata in results.executor_metadata.values():
                     total_executors += 1
-                    if metadata.get('signal_usage'):
+                    if metadata.get("signal_usage"):
                         executors_with_signals += 1
-                
+
                 signal_metrics["executors_using_signals"] = executors_with_signals
                 signal_metrics["total_executors"] = total_executors
-            
+
             # Default values if we can't extract from results
             if "executors_using_signals" not in signal_metrics:
                 signal_metrics["executors_using_signals"] = 0
                 signal_metrics["total_executors"] = 0
-                signal_metrics["note"] = "Signal infrastructure initialized, actual usage not tracked in results"
-            
+                signal_metrics["note"] = (
+                    "Signal infrastructure initialized, actual usage not tracked in results"
+                )
+
             # Add signal pack versions
             signal_metrics["signal_versions"] = {
                 f"PA{i:02d}": "1.0.0" for i in range(1, 11)
             }
-            
+
             return signal_metrics
-        
+
         except Exception as e:
             # If signal system not initialized, return minimal info
             return {
                 "enabled": False,
-                "note": f"Signal system not initialized: {str(e)}"
+                "note": f"Signal system not initialized: {str(e)}",
             }
-    
+
+    def _extract_synchronization_data(self, results: Any) -> Dict[str, Any]:
+        """
+        Extract synchronization plan data from orchestrator results.
+
+        Args:
+            results: Orchestrator execution results (list of PhaseResult objects)
+
+        Returns:
+            Dictionary with synchronization plan metadata
+        """
+        try:
+            synchronization_data = {
+                "plan_id": None,
+                "integrity_hash": None,
+                "task_count": 0,
+                "chunk_count": 0,
+                "question_count": 0,
+                "correlation_id": None,
+                "created_at": None,
+            }
+
+            if not results:
+                return synchronization_data
+
+            for result in results:
+                if hasattr(result, "data") and isinstance(result.data, dict):
+                    if "_execution_plan" in result.data:
+                        plan = result.data["_execution_plan"]
+                        if hasattr(plan, "plan_id"):
+                            synchronization_data["plan_id"] = plan.plan_id
+                            synchronization_data["integrity_hash"] = plan.integrity_hash
+                            synchronization_data["task_count"] = len(plan.tasks)
+                            synchronization_data["chunk_count"] = plan.chunk_count
+                            synchronization_data["question_count"] = plan.question_count
+                            synchronization_data["correlation_id"] = plan.correlation_id
+                            synchronization_data["created_at"] = plan.created_at
+                            return synchronization_data
+
+            return None
+
+        except Exception as e:
+            self.log_claim(
+                "warning",
+                "synchronization_extraction",
+                f"Unable to extract synchronization data: {e}",
+            )
+            return None
+
     def generate_verification_manifest(
         self,
         artifacts: List[str],
         artifact_hashes: Dict[str, str],
         preprocessed_doc: Any = None,
-        results: Any = None
+        results: Any = None,
     ) -> Path:
         """
         Generate final verification manifest with SPC utilization metrics and cryptographic integrity.
@@ -1101,7 +1352,9 @@ def cli() -> None:
         end_time = datetime.utcnow().isoformat()
 
         # Calculate chunk utilization metrics
-        chunk_metrics = self._calculate_chunk_metrics(preprocessed_doc, results, getattr(self, 'phase2_metrics', None))
+        chunk_metrics = self._calculate_chunk_metrics(
+            preprocessed_doc, results, getattr(self, "phase2_metrics", None)
+        )
 
         # HOSTILE AUDIT: Validate critical invariants before declaring success
         hostile_failures: list[str] = []
@@ -1114,27 +1367,34 @@ def cli() -> None:
             # === PHASE 2 HARDENING: STRICT SPC INVARIANTS ===
             # Enforce exactly 60 chunks and chunked mode for SPC ingestion
             if chunk_metrics.get("processing_mode") != "chunked":
-                hostile_failures.append(f"Invalid processing_mode: {chunk_metrics.get('processing_mode')} != chunked")
-            
+                hostile_failures.append(
+                    f"Invalid processing_mode: {chunk_metrics.get('processing_mode')} != chunked"
+                )
+
             if chunk_metrics.get("total_chunks") != 60:
-                hostile_failures.append(f"Invalid total_chunks: {chunk_metrics.get('total_chunks')} != 60")
+                hostile_failures.append(
+                    f"Invalid total_chunks: {chunk_metrics.get('total_chunks')} != 60"
+                )
 
             # Enforce Provenance Coverage using Calibrated Threshold
             # SOTA: No hardcoded values. Use centralized calibration.
-#             from farfan_core import get_parameter_loader  # CALIBRATION DISABLED
-#             param_loader = get_parameter_loader()  # CALIBRATION DISABLED
-            
+            #             from farfan_core import get_parameter_loader  # CALIBRATION DISABLED
+            #             param_loader = get_parameter_loader()  # CALIBRATION DISABLED
+
             # Fetch threshold for this specific method
             method_key = "farfan_core.scripts.run_policy_pipeline_verified.VerifiedPipelineRunner.generate_verification_manifest"
-#             calibrated_params = param_loader.get(method_key)  # CALIBRATION DISABLED
-            
+            #             calibrated_params = param_loader.get(method_key)  # CALIBRATION DISABLED
+
             # Default to 1.0 (strict) if not found, but log warning if falling back
-            required_coverage = calibrated_params.get("provenance_coverage_threshold", 1.0)
-            
+            required_coverage = calibrated_params.get(
+                "provenance_coverage_threshold", 1.0
+            )
+
             provenance_coverage = chunk_metrics.get("provenance_coverage", 0.0)
             if provenance_coverage < required_coverage:
-                hostile_failures.append(f"Provenance coverage violation: {provenance_coverage} < {required_coverage} (Threshold from {method_key})")
-
+                hostile_failures.append(
+                    f"Provenance coverage violation: {provenance_coverage} < {required_coverage} (Threshold from {method_key})"
+                )
 
         phase2_entry = {
             "name": "Phase 2 – Micro Questions",
@@ -1148,7 +1408,7 @@ def cli() -> None:
         # Determine success based on strict criteria + hostile invariants
         # We start assuming success is possible, then disqualify based on failures
         success = True
-        
+
         if self._bootstrap_failed:
             success = False
         if self.phases_failed > 0:
@@ -1176,7 +1436,7 @@ def cli() -> None:
 
         builder = self.manifest_builder
         builder.manifest_data["versions"] = dict(self.versions)
-        
+
         # Set environment with strict error handling
         try:
             builder.set_environment()
@@ -1193,7 +1453,7 @@ def cli() -> None:
             self.log_claim("error", "input_verification", error_msg)
             self.errors.append(error_msg)
             success = False
-            
+
         builder.set_pipeline_hash(pipeline_hash)
 
         # Set path/import verification results
@@ -1259,7 +1519,9 @@ def cli() -> None:
         # Artifacts
         for index, artifact_path in enumerate(sorted(artifact_hashes.keys())):
             artifact_file = Path(artifact_path)
-            size_bytes = artifact_file.stat().st_size if artifact_file.exists() else None
+            size_bytes = (
+                artifact_file.stat().st_size if artifact_file.exists() else None
+            )
             builder.add_artifact(
                 artifact_id=f"artifact_{index:02d}",
                 path=str(artifact_file),
@@ -1295,6 +1557,10 @@ def cli() -> None:
         signal_metrics = self._calculate_signal_metrics(results)
         if signal_metrics:
             builder.manifest_data["signals"] = signal_metrics
+
+        synchronization_data = self._extract_synchronization_data(results)
+        if synchronization_data:
+            builder.manifest_data["synchronization"] = synchronization_data
 
         builder.manifest_data.update(
             {
@@ -1349,83 +1615,93 @@ def cli() -> None:
             print("=" * 80 + "\n")
 
         return manifest_path
-    
+
     async def run(self) -> bool:
         """
         Execute the complete verified pipeline.
-        
+
         Returns:
             True if pipeline succeeded, False otherwise
         """
         # Check for bootstrap failures (Phase 0.0)
         if self._bootstrap_failed:
-             self.generate_verification_manifest([], {})
-             return False
+            self.generate_verification_manifest([], {})
+            return False
 
         self.log_claim("start", "pipeline", "Starting verified pipeline execution")
-        
+
         # Step 1: Verify input
         if not self.verify_input():
             self.generate_verification_manifest([], {})
             return False
-        
+
         # Step 1.5: Run boot checks
         try:
             # Ensure runtime_config is available (should be if bootstrap passed, but be safe)
             if self.runtime_config is None:
-                raise BootCheckError("Runtime config is None", "BOOT_CONFIG_MISSING", "Runtime config not initialized")
+                raise BootCheckError(
+                    "Runtime config is None",
+                    "BOOT_CONFIG_MISSING",
+                    "Runtime config not initialized",
+                )
 
             if not self.run_boot_checks():
                 # Boot checks failed but we're in DEV mode - log warning
-                self.log_claim("warning", "boot_checks", 
-                              "Boot checks failed but continuing in non-PROD mode")
+                self.log_claim(
+                    "warning",
+                    "boot_checks",
+                    "Boot checks failed but continuing in non-PROD mode",
+                )
         except BootCheckError:
             # Boot check failed in PROD mode - abort
             self.generate_verification_manifest([], {})
             return False
-        
+
         # Step 2: Run SPC ingestion (canonical phase-one)
         cpp = await self.run_spc_ingestion()
         if cpp is None:
             self.generate_verification_manifest([], {})
             return False
-        
+
         # Step 3: Run CPP adapter
         preprocessed_doc = await self.run_cpp_adapter(cpp)
         if preprocessed_doc is None:
             self.generate_verification_manifest([], {})
             return False
-        
+
         # Step 4: Run orchestrator
         results = await self.run_orchestrator(preprocessed_doc)
         if results is None:
             self.generate_verification_manifest([], {})
             return False
-        
+
         # Step 5: Save artifacts
         artifacts, artifact_hashes = self.save_artifacts(cpp, preprocessed_doc, results)
-        
+
         # Step 6: Generate verification manifest with chunk metrics
         manifest_path = self.generate_verification_manifest(
             artifacts, artifact_hashes, preprocessed_doc, results
         )
-        
-        self.log_claim("complete", "pipeline", 
-                      "Pipeline execution completed",
-                      {
-                          "success": self._last_manifest_success,
-                          "phases_completed": self.phases_completed,
-                          "phases_failed": self.phases_failed,
-                          "manifest_path": str(manifest_path)
-                      })
-        
+
+        self.log_claim(
+            "complete",
+            "pipeline",
+            "Pipeline execution completed",
+            {
+                "success": self._last_manifest_success,
+                "phases_completed": self.phases_completed,
+                "phases_failed": self.phases_failed,
+                "manifest_path": str(manifest_path),
+            },
+        )
+
         return bool(self._last_manifest_success)
 
 
 async def main():
     """Main entry point."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description="Run verified policy pipeline with cryptographic verification"
     )
@@ -1433,21 +1709,21 @@ async def main():
         "--plan",
         type=str,
         default="data/plans/Plan_1.pdf",
-        help="Path to plan PDF (default: data/plans/Plan_1.pdf)"
+        help="Path to plan PDF (default: data/plans/Plan_1.pdf)",
     )
     parser.add_argument(
         "--artifacts-dir",
         type=str,
         default="artifacts/plan1",
-        help="Directory for artifacts (default: artifacts/plan1)"
+        help="Directory for artifacts (default: artifacts/plan1)",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Resolve paths
     plan_path = PROJECT_ROOT / args.plan
     artifacts_dir = PROJECT_ROOT / args.artifacts_dir
-    
+
     print("=" * 80, flush=True)
     print("F.A.R.F.A.N VERIFIED POLICY PIPELINE RUNNER", flush=True)
     print("Framework for Advanced Retrieval of Administrativa Narratives", flush=True)
@@ -1455,11 +1731,11 @@ async def main():
     print(f"Plan: {plan_path}", flush=True)
     print(f"Artifacts: {artifacts_dir}", flush=True)
     print("=" * 80, flush=True)
-    
+
     # Create and run pipeline
     runner = VerifiedPipelineRunner(plan_path, artifacts_dir)
     success = await runner.run()
-    
+
     print("=" * 80, flush=True)
     if success:
         print("PIPELINE_VERIFIED=1", flush=True)
@@ -1468,7 +1744,7 @@ async def main():
         print("PIPELINE_VERIFIED=0", flush=True)
         print("Status: FAILED", flush=True)
     print("=" * 80, flush=True)
-    
+
     sys.exit(0 if success else 1)
 
 
@@ -1476,9 +1752,15 @@ def cli() -> None:
     """Synchronous entrypoint for console scripts."""
     try:
         # Check for module shadowing before anything else
-        _expected_farfan_pipeline_prefix = (PROJECT_ROOT / "src" / "farfan_pipeline").resolve()
-        if not Path(farfan_pipeline.__file__).resolve().is_relative_to(_expected_farfan_pipeline_prefix):
-             raise RuntimeError(
+        _expected_farfan_pipeline_prefix = (
+            PROJECT_ROOT / "src" / "farfan_pipeline"
+        ).resolve()
+        if (
+            not Path(farfan_pipeline.__file__)
+            .resolve()
+            .is_relative_to(_expected_farfan_pipeline_prefix)
+        ):
+            raise RuntimeError(
                 "MODULE SHADOWING DETECTED!\n"
                 f"  Expected farfan_pipeline from: {_expected_farfan_pipeline_prefix}\n"
                 f"  Actually loaded from:  {farfan_pipeline.__file__}\n"
@@ -1486,18 +1768,18 @@ def cli() -> None:
             )
 
         asyncio.run(main())
-        
+
     except RuntimeError as e:
         if "MODULE SHADOWING DETECTED" in str(e):
             print(f"\n❌ FATAL: {e}\n", flush=True)
-            
+
             # Attempt to write minimal manifest
             try:
                 # We need to guess artifacts dir since we haven't parsed args yet
                 # Default is artifacts/plan1
                 artifacts_dir = PROJECT_ROOT / "artifacts" / "plan1"
                 artifacts_dir.mkdir(parents=True, exist_ok=True)
-                
+
                 manifest_path = artifacts_dir / "verification_manifest.json"
                 manifest = {
                     "success": False,
@@ -1508,17 +1790,17 @@ def cli() -> None:
                     "artifacts_generated": [],
                     "artifact_hashes": {},
                     "phases_completed": 0,
-                    "phases_failed": 1
+                    "phases_failed": 1,
                 }
-                
-                with open(manifest_path, 'w') as f:
+
+                with open(manifest_path, "w") as f:
                     json.dump(manifest, f, indent=2)
-                    
+
                 print(f"Manifest written to: {manifest_path}", flush=True)
-                
+
             except Exception as manifest_err:
                 print(f"Failed to write failure manifest: {manifest_err}", flush=True)
-            
+
             print("PIPELINE_VERIFIED=0", flush=True)
             sys.exit(1)
         else:

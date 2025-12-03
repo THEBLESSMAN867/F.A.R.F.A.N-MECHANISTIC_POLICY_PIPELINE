@@ -27,6 +27,9 @@ import uuid
 from dataclasses import dataclass
 from typing import Any
 
+from farfan_pipeline.core.types import PreprocessedDocument
+from farfan_pipeline.synchronization import ChunkMatrix
+
 try:
     import blake3
 
@@ -146,31 +149,83 @@ class IrrigationSynchronizer:
     """
 
     def __init__(
-        self, questionnaire: dict[str, Any], document_chunks: list[dict[str, Any]]
+        self,
+        questionnaire: dict[str, Any],
+        preprocessed_document: PreprocessedDocument | None = None,
+        document_chunks: list[dict[str, Any]] | None = None,
     ) -> None:
-        """Initialize synchronizer with questionnaire and document chunks.
+        """Initialize synchronizer with questionnaire and chunks.
 
         Args:
             questionnaire: Loaded questionnaire_monolith.json data
-            document_chunks: List of document chunks from Phase 1
+            preprocessed_document: PreprocessedDocument containing validated chunks
+            document_chunks: Legacy list of document chunks (deprecated)
+
+        Raises:
+            ValueError: If chunk matrix validation fails or no chunks provided
         """
         self.questionnaire = questionnaire
-        self.document_chunks = document_chunks
         self.correlation_id = str(uuid.uuid4())
         self.question_count = self._count_questions()
-        self.chunk_count = len(document_chunks)
+        self.chunk_matrix: ChunkMatrix | None = None
+        self.document_chunks: list[dict[str, Any]] | None = None
 
-        logger.info(
-            json.dumps(
-                {
-                    "event": "irrigation_synchronizer_init",
-                    "correlation_id": self.correlation_id,
-                    "question_count": self.question_count,
-                    "chunk_count": self.chunk_count,
-                    "timestamp": time.time(),
-                }
+        if preprocessed_document is not None:
+            try:
+                self.chunk_matrix = ChunkMatrix(preprocessed_document)
+                self.chunk_count = ChunkMatrix.EXPECTED_CHUNK_COUNT
+
+                logger.info(
+                    json.dumps(
+                        {
+                            "event": "irrigation_synchronizer_init",
+                            "correlation_id": self.correlation_id,
+                            "question_count": self.question_count,
+                            "chunk_count": self.chunk_count,
+                            "chunk_matrix_validated": True,
+                            "mode": "preprocessed_document",
+                            "timestamp": time.time(),
+                        }
+                    )
+                )
+            except ValueError as e:
+                synchronization_failures.labels(
+                    error_type="chunk_matrix_validation"
+                ).inc()
+                logger.error(
+                    json.dumps(
+                        {
+                            "event": "irrigation_synchronizer_init_failed",
+                            "correlation_id": self.correlation_id,
+                            "error": str(e),
+                            "error_type": "chunk_matrix_validation",
+                            "timestamp": time.time(),
+                        }
+                    )
+                )
+                raise ValueError(
+                    f"Chunk matrix validation failed during synchronizer initialization: {e}"
+                ) from e
+        elif document_chunks is not None:
+            self.document_chunks = document_chunks
+            self.chunk_count = len(document_chunks)
+
+            logger.info(
+                json.dumps(
+                    {
+                        "event": "irrigation_synchronizer_init",
+                        "correlation_id": self.correlation_id,
+                        "question_count": self.question_count,
+                        "chunk_count": self.chunk_count,
+                        "mode": "legacy_document_chunks",
+                        "timestamp": time.time(),
+                    }
+                )
             )
-        )
+        else:
+            raise ValueError(
+                "Either preprocessed_document or document_chunks must be provided"
+            )
 
     def _count_questions(self) -> int:
         """Count total questions across all dimensions."""
@@ -235,15 +290,22 @@ class IrrigationSynchronizer:
     def build_execution_plan(self) -> ExecutionPlan:
         """Build deterministic execution plan mapping questions to chunks.
 
-        Generates 300 tasks (6 dimensions × 50 questions × 10 policy areas / 10 areas)
-        by mapping each question to each chunk in round-robin fashion.
+        Uses validated chunk matrix if available, otherwise falls back to
+        legacy document_chunks iteration mode.
 
         Returns:
             ExecutionPlan with deterministic plan_id and integrity_hash
 
         Raises:
-            ValueError: If question or chunk data is invalid
+            ValueError: If question data is invalid or chunk matrix lookup fails
         """
+        if self.chunk_matrix is not None:
+            return self._build_with_chunk_matrix()
+        else:
+            return self._build_with_legacy_chunks()
+
+    def _build_with_chunk_matrix(self) -> ExecutionPlan:
+        """Build execution plan using validated chunk matrix."""
         logger.info(
             json.dumps(
                 {
@@ -251,6 +313,138 @@ class IrrigationSynchronizer:
                     "correlation_id": self.correlation_id,
                     "question_count": self.question_count,
                     "chunk_count": self.chunk_count,
+                    "mode": "chunk_matrix",
+                    "phase": "synchronization_phase_0",
+                }
+            )
+        )
+
+        try:
+            if self.question_count == 0:
+                synchronization_failures.labels(error_type="empty_questions").inc()
+                raise ValueError("No questions found in questionnaire")
+
+            questions = self._extract_questions()
+            policy_areas = ChunkMatrix.POLICY_AREAS
+            dimensions = ChunkMatrix.DIMENSIONS
+
+            tasks: list[Task] = []
+
+            for question in questions:
+                dimension_id = f"DIM{question['dimension'][1:].zfill(2)}"
+
+                if dimension_id not in dimensions:
+                    synchronization_failures.labels(
+                        error_type="invalid_dimension"
+                    ).inc()
+                    raise ValueError(
+                        f"Invalid dimension '{dimension_id}' for question "
+                        f"'{question['question_id']}': must be one of {dimensions}"
+                    )
+
+                for policy_area in policy_areas:
+                    try:
+                        chunk = self.chunk_matrix.get_chunk(policy_area, dimension_id)
+
+                        chunk_id = f"{chunk.policy_area_id}-{chunk.dimension_id}"
+
+                        task_id = f"{question['question_id']}_{policy_area}_{chunk_id}"
+
+                        task = Task(
+                            task_id=task_id,
+                            dimension=question["dimension"],
+                            question_id=question["question_id"],
+                            policy_area=policy_area,
+                            chunk_id=chunk_id,
+                            chunk_index=chunk.id,
+                            question_text=question["question_text"],
+                        )
+
+                        tasks.append(task)
+
+                        tasks_constructed.labels(
+                            dimension=question["dimension"], policy_area=policy_area
+                        ).inc()
+
+                    except KeyError as e:
+                        synchronization_failures.labels(
+                            error_type="chunk_lookup_failure"
+                        ).inc()
+                        raise ValueError(
+                            f"Failed to retrieve chunk for policy_area='{policy_area}', "
+                            f"dimension='{dimension_id}', question='{question['question_id']}': {e}"
+                        ) from e
+
+            integrity_hash = self._compute_integrity_hash(tasks)
+
+            plan_id = f"plan_{integrity_hash[:16]}"
+
+            plan = ExecutionPlan(
+                plan_id=plan_id,
+                tasks=tuple(tasks),
+                chunk_count=self.chunk_count,
+                question_count=len(questions),
+                integrity_hash=integrity_hash,
+                created_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                correlation_id=self.correlation_id,
+            )
+
+            logger.info(
+                json.dumps(
+                    {
+                        "event": "build_execution_plan_complete",
+                        "correlation_id": self.correlation_id,
+                        "plan_id": plan_id,
+                        "task_count": len(tasks),
+                        "chunk_count": self.chunk_count,
+                        "question_count": len(questions),
+                        "integrity_hash": integrity_hash,
+                        "chunk_matrix_validated": True,
+                        "mode": "chunk_matrix",
+                        "phase": "synchronization_phase_complete",
+                    }
+                )
+            )
+
+            return plan
+
+        except ValueError as e:
+            synchronization_failures.labels(error_type="validation_failure").inc()
+            logger.error(
+                json.dumps(
+                    {
+                        "event": "build_execution_plan_error",
+                        "correlation_id": self.correlation_id,
+                        "error": str(e),
+                        "error_type": "validation_failure",
+                    }
+                )
+            )
+            raise
+        except Exception as e:
+            synchronization_failures.labels(error_type=type(e).__name__).inc()
+            logger.error(
+                json.dumps(
+                    {
+                        "event": "build_execution_plan_error",
+                        "correlation_id": self.correlation_id,
+                        "error": str(e),
+                        "error_type": type(e).__name__,
+                    }
+                )
+            )
+            raise
+
+    def _build_with_legacy_chunks(self) -> ExecutionPlan:
+        """Build execution plan using legacy document_chunks list."""
+        logger.info(
+            json.dumps(
+                {
+                    "event": "build_execution_plan_start",
+                    "correlation_id": self.correlation_id,
+                    "question_count": self.question_count,
+                    "chunk_count": self.chunk_count,
+                    "mode": "legacy_chunks",
                     "phase": "synchronization_phase_0",
                 }
             )
@@ -317,6 +511,7 @@ class IrrigationSynchronizer:
                         "chunk_count": self.chunk_count,
                         "question_count": len(questions),
                         "integrity_hash": integrity_hash,
+                        "mode": "legacy_chunks",
                         "phase": "synchronization_phase_complete",
                     }
                 )

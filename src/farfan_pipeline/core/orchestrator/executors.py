@@ -1794,9 +1794,16 @@ class D3_Q3_TraceabilityValidator(BaseExecutor):
             if not (isinstance(e, dict) or hasattr(e, "__dict__")):
                 continue
 
-            entity_size = sys.getsizeof(e)
-            if entity_size > MAX_ENTITY_SIZE:
-                logger.warning(f"Entity too large: {entity_size} bytes, skipping")
+            # Estimate size more efficiently without deep inspection
+            try:
+                entity_json = json.dumps(e if isinstance(e, dict) else e.__dict__, default=str)
+                entity_size = len(entity_json.encode('utf-8'))
+                if entity_size > MAX_ENTITY_SIZE:
+                    logger.warning(f"Entity too large: {entity_size} bytes, skipping")
+                    continue
+            except (TypeError, ValueError, AttributeError):
+                # If we can't serialize/measure, skip it
+                logger.warning("Entity cannot be measured, skipping")
                 continue
 
             try:

@@ -38,16 +38,9 @@ warnings.filterwarnings('ignore')
 # These replace internal duplicate implementations with frontier SOTA approaches
 # =============================================================================
 
-# Canonical producers (robust imports with fallback)
-try:
-    from farfan_pipeline.processing.embedding_policy import EmbeddingPolicyProducer
-    from farfan_pipeline.processing.semantic_chunking_policy import SemanticChunkingProducer
-    from farfan_pipeline.processing.policy_processor import create_policy_processor
-except ImportError:
-    # Fallback if script is run from repo root without package install
-    from src.farfan_core.processing.embedding_policy import EmbeddingPolicyProducer
-    from src.farfan_core.processing.semantic_chunking_policy import SemanticChunkingProducer
-    from src.farfan_core.processing.policy_processor import create_policy_processor
+from farfan_pipeline.processing.embedding_policy import EmbeddingPolicyProducer
+from farfan_pipeline.processing.policy_processor import create_policy_processor
+from farfan_pipeline.processing.semantic_chunking_policy import SemanticChunkingProducer
 
 # =============================================================================
 # LOGGING CONFIGURADO

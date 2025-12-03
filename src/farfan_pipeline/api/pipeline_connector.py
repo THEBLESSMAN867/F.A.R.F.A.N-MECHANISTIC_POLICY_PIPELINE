@@ -14,11 +14,10 @@ from pathlib import Path
 from typing import Any
 
 from farfan_pipeline.core.calibration.decorators import calibrated_method
-
 from farfan_pipeline.core.orchestrator.core import Orchestrator
 from farfan_pipeline.core.orchestrator.factory import build_processor
 from farfan_pipeline.core.orchestrator.questionnaire import load_questionnaire
-from farfan_pipeline.core.orchestrator.verification_manifest import write_verification_manifest
+from farfan_pipeline.core.orchestrator.verification_manifest import VerificationManifest
 
 logger = logging.getLogger(__name__)
 
@@ -287,7 +286,10 @@ class PipelineConnector:
         """
         from pathlib import Path
 
-        from farfan_pipeline.core.orchestrator.factory import create_cpp_adapter, create_cpp_ingestion_pipeline
+        from farfan_pipeline.core.orchestrator.factory import (
+            create_cpp_adapter,
+            create_cpp_ingestion_pipeline,
+        )
 
         logger.info(f"Ingesting document via canonical SPC pipeline: {pdf_path}")
 
@@ -422,11 +424,12 @@ class PipelineConnector:
         }
 
         try:
-            # Use the actual verification manifest writer if available
-            await write_verification_manifest(manifest_path, manifest_data)
+            manifest = VerificationManifest()
+            manifest.set_success(True)
+            manifest.manifest_data.update(manifest_data)
+            manifest.write(str(manifest_path))
         except Exception as e:
             logger.warning(f"Could not write verification manifest: {e}")
-            # Fallback: write JSON directly
             with open(manifest_path, 'w', encoding='utf-8') as f:
                 json.dump(manifest_data, f, indent=2, ensure_ascii=False)
 

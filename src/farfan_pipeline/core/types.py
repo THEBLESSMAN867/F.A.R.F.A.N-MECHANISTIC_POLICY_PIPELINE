@@ -7,12 +7,12 @@ layers without creating circular dependencies.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any, Literal
-import re
 
 __all__ = [
     "CategoriaCausal",

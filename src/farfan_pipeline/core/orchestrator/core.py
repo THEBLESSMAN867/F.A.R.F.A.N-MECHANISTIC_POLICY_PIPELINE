@@ -98,6 +98,8 @@ EXPECTED_QUESTION_COUNT = int(os.getenv("EXPECTED_QUESTION_COUNT", "305"))
 EXPECTED_METHOD_COUNT = int(os.getenv("EXPECTED_METHOD_COUNT", "416"))
 PHASE_TIMEOUT_DEFAULT = int(os.getenv("PHASE_TIMEOUT_SECONDS", "300"))
 P01_EXPECTED_CHUNK_COUNT = 60
+# Sync phases that should be timeboxed via the async timeout wrapper
+TIMEOUT_SYNC_PHASES: set[int] = {1}
 
 
 class PhaseTimeoutError(RuntimeError):
@@ -1671,7 +1673,17 @@ class Orchestrator:
             error: Exception | None = None
             try:
                 if mode == "sync":
-                    data = handler(*args)
+                    if phase_id in TIMEOUT_SYNC_PHASES:
+                        data = await execute_phase_with_timeout(
+                            phase_id,
+                            phase_label,
+                            asyncio.to_thread,
+                            handler,
+                            *args,
+                            timeout_s=self._get_phase_timeout(phase_id),
+                        )
+                    else:
+                        data = handler(*args)
                 else:
                     # Use centralized execute_phase_with_timeout
                     data = await execute_phase_with_timeout(

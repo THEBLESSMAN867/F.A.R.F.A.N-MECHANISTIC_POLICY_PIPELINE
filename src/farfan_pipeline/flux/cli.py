@@ -9,7 +9,7 @@ from typing import Any
 import typer
 from pydantic import ValidationError
 
-from .configs import (
+from farfan_pipeline.flux.configs import (
     AggregateConfig,
     ChunkConfig,
     IngestConfig,
@@ -18,10 +18,10 @@ from .configs import (
     ScoreConfig,
     SignalsConfig,
 )
-from .models import (
+from farfan_pipeline.flux.models import (
     IngestDeliverable,
 )
-from .phases import (
+from farfan_pipeline.flux.phases import (
     run_chunk,
     run_ingest,
     run_normalize,
@@ -202,7 +202,7 @@ def run(
             typer.echo(f"NORMALIZE failed: {normalize_outcome.payload}", err=True)
             raise typer.Exit(code=1)
 
-        from .models import NormalizeDeliverable
+        from farfan_pipeline.flux.models import NormalizeDeliverable
 
         normalize_deliverable = NormalizeDeliverable.model_validate(
             normalize_outcome.payload
@@ -217,7 +217,7 @@ def run(
             typer.echo(f"CHUNK failed: {chunk_outcome.payload}", err=True)
             raise typer.Exit(code=1)
 
-        from .models import ChunkDeliverable
+        from farfan_pipeline.flux.models import ChunkDeliverable
 
         chunk_deliverable = ChunkDeliverable.model_validate(chunk_outcome.payload)
 
@@ -232,7 +232,7 @@ def run(
             typer.echo(f"SIGNALS failed: {signals_outcome.payload}", err=True)
             raise typer.Exit(code=1)
 
-        from .models import SignalsDeliverable
+        from farfan_pipeline.flux.models import SignalsDeliverable
 
         signals_deliverable = SignalsDeliverable.model_validate(signals_outcome.payload)
 
@@ -241,7 +241,7 @@ def run(
 
         # Run aggregate and get actual deliverable by calling the phase again
         # (this preserves the Arrow table which doesn't serialize in JSON)
-        from .phases import run_aggregate as _run_agg
+        from farfan_pipeline.flux.phases import run_aggregate as _run_agg
 
         aggregate_outcome_temp = _run_agg(aggregate_cfg, signals_deliverable)
         fingerprints["aggregate"] = aggregate_outcome_temp.fingerprint
@@ -260,7 +260,7 @@ def run(
         patterns = [c.get("patterns_used", 0) for c in signals_deliverable.enriched_chunks]
         features_tbl = pa.table({"item_id": item_ids, "patterns_used": patterns})
 
-        from .models import AggregateDeliverable
+        from farfan_pipeline.flux.models import AggregateDeliverable
 
         aggregate_deliverable = AggregateDeliverable(
             features=features_tbl,
@@ -288,7 +288,7 @@ def run(
         }
         scores_df = pl.DataFrame(data_dict)
 
-        from .models import ScoreDeliverable
+        from farfan_pipeline.flux.models import ScoreDeliverable
 
         score_deliverable = ScoreDeliverable(
             scores=scores_df,

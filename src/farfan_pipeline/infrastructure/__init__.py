@@ -11,7 +11,7 @@ Structure:
 - recommendation_engine_adapter.py: Recommendation engine adapter
 """
 
-from .recommendation_engine_adapter import (
+from farfan_pipeline.infrastructure.recommendation_engine_adapter import (
     RecommendationEngineAdapter,
     create_recommendation_engine_adapter,
 )

@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from .signals import SignalPack
+    from farfan_pipeline.core.orchestrator.signals import SignalPack
 
 try:
     import structlog

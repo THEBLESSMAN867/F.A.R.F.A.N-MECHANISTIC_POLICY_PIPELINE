@@ -4,8 +4,8 @@ DEPRECATED: get_parameter_loader() is deprecated.
 Use ParameterLoaderV2 directly: from farfan_pipeline.core.parameters import ParameterLoaderV2
 """
 
-from .core.calibration.parameter_loader import ParameterLoader
-from .core.parameters import ParameterLoaderV2
+from farfan_pipeline.core.calibration.parameter_loader import ParameterLoader
+from farfan_pipeline.core.parameters import ParameterLoaderV2
 
 _parameter_loader = None
 

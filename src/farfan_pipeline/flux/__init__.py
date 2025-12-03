@@ -7,8 +7,8 @@ and comprehensive quality gates.
 
 from __future__ import annotations
 
-from .cli import app as cli_app
-from .configs import (
+from farfan_pipeline.flux.cli import app as cli_app
+from farfan_pipeline.flux.configs import (
     AggregateConfig,
     ChunkConfig,
     IngestConfig,
@@ -17,7 +17,7 @@ from .configs import (
     ScoreConfig,
     SignalsConfig,
 )
-from .models import (
+from farfan_pipeline.flux.models import (
     AggregateDeliverable,
     AggregateExpectation,
     ChunkDeliverable,
@@ -34,7 +34,7 @@ from .models import (
     SignalsDeliverable,
     SignalsExpectation,
 )
-from .phases import (
+from farfan_pipeline.flux.phases import (
     run_aggregate,
     run_chunk,
     # run_ingest removed - use SPC CPPIngestionPipeline as canonical entry point

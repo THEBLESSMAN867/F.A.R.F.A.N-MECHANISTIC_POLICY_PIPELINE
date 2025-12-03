@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .safe_imports import lazy_import
+from farfan_pipeline.compat.safe_imports import lazy_import
 
 
 def get_polars() -> Any:

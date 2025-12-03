@@ -11,7 +11,7 @@ Date: 2025-11-13
 Version: 1.0.0
 """
 
-from .event_tracking import (
+from farfan_pipeline.patterns.event_tracking import (
     Event,
     EventCategory,
     EventLevel,
@@ -21,7 +21,7 @@ from .event_tracking import (
     record_event,
     span,
 )
-from .saga import (
+from farfan_pipeline.patterns.saga import (
     SagaEvent,
     SagaOrchestrator,
     SagaStatus,

@@ -726,7 +726,7 @@ class AdvancedDAGValidator:
         path = Path(schema_path) if schema_path else cls._NODE_SCHEMA_PATH
 
         # Delegate to factory for I/O operation
-        from .factory import load_json
+        from farfan_pipeline.analysis.factory import load_json
 
         try:
             schema = load_json(path)

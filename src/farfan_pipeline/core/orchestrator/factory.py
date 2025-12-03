@@ -544,8 +544,8 @@ def build_processor(
 
 def create_orchestrator() -> "Orchestrator":
     """Create a fully configured orchestrator instance with recommendation engine."""
-    from ...config.paths import RULES_DIR
-    from ...infrastructure.recommendation_engine_adapter import create_recommendation_engine_adapter
+    from farfan_pipeline.config.paths import RULES_DIR
+    from farfan_pipeline.infrastructure.recommendation_engine_adapter import create_recommendation_engine_adapter
     
     processor_bundle = build_processor()
     
@@ -576,7 +576,7 @@ def create_orchestrator() -> "Orchestrator":
 
 def get_questionnaire_provider():
     """Get a questionnaire provider instance."""
-    from ..wiring.bootstrap import QuestionnaireResourceProvider
+    from farfan_pipeline.core.wiring.bootstrap import QuestionnaireResourceProvider
     return QuestionnaireResourceProvider()
 
 # ============================================================================
@@ -607,7 +607,7 @@ def create_cpp_ingestion_pipeline(enable_runtime_validation: bool = True) -> Any
         This factory method centralizes the creation of the ingestion pipeline,
         ensuring consistent configuration and avoiding direct imports in API layer.
     """
-    from ...processing.spc_ingestion import CPPIngestionPipeline
+    from farfan_pipeline.processing.spc_ingestion import CPPIngestionPipeline
 
     logger.info(f"Factory creating CPPIngestionPipeline (validation={enable_runtime_validation})")
     return CPPIngestionPipeline(enable_runtime_validation=enable_runtime_validation)
@@ -626,7 +626,7 @@ def create_cpp_adapter(enable_runtime_validation: bool = True) -> Any:
         This factory method centralizes the creation of the adapter,
         ensuring consistent configuration and avoiding direct imports in API layer.
     """
-    from ...utils.cpp_adapter import CPPAdapter
+    from farfan_pipeline.utils.cpp_adapter import CPPAdapter
 
     logger.info(f"Factory creating CPPAdapter (validation={enable_runtime_validation})")
     return CPPAdapter(enable_runtime_validation=enable_runtime_validation)
@@ -651,7 +651,7 @@ def create_recommendation_engine(
         This factory method centralizes the creation of the recommendation engine,
         ensuring it receives proper questionnaire and catalog data through the factory.
     """
-    from ...analysis.recommendation_engine import load_recommendation_engine
+    from farfan_pipeline.analysis.recommendation_engine import load_recommendation_engine
 
     logger.info("Factory creating RecommendationEngine")
 
@@ -692,8 +692,8 @@ def create_enriched_signal_registry(
         >>> enriched_pack = registry['PA01']
         >>> patterns = enriched_pack.get_patterns_for_context({'section': 'budget'})
     """
-    from .signal_intelligence_layer import create_enriched_signal_pack
-    from .signal_registry import QuestionnaireSignalRegistry
+    from farfan_pipeline.core.orchestrator.signal_intelligence_layer import create_enriched_signal_pack
+    from farfan_pipeline.core.orchestrator.signal_registry import QuestionnaireSignalRegistry
 
     # Use canonical path if not specified
     if monolith_path is None:

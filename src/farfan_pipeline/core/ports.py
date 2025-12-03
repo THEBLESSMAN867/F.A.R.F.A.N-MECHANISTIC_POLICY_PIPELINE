@@ -15,7 +15,7 @@ Version: 1.0.0
 from datetime import datetime
 from typing import Any, Protocol
 
-from .analysis_port import RecommendationEnginePort
+from farfan_pipeline.core.analysis_port import RecommendationEnginePort
 
 
 class FilePort(Protocol):

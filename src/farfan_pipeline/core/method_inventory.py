@@ -14,7 +14,7 @@ from pathlib import Path
 SRC_ROOT = Path("farfan_core/farfan_core/core")
 DEFAULT_OUTPUT = Path("farfan_core/farfan_core/artifacts/calibration/method_inventory.json")
 
-from .method_inventory_types import (
+from farfan_pipeline.core.method_inventory_types import (
     GovernanceFlags,
     SignatureDescriptor,
 )
@@ -38,7 +38,7 @@ def extract_parameter_info(
     is_kwonly: bool = False
 ) -> ParameterDescriptor:
     """Extract detailed parameter information from AST."""
-    from .method_inventory_types import ParameterDescriptor
+    from farfan_pipeline.core.method_inventory_types import ParameterDescriptor
 
     name = arg.arg
 
@@ -87,7 +87,7 @@ def should_parametrize_method(func_def: ast.FunctionDef | ast.AsyncFunctionDef) 
     return len(non_self_args) > 0
 
 def extract_signature(func_def: ast.FunctionDef | ast.AsyncFunctionDef) -> SignatureDescriptor:
-    from .method_inventory_types import SignatureDescriptor
+    from farfan_pipeline.core.method_inventory_types import SignatureDescriptor
 
     args = [a.arg for a in func_def.args.posonlyargs + func_def.args.args]
     kwargs = [a.arg for a in func_def.args.kwonlyargs]
@@ -150,7 +150,7 @@ def extract_signature(func_def: ast.FunctionDef | ast.AsyncFunctionDef) -> Signa
             input_parameters.append(extract_parameter_info(arg, default, is_kwonly=True))
 
         if func_def.args.vararg:
-            from .method_inventory_types import ParameterDescriptor
+            from farfan_pipeline.core.method_inventory_types import ParameterDescriptor
             vararg_type = None
             if func_def.args.vararg.annotation:
                 try:
@@ -168,7 +168,7 @@ def extract_signature(func_def: ast.FunctionDef | ast.AsyncFunctionDef) -> Signa
             ))
 
         if func_def.args.kwarg:
-            from .method_inventory_types import ParameterDescriptor
+            from farfan_pipeline.core.method_inventory_types import ParameterDescriptor
             kwarg_type = None
             if func_def.args.kwarg.annotation:
                 try:
@@ -435,7 +435,7 @@ import json
 from dataclasses import asdict
 from typing import Any
 
-from .method_inventory_types import (
+from farfan_pipeline.core.method_inventory_types import (
     LocationInfo,
     MethodDescriptor,
     MethodId,

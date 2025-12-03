@@ -1,6 +1,11 @@
 [settings]
 root_package = farfan_pipeline
 
+# POLICY: Absolute imports only
+# All imports within farfan_pipeline must use absolute imports (e.g., from farfan_pipeline.core import x)
+# Relative imports (e.g., from . import x, from .. import y) are forbidden.
+# This is enforced by the CI pipeline via scripts/validate_no_relative_imports.py
+
 [contract:core-foundation]
 name = Core must stay independent
 type = forbid

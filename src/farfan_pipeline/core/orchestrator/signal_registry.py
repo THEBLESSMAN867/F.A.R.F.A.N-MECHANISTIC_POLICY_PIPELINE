@@ -75,7 +75,7 @@ except ImportError:
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 if TYPE_CHECKING:
-    from .questionnaire import CanonicalQuestionnaire
+    from farfan_pipeline.core.orchestrator.questionnaire import CanonicalQuestionnaire
 
 # ============================================================================
 # TYPE-SAFE SIGNAL PACKS (Pydantic v2)

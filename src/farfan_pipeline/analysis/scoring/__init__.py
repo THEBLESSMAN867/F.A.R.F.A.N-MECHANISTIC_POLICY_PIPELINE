@@ -10,7 +10,7 @@ Import them directly from there: `from farfan_core.analysis.scoring import Evide
 """
 
 # Import from this package's scoring.py
-from .scoring import (
+from farfan_pipeline.analysis.scoring.scoring import (
     EvidenceStructureError,
     ModalityConfig,
     ModalityValidationError,

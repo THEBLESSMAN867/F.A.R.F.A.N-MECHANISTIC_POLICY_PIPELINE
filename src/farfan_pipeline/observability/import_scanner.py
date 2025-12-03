@@ -20,7 +20,7 @@ import ast
 from pathlib import Path
 from typing import Iterable, Optional
 
-from .path_import_policy import ImportPolicy, PolicyReport, PolicyViolation
+from farfan_pipeline.observability.path_import_policy import ImportPolicy, PolicyReport, PolicyViolation
 
 
 def _is_stdlib_module(module_name: str, stdlib_modules: frozenset[str]) -> bool:

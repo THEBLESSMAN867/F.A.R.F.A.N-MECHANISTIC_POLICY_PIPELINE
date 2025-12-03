@@ -186,7 +186,7 @@ class WiringValidator:
         Raises:
             WiringContractError: If validation fails
         """
-        from .contracts import SPCDeliverable
+        from farfan_pipeline.core.wiring.contracts import SPCDeliverable
 
         validator = self._validators["spc->adapter"]
         validator.validate(

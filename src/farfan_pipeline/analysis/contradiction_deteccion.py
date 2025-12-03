@@ -356,7 +356,7 @@ class PolicyContradictionDetector:
 
         # Procesamiento de lenguaje natural
         # Delegate to factory for I/O operation
-        from .factory import load_spacy_model
+        from farfan_pipeline.analysis.factory import load_spacy_model
         self.nlp = load_spacy_model(spacy_model)
 
         # Componentes especializados

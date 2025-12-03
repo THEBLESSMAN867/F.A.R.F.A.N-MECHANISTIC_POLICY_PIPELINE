@@ -98,7 +98,7 @@ class CalibrationOrchestrator:
 
     def _load_intrinsic_calibration(self) -> None:
         """Load intrinsic calibration using IntrinsicCalibrationLoader."""
-        from .intrinsic_calibration_loader import get_intrinsic_calibration_loader
+        from farfan_pipeline.core.calibration.intrinsic_calibration_loader import get_intrinsic_calibration_loader
         
         loader = get_intrinsic_calibration_loader()
         
@@ -136,7 +136,7 @@ class CalibrationOrchestrator:
 
     def _load_layer_requirements(self) -> None:
         """Load layer requirements from layer_assignment module."""
-        from .layer_assignment import LAYER_REQUIREMENTS, CHOQUET_WEIGHTS
+        from farfan_pipeline.core.calibration.layer_assignment import LAYER_REQUIREMENTS, CHOQUET_WEIGHTS
         
         # For each method in intrinsic calibration, assign layers
         for method_id in self._intrinsic_scores.keys():
@@ -172,11 +172,11 @@ class CalibrationOrchestrator:
             return 'executor'
         
         # Try to get from intrinsic calibration
-        from .intrinsic_calibration_loader import get_intrinsic_calibration_loader
+        from farfan_pipeline.core.calibration.intrinsic_calibration_loader import get_intrinsic_calibration_loader
         loader = get_intrinsic_calibration_loader()
         calibration = loader.get_calibration(method_id)
         
-        from .layer_assignment import LAYER_REQUIREMENTS
+        from farfan_pipeline.core.calibration.layer_assignment import LAYER_REQUIREMENTS
         if calibration and hasattr(calibration, 'layer') and calibration.layer in LAYER_REQUIREMENTS:
             return calibration.layer
         

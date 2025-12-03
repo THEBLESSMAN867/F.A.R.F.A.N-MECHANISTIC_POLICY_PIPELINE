@@ -18,7 +18,7 @@ import tempfile
 from pathlib import Path
 from typing import FrozenSet, Set
 
-from .path_import_policy import ImportPolicy, PathPolicy
+from farfan_pipeline.observability.path_import_policy import ImportPolicy, PathPolicy
 
 
 def compute_repo_root() -> Path:

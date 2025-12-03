@@ -29,7 +29,7 @@ from typing import Any
 
 import numpy as np
 
-from .enhanced_contracts import StructuredLogger, utc_now_iso
+from farfan_pipeline.utils.enhanced_contracts import StructuredLogger, utc_now_iso
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 # ============================================================================

@@ -572,7 +572,7 @@ class ReportAssembler:
                 )
 
             # Import hash utility for content verification
-            from ..utils.hash_utils import compute_hash
+            from farfan_pipeline.utils.hash_utils import compute_hash
             monolith_hash = compute_hash(questionnaire_data)
 
             # Validate hash format
@@ -917,7 +917,7 @@ class ReportAssembler:
 
         try:
             # Delegate to factory for I/O
-            from .factory import save_json, write_text_file
+            from farfan_pipeline.analysis.factory import save_json, write_text_file
 
             if format == 'json':
                 save_json(report.to_dict(), str(output_path))

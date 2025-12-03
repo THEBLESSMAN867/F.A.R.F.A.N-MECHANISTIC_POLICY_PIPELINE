@@ -308,6 +308,11 @@ requirements_files_dev = ["requirements-dev.txt", "requirements-docs.txt", "requ
 [tool.importlinter]
 root_package = "farfan_pipeline"
 
+# POLICY: Absolute imports only
+# All imports within farfan_pipeline must use absolute imports (e.g., from farfan_pipeline.core import x)
+# Relative imports (e.g., from . import x, from .. import y) are forbidden.
+# This is enforced by the CI pipeline via scripts/validate_no_relative_imports.py
+
 [[tool.importlinter.contracts]]
 name = "Core (excluding orchestrator) must not import analysis"
 type = "forbidden"

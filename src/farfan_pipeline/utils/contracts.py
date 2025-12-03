@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 # ============================================================================
 # Import V2 contracts from enhanced_contracts module
 # Use these for new code; V1 contracts maintained for backward compatibility
-from .enhanced_contracts import (
+from farfan_pipeline.utils.enhanced_contracts import (
     # Pydantic Models
     AnalysisInputV2,
     AnalysisOutputV2,

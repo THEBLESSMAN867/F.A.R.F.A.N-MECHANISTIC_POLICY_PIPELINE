@@ -32,7 +32,7 @@ from farfan_pipeline.utils.contract_io import ContractEnvelope
 from farfan_pipeline.utils.json_logger import get_json_logger, log_io_event
 from farfan_pipeline.utils.paths import reports_dir
 
-from .models import (
+from farfan_pipeline.flux.models import (
     AggregateDeliverable,
     AggregateExpectation,
     ChunkDeliverable,
@@ -53,7 +53,7 @@ from .models import (
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from .configs import (
+    from farfan_pipeline.flux.configs import (
         AggregateConfig,
         ChunkConfig,
         NormalizeConfig,

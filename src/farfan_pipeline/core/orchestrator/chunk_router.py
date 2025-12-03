@@ -13,7 +13,7 @@ from dataclasses import asdict, dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..types import ChunkData
+    from farfan_pipeline.core.types import ChunkData
 
 # Routing table version identifier
 ROUTING_TABLE_VERSION = "v1"

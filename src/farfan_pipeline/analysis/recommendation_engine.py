@@ -183,7 +183,7 @@ class RecommendationEngine:
     def _load_schema(self) -> None:
         """Load JSON schema for rule validation"""
         # Delegate to factory for I/O operation
-        from .factory import load_json
+        from farfan_pipeline.analysis.factory import load_json
 
         try:
             self.schema = load_json(self.schema_path)
@@ -196,7 +196,7 @@ class RecommendationEngine:
     def _load_rules(self) -> None:
         """Load and validate recommendation rules"""
         # Delegate to factory for I/O operation
-        from .factory import load_json
+        from farfan_pipeline.analysis.factory import load_json
 
         try:
             self.rules = load_json(self.rules_path)
@@ -1082,7 +1082,7 @@ class RecommendationEngine:
             format: Output format ('json' or 'markdown')
         """
         # Delegate to factory for I/O operation
-        from .factory import save_json, write_text_file
+        from farfan_pipeline.analysis.factory import save_json, write_text_file
 
         if format == 'json':
             save_json(

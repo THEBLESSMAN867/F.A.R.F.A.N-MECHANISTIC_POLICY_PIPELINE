@@ -283,7 +283,7 @@ class PDETMunicipalPlanAnalyzer:
         )
 
         # Delegate to factory for I/O operation
-        from .factory import load_spacy_model
+        from farfan_pipeline.analysis.factory import load_spacy_model
 
         try:
             self.nlp = load_spacy_model("es_dep_news_trf")
@@ -2180,7 +2180,7 @@ class PDETMunicipalPlanAnalyzer:
 
             # Exportar reporte
             # Delegate to factory for I/O operation
-            from .factory import save_json, write_text_file
+            from farfan_pipeline.analysis.factory import save_json, write_text_file
 
             report = self.generate_executive_report(results)
             report_path = output_path / "executive_report.md"
@@ -2206,7 +2206,7 @@ class PDETMunicipalPlanAnalyzer:
 
         # Método 1: PyMuPDF (rápido y eficiente)
         # Delegate to factory for I/O operation
-        from .factory import open_pdf_with_fitz, open_pdf_with_pdfplumber
+        from farfan_pipeline.analysis.factory import open_pdf_with_fitz, open_pdf_with_pdfplumber
 
         try:
             doc = open_pdf_with_fitz(pdf_path)

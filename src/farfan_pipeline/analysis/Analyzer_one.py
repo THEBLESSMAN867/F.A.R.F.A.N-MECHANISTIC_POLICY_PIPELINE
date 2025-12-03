@@ -33,7 +33,7 @@ from typing import (
 from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 if TYPE_CHECKING:
-    from ..utils.method_config_loader import MethodConfigLoader
+    from farfan_pipeline.utils.method_config_loader import MethodConfigLoader
 
 warnings.filterwarnings('ignore')
 
@@ -841,7 +841,7 @@ class MunicipalAnalyzer:
         """Load and segment document."""
 
         # Delegate to factory for I/O operation
-        from .factory import read_text_file
+        from farfan_pipeline.analysis.factory import read_text_file
 
         content = read_text_file(document_path)
 
@@ -936,7 +936,7 @@ def example_usage():
 
     # Save sample to file
     # Delegate to factory for I/O operation
-    from .factory import write_text_file
+    from farfan_pipeline.analysis.factory import write_text_file
 
     write_text_file(sample_text, SAMPLE_MUNICIPAL_PLAN)
 
@@ -1353,7 +1353,7 @@ class DocumentProcessor:
             raise FileNotFoundError(f"Rubric file not found: {rubric_file}")
 
         # Delegate to factory for I/O operation
-        from .factory import load_json
+        from farfan_pipeline.analysis.factory import load_json
 
         questionnaire_data = load_json(questionnaire_file)
         rubric_data = load_json(rubric_file)
@@ -1568,7 +1568,7 @@ class ResultsExporter:
     def export_to_json(results: dict[str, Any], output_path: str) -> None:
         """Export results to JSON file."""
         # Delegate to factory for I/O operation
-        from .factory import save_json
+        from farfan_pipeline.analysis.factory import save_json
 
         try:
             save_json(results, output_path)
@@ -1708,7 +1708,7 @@ class ResultsExporter:
                     lines.append(f"  Risk Level: {risk.get('overall_risk', 'unknown')}\n")
 
             # Delegate to factory for I/O operation
-            from .factory import write_text_file
+            from farfan_pipeline.analysis.factory import write_text_file
             write_text_file(''.join(lines), output_path)
             logger.info(f"Summary report exported: {output_path}")
 
@@ -1753,7 +1753,7 @@ class ConfigurationManager:
 
         if Path(self.config_path).exists():
             # Delegate to factory for I/O operation
-            from .factory import load_json
+            from farfan_pipeline.analysis.factory import load_json
 
             try:
                 user_config = load_json(self.config_path)
@@ -1772,7 +1772,7 @@ class ConfigurationManager:
     def save_config(self) -> None:
         """Save current configuration to file."""
         # Delegate to factory for I/O operation
-        from .factory import save_json
+        from farfan_pipeline.analysis.factory import save_json
 
         try:
             save_json(self.config, self.config_path)
@@ -1875,7 +1875,7 @@ class BatchProcessor:
                         lines.append(f"  Risk Level: {risk_summary.get('overall_risk_level', 'unknown')}\n")
 
             # Delegate to factory for I/O operation
-            from .factory import write_text_file
+            from farfan_pipeline.analysis.factory import write_text_file
             write_text_file(''.join(lines), summary_file)
             logger.info(f"Batch summary created: {summary_file}")
 

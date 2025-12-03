@@ -864,7 +864,7 @@ class PDFProcessor:
         """Load PDF document with retry logic"""
         if self.retry_handler:
             try:
-                from .retry_handler import DependencyType
+                from farfan_pipeline.analysis.retry_handler import DependencyType
 
                 @self.retry_handler.with_retry(
                     DependencyType.PDF_PARSER,

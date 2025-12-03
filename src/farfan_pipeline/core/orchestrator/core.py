@@ -783,7 +783,7 @@ class MethodExecutor:
         signal_registry: Any | None = None,
         method_registry: Any | None = None,  # MethodRegistry instance
     ) -> None:
-        from .method_registry import MethodRegistry, setup_default_instantiation_rules
+        from farfan_pipeline.core.orchestrator.method_registry import MethodRegistry, setup_default_instantiation_rules
 
         self.degraded_mode = False
         self.degraded_reasons: list[str] = []
@@ -808,7 +808,7 @@ class MethodExecutor:
         # Build minimal class type registry for ArgRouter compatibility
         # Note: This doesn't instantiate classes, just loads types
         try:
-            from .class_registry import build_class_registry
+            from farfan_pipeline.core.orchestrator.class_registry import build_class_registry
 
             registry = build_class_registry()
         except (ClassRegistryError, ModuleNotFoundError, ImportError) as exc:
@@ -846,7 +846,7 @@ class MethodExecutor:
             AttributeError: If method doesn't exist
             MethodRegistryError: If method cannot be retrieved
         """
-        from .method_registry import MethodRegistryError
+        from farfan_pipeline.core.orchestrator.method_registry import MethodRegistryError
 
         # Get method from registry (lazy instantiation)
         try:
@@ -1129,7 +1129,7 @@ class Orchestrator:
             resource_snapshot_interval: Interval for resource snapshots.
             recommendation_engine_port: Optional recommendation engine port (injected via DI).
         """
-        from .factory import _validate_questionnaire_structure
+        from farfan_pipeline.core.orchestrator.factory import _validate_questionnaire_structure
 
         validate_phase_definitions(self.FASES, self.__class__)
 
@@ -1140,7 +1140,7 @@ class Orchestrator:
         self.calibration_orchestrator = calibration_orchestrator
         self.resource_limits = resource_limits or ResourceLimits()
         self.resource_snapshot_interval = max(1, resource_snapshot_interval)
-        from .factory import get_questionnaire_provider
+        from farfan_pipeline.core.orchestrator.factory import get_questionnaire_provider
 
         self.questionnaire_provider = get_questionnaire_provider()
 
@@ -1516,8 +1516,8 @@ class Orchestrator:
         )
 
         # 2. Load signals
-        from .questionnaire import load_questionnaire
-        from .signal_loader import build_signal_pack_from_monolith
+        from farfan_pipeline.core.orchestrator.questionnaire import load_questionnaire
+        from farfan_pipeline.core.orchestrator.signal_loader import build_signal_pack_from_monolith
 
         questionnaire = load_questionnaire()
         signal_pack = build_signal_pack_from_monolith(
@@ -1528,7 +1528,7 @@ class Orchestrator:
         )
 
         # 3. Instantiate an executor
-        from . import executors
+        from farfan_pipeline.core.orchestrator import executors
 
         # Simple mock for the signal registry, as the executor expects an object with a 'get' method.
         class MockSignalRegistry:
@@ -1870,7 +1870,7 @@ class Orchestrator:
 
         # Check questionnaire provider (if available)
         try:
-            from . import get_questionnaire_provider
+            from farfan_pipeline.core.orchestrator import get_questionnaire_provider
 
             provider = get_questionnaire_provider()
             questionnaire_health = {

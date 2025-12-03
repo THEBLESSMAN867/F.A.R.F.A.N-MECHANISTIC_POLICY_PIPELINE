@@ -23,7 +23,7 @@ from farfan_pipeline.core.calibration.decorators import calibrated_method
 
 # Import will be available at runtime
 try:
-    from .contract_io import ContractEnvelope
+    from farfan_pipeline.utils.contract_io import ContractEnvelope
 except ImportError:
     # Allow module to load for testing
     ContractEnvelope = None  # type: ignore
@@ -218,7 +218,7 @@ if __name__ == "__main__":
     print("\n3. Testing I/O event logging:")
     # Only test if ContractEnvelope is available
     if ContractEnvelope is not None:
-        from .contract_io import ContractEnvelope
+        from farfan_pipeline.utils.contract_io import ContractEnvelope
 
         lg = get_json_logger("demo")
         out = ContractEnvelope.wrap(

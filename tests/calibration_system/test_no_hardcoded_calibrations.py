@@ -7,11 +7,15 @@ Validates that calibration parameters are not hardcoded:
 - Fails if magic numbers found in calibration-sensitive code
 
 FAILURE CONDITION: Any hardcoded calibration values = NOT READY
+
+Integration: This test suite integrates with the pre-commit hook system.
+The pre-commit hook (scripts/pre_commit_validators.py) uses the same validation
+logic to block commits containing hardcoded calibration patterns.
 """
 import re
 import pytest
 from pathlib import Path
-from typing import List, Dict, Tuple, Set
+from typing import List, Dict, Tuple, Set, Any
 
 
 class TestNoHardcodedCalibrations:
@@ -254,6 +258,27 @@ class TestNoHardcodedCalibrations:
                 pass
         
         print(f"\nFound {imports_found} files using calibration_registry")
+    
+    def test_pre_commit_hook_exists(self):
+        """Verify pre-commit hook is installed"""
+        hook_path = Path(".git/hooks/pre-commit")
+        assert hook_path.exists(), "Pre-commit hook not installed"
+        
+        content = hook_path.read_text()
+        assert "pre_commit_validators.py" in content, \
+            "Pre-commit hook does not call validators"
+        
+        print("\n✓ Pre-commit hook is installed and configured")
+    
+    def test_pre_commit_validators_exist(self):
+        """Verify pre-commit validator scripts exist"""
+        validators_path = Path("scripts/pre_commit_validators.py")
+        assert validators_path.exists(), "Pre-commit validators script missing"
+        
+        update_hash_path = Path("scripts/update_hash_registry.py")
+        assert update_hash_path.exists(), "Hash registry update script missing"
+        
+        print("\n✓ Pre-commit validator scripts exist")
     
     def test_no_inline_bayesian_priors(self, source_files):
         """Check for hardcoded Bayesian priors"""

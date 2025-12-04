@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from types import MappingProxyType
-from typing import Any
+from typing import Any, Protocol
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +16,12 @@ class ChunkRoutingResult:
 EXPECTED_TASKS_PER_CHUNK = 5
 EXPECTED_TASKS_PER_POLICY_AREA = 30
 MAX_QUESTION_GLOBAL = 999
+
+
+class RoutingResult(Protocol):
+    """Protocol for routing result objects that provide policy_area_id."""
+
+    policy_area_id: str
 
 
 def _freeze_immutable(obj: Any) -> Any:  # noqa: ANN401
@@ -282,25 +288,36 @@ def _construct_task_legacy(
     chunk: dict[str, Any],
     patterns: list[dict[str, Any]],
     signals: dict[str, Any],
-    generated_ids: set[str],
+    generated_task_ids: set[str],
+    routing_result: RoutingResult,
 ) -> ExecutableTask:
     question_global = question.get("question_global")
-    policy_area_id = question.get("policy_area_id")
+
+    if not isinstance(question_global, int) or not (0 <= question_global <= 999):
+        raise ValueError(
+            f"Invalid question_global: {question_global}. "
+            f"Must be an integer in range 0-999."
+        )
+
+    policy_area_id = routing_result.policy_area_id
 
     task_id = f"MQC-{question_global:03d}_{policy_area_id}"
 
-    if task_id in generated_ids:
-        raise ValueError(f"Duplicate task_id detected: {task_id}")
+    if task_id in generated_task_ids:
+        question_id = question.get("question_id", "")
+        raise ValueError(
+            f"Duplicate task_id detected: {task_id} for question {question_id}"
+        )
 
-    generated_ids.add(task_id)
+    generated_task_ids.add(task_id)
 
     creation_timestamp = datetime.now(timezone.utc).isoformat()
 
     context = MicroQuestionContext(
         task_id=task_id,
         question_id=question.get("question_id", ""),
-        question_global=int(question_global) if question_global is not None else 0,
-        policy_area_id=str(policy_area_id) if policy_area_id is not None else "",
+        question_global=question_global,
+        policy_area_id=policy_area_id,
         dimension_id=question.get("dimension_id", ""),
         chunk_id=chunk.get("id", ""),
         base_slot=question.get("base_slot", ""),
@@ -315,8 +332,8 @@ def _construct_task_legacy(
     task = ExecutableTask(
         task_id=task_id,
         question_id=question.get("question_id", ""),
-        question_global=int(question_global) if question_global is not None else 0,
-        policy_area_id=str(policy_area_id) if policy_area_id is not None else "",
+        question_global=question_global,
+        policy_area_id=policy_area_id,
         dimension_id=question.get("dimension_id", ""),
         chunk_id=chunk.get("id", ""),
         patterns=patterns,

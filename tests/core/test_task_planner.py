@@ -159,9 +159,14 @@ class TestConstructTask:
         chunk = {"id": "chunk_001", "expected_elements": []}
         patterns = [{"type": "pattern1"}]
         signals = {"signal1": 0.5}
-        generated_ids: set[str] = set()
+        generated_task_ids: set[str] = set()
 
-        task = _construct_task_legacy(question, chunk, patterns, signals, generated_ids)
+        class MockRoutingResult:
+            policy_area_id = "PA01"
+
+        routing_result = MockRoutingResult()
+
+        task = _construct_task_legacy(question, chunk, patterns, signals, generated_task_ids, routing_result)
 
         assert task.task_id == "MQC-001_PA01"
         assert task.question_id == "D1-Q1"
@@ -174,7 +179,7 @@ class TestConstructTask:
         assert task.expected_elements == question["expected_elements"]
         assert task.metadata["base_slot"] == "D1-Q1"
         assert task.metadata["cluster_id"] == "CL01"
-        assert "MQC-001_PA01" in generated_ids
+        assert "MQC-001_PA01" in generated_task_ids
         assert task.context is not None
         assert isinstance(task.context, MicroQuestionContext)
         assert task.context.base_slot == "D1-Q1"
@@ -191,12 +196,17 @@ class TestConstructTask:
         chunk = {"id": "chunk_001", "expected_elements": []}
         patterns = []
         signals = {}
-        generated_ids = {"MQC-001_PA01"}
+        generated_task_ids = {"MQC-001_PA01"}
+
+        class MockRoutingResult:
+            policy_area_id = "PA01"
+
+        routing_result = MockRoutingResult()
 
         with pytest.raises(ValueError) as exc_info:
-            _construct_task_legacy(question, chunk, patterns, signals, generated_ids)
+            _construct_task_legacy(question, chunk, patterns, signals, generated_task_ids, routing_result)
 
-        assert "Duplicate task_id detected: MQC-001_PA01" in str(exc_info.value)
+        assert "Duplicate task_id detected: MQC-001_PA01 for question D1-Q1" in str(exc_info.value)
 
     def test_construct_task_timestamp_format(self):
         question = {
@@ -207,9 +217,14 @@ class TestConstructTask:
             "expected_elements": [],
         }
         chunk = {"id": "chunk_002", "expected_elements": []}
-        generated_ids: set[str] = set()
+        generated_task_ids: set[str] = set()
 
-        task = _construct_task_legacy(question, chunk, [], {}, generated_ids)
+        class MockRoutingResult:
+            policy_area_id = "PA05"
+
+        routing_result = MockRoutingResult()
+
+        task = _construct_task_legacy(question, chunk, [], {}, generated_task_ids, routing_result)
 
         assert "T" in task.creation_timestamp
         assert task.creation_timestamp.endswith("Z") or "." in task.creation_timestamp

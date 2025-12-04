@@ -639,8 +639,23 @@ class IrrigationSynchronizer:
                        or dict key set mismatch, or if question["question_global"] is missing
         """
         question_id = question.get("question_id", "UNKNOWN")
+        question_global = question.get("question_global")
+
+        if question_global is None:
+            raise ValueError("question_global is required")
+
+        if not isinstance(question_global, int):
+            raise ValueError(
+                f"question_global must be an integer, got {type(question_global).__name__}"
+            )
+
+        if not (0 <= question_global <= 999):
+            raise ValueError(
+                f"question_global must be between 0 and 999 inclusive, got {question_global}"
+            )
+
         provisional_task_id = (
-            f'MQC-{question["question_global"]:03d}_{routing_result.policy_area_id}'
+            f"MQC-{question_global:03d}_{routing_result.policy_area_id}"
         )
         chunk_id = routing_result.chunk_id
 
@@ -811,7 +826,20 @@ class IrrigationSynchronizer:
             ValueError: If duplicate task_id is detected
         """
         question_id = question["question_id"]
-        question_global = question.get("question_global", 0)
+        question_global = question.get("question_global")
+
+        if question_global is None:
+            raise ValueError("question_global is required")
+
+        if not isinstance(question_global, int):
+            raise ValueError(
+                f"question_global must be an integer, got {type(question_global).__name__}"
+            )
+
+        if not (0 <= question_global <= 999):
+            raise ValueError(
+                f"question_global must be between 0 and 999 inclusive, got {question_global}"
+            )
 
         task_id = f"MQC-{question_global:03d}_{routing_result.policy_area_id}"
 

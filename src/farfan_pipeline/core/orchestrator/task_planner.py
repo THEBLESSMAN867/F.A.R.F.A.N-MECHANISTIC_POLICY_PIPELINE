@@ -331,6 +331,19 @@ def _construct_task_legacy(
 
     policy_area_id = routing_result.policy_area_id
 
+    if question_global is None:
+        raise ValueError("question_global is required")
+
+    if not isinstance(question_global, int):
+        raise ValueError(
+            f"question_global must be an integer, got {type(question_global).__name__}"
+        )
+
+    if not (0 <= question_global <= 999):
+        raise ValueError(
+            f"question_global must be between 0 and 999 inclusive, got {question_global}"
+        )
+
     task_id = f"MQC-{question_global:03d}_{policy_area_id}"
 
     if task_id in generated_task_ids:

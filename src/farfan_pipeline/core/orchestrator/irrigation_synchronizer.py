@@ -27,6 +27,7 @@ import uuid
 from dataclasses import dataclass
 from typing import Any
 
+from farfan_pipeline.core.orchestrator.task_planner import ExecutableTask
 from farfan_pipeline.core.types import ChunkData, PreprocessedDocument
 from farfan_pipeline.synchronization import ChunkMatrix
 
@@ -64,7 +65,7 @@ if PROMETHEUS_AVAILABLE:
     )
     synchronization_chunk_matches = Counter(
         "synchronization_chunk_matches_total",
-        "Chunk routing match results",
+        "Total chunk routing matches during synchronization",
         ["dimension", "policy_area", "status"],
     )
 else:
@@ -100,10 +101,9 @@ else:
 
 @dataclass(frozen=True)
 class ChunkRoutingResult:
-    """Immutable result of Phase 3 chunk routing verification.
+    """Result of Phase 3 chunk routing verification.
 
-    Contains validated chunk reference and extracted metadata for
-    downstream task construction in Phases 4-7.
+    Contains validated chunk reference and extracted metadata for task construction.
     """
 
     target_chunk: ChunkData
@@ -270,158 +270,120 @@ class IrrigationSynchronizer:
         return count
 
     def validate_chunk_routing(self, question: dict[str, Any]) -> ChunkRoutingResult:
-        """Route chunk for question with Phase 3 multi-stage verification.
+        """Phase 3: Validate chunk routing and extract metadata.
 
-        This method implements P3.1-P3.10 of the irrigation synchronization
-        specification. It extracts routing keys from the question, queries
-        the chunk matrix, verifies consistency across multiple dimensions,
-        and extracts chunk payload for downstream processing.
+        Verifies that a chunk exists in the matrix for the question's routing keys,
+        validates chunk consistency, and extracts metadata for task construction.
 
         Args:
-            question: Question dictionary from questionnaire with routing keys
-                Required keys: question_id, policy_area_id, dimension_id
-                Optional keys: question_text, expected_elements, patterns, etc.
+            question: Question dict with routing keys (policy_area_id, dimension_id)
 
         Returns:
             ChunkRoutingResult with validated chunk and extracted metadata
 
         Raises:
-            ValueError: If question missing required fields
-            ValueError: If no chunk found for routing keys (synchronization failure)
-            ValueError: If chunk routing keys inconsistent (corruption detected)
-            ValueError: If chunk text empty or whitespace-only
-
-        Example:
-            >>> question = {
-            ...     "question_id": "D1-Q01",
-            ...     "policy_area_id": "PA05",
-            ...     "dimension_id": "DIM03"
-            ... }
-            >>> result = synchronizer.validate_chunk_routing(question)
-            >>> print(result.chunk_id)
-            PA05-DIM03
+            ValueError: If chunk not found or validation fails
         """
-        question_id = question.get("question_id")
-        if not question_id:
-            raise ValueError(
-                "Question missing required 'question_id' field. "
-                "Cannot route chunk without question identifier."
-            )
-
+        question_id = question.get("question_id", "UNKNOWN")
         policy_area_id = question.get("policy_area_id")
+        dimension_id = question.get("dimension_id")
+
         if not policy_area_id:
             raise ValueError(
-                f"Question {question_id} missing required 'policy_area_id' field. "
-                "All questions must specify target policy area for chunk routing."
+                f"Question {question_id} missing required field: policy_area_id"
             )
 
-        dimension_id = question.get("dimension_id")
         if not dimension_id:
             raise ValueError(
-                f"Question {question_id} missing required 'dimension_id' field. "
-                "All questions must specify target dimension for chunk routing."
+                f"Question {question_id} missing required field: dimension_id"
             )
-
-        lookup_key = (policy_area_id, dimension_id)
-
-        logger.debug(
-            json.dumps(
-                {
-                    "event": "chunk_routing_start",
-                    "question_id": question_id,
-                    "policy_area_id": policy_area_id,
-                    "dimension_id": dimension_id,
-                    "lookup_key": list(lookup_key),
-                    "correlation_id": self.correlation_id,
-                }
-            )
-        )
 
         try:
             target_chunk = self.chunk_matrix.get_chunk(policy_area_id, dimension_id)
+
+            chunk_id = target_chunk.chunk_id or f"{policy_area_id}-{dimension_id}"
+
+            if not target_chunk.text or not target_chunk.text.strip():
+                raise ValueError(
+                    f"Chunk {chunk_id} has empty text content for question {question_id}"
+                )
+
+            if (
+                target_chunk.policy_area_id
+                and target_chunk.policy_area_id != policy_area_id
+            ):
+                raise ValueError(
+                    f"Chunk routing key mismatch for {question_id}: "
+                    f"question policy_area={policy_area_id} but chunk has {target_chunk.policy_area_id}"
+                )
+
+            if target_chunk.dimension_id and target_chunk.dimension_id != dimension_id:
+                raise ValueError(
+                    f"Chunk routing key mismatch for {question_id}: "
+                    f"question dimension={dimension_id} but chunk has {target_chunk.dimension_id}"
+                )
+
+            expected_elements = question.get("expected_elements", [])
+
+            document_position = None
+            if target_chunk.start_pos is not None and target_chunk.end_pos is not None:
+                document_position = (target_chunk.start_pos, target_chunk.end_pos)
+
+            synchronization_chunk_matches.labels(
+                dimension=dimension_id, policy_area=policy_area_id, status="success"
+            ).inc()
+
+            logger.debug(
+                json.dumps(
+                    {
+                        "event": "chunk_routing_success",
+                        "question_id": question_id,
+                        "chunk_id": chunk_id,
+                        "policy_area_id": policy_area_id,
+                        "dimension_id": dimension_id,
+                        "text_length": len(target_chunk.text),
+                        "has_expected_elements": len(expected_elements) > 0,
+                        "has_document_position": document_position is not None,
+                        "correlation_id": self.correlation_id,
+                    }
+                )
+            )
+
+            return ChunkRoutingResult(
+                target_chunk=target_chunk,
+                chunk_id=chunk_id,
+                policy_area_id=policy_area_id,
+                dimension_id=dimension_id,
+                text_content=target_chunk.text,
+                expected_elements=expected_elements,
+                document_position=document_position,
+            )
+
         except KeyError as e:
             synchronization_chunk_matches.labels(
                 dimension=dimension_id, policy_area=policy_area_id, status="failure"
             ).inc()
 
-            raise ValueError(
+            error_msg = (
                 f"Synchronization Failure for MQC {question_id}: "
                 f"PA={policy_area_id}, DIM={dimension_id}. "
-                f"No corresponding chunk found in matrix. "
-                f"This indicates incomplete chunk coverage - expected all combinations "
-                f"of PA01-PA10 × DIM01-DIM06 to be present."
-            ) from e
-
-        if target_chunk.policy_area_id != policy_area_id:
-            raise ValueError(
-                f"Policy area mismatch for question {question_id}: "
-                f"Routing key specifies PA={policy_area_id} but chunk has PA={target_chunk.policy_area_id}. "
-                f"Chunk ID: {target_chunk.chunk_id}"
+                f"No corresponding chunk found in matrix."
             )
 
-        if target_chunk.dimension_id != dimension_id:
-            raise ValueError(
-                f"Dimension mismatch for question {question_id}: "
-                f"Routing key specifies DIM={dimension_id} but chunk has DIM={target_chunk.dimension_id}. "
-                f"Chunk ID: {target_chunk.chunk_id}"
+            logger.error(
+                json.dumps(
+                    {
+                        "event": "chunk_routing_failure",
+                        "question_id": question_id,
+                        "policy_area_id": policy_area_id,
+                        "dimension_id": dimension_id,
+                        "error": error_msg,
+                        "correlation_id": self.correlation_id,
+                    }
+                )
             )
 
-        expected_chunk_id = f"{policy_area_id}-{dimension_id}"
-        if target_chunk.chunk_id != expected_chunk_id:
-            raise ValueError(
-                f"Chunk identity inconsistency for question {question_id}: "
-                f"Expected chunk_id={expected_chunk_id} based on routing keys, "
-                f"but chunk has chunk_id={target_chunk.chunk_id}"
-            )
-
-        text_content = target_chunk.text
-        if not text_content or not text_content.strip():
-            raise ValueError(
-                f"Chunk {target_chunk.chunk_id} has empty or whitespace-only text. "
-                f"Cannot process question {question_id} without chunk content."
-            )
-
-        expected_elements = getattr(target_chunk, "expected_elements", [])
-        if expected_elements is None:
-            expected_elements = []
-        expected_elements = list(expected_elements)
-
-        document_position = getattr(target_chunk, "document_position", None)
-        if document_position is None and hasattr(target_chunk, "provenance"):
-            provenance = target_chunk.provenance
-            if provenance and hasattr(provenance, "span_in_page"):
-                document_position = provenance.span_in_page
-
-        synchronization_chunk_matches.labels(
-            dimension=dimension_id, policy_area=policy_area_id, status="success"
-        ).inc()
-
-        logger.debug(
-            json.dumps(
-                {
-                    "event": "chunk_routing_success",
-                    "question_id": question_id,
-                    "chunk_id": target_chunk.chunk_id,
-                    "policy_area_id": policy_area_id,
-                    "dimension_id": dimension_id,
-                    "text_length": len(text_content),
-                    "has_expected_elements": len(expected_elements) > 0,
-                    "has_document_position": document_position is not None,
-                    "correlation_id": self.correlation_id,
-                    "timestamp": time.time(),
-                }
-            )
-        )
-
-        return ChunkRoutingResult(
-            target_chunk=target_chunk,
-            chunk_id=target_chunk.chunk_id,
-            policy_area_id=policy_area_id,
-            dimension_id=dimension_id,
-            text_content=text_content,
-            expected_elements=expected_elements,
-            document_position=document_position,
-        )
+            raise ValueError(error_msg) from e
 
     def _extract_questions(self) -> list[dict[str, Any]]:
         """Extract all questions from questionnaire in deterministic order."""
@@ -430,6 +392,7 @@ class IrrigationSynchronizer:
 
         for dimension in range(1, 7):
             dim_key = f"D{dimension}"
+            dimension_id = f"DIM{dimension:02d}"
 
             for q_num in range(1, 51):
                 question_key = f"{dim_key}_Q{q_num:02d}"
@@ -441,12 +404,81 @@ class IrrigationSynchronizer:
                             "dimension": dim_key,
                             "question_id": question_key,
                             "question_num": q_num,
+                            "question_global": block.get("question_global", 0),
                             "question_text": block.get("question", ""),
+                            "policy_area_id": block.get("policy_area_id"),
+                            "dimension_id": dimension_id,
                             "patterns": block.get("patterns", []),
+                            "expected_elements": block.get("expected_elements", []),
+                            "signal_requirements": block.get("signal_requirements", {}),
                         }
                     )
 
+        questions.sort(key=lambda q: (q["dimension_id"], q["question_id"]))
+
         return questions
+
+    def _construct_task(
+        self, question: dict[str, Any], routing_result: ChunkRoutingResult
+    ) -> ExecutableTask:
+        """Construct ExecutableTask from question and routing result.
+
+        Phase 7 responsibility (partial implementation for Objective 3).
+
+        Args:
+            question: Question dict from questionnaire
+            routing_result: Validated routing result from Phase 3
+
+        Returns:
+            ExecutableTask ready for execution
+        """
+        question_id = question["question_id"]
+        question_global = question.get("question_global", 0)
+
+        task_id = f"MQC-{question_global:03d}_{routing_result.policy_area_id}"
+
+        chunk_id = routing_result.chunk_id
+        policy_area_id = routing_result.policy_area_id
+        dimension_id = routing_result.dimension_id
+        expected_elements = routing_result.expected_elements
+        document_position = routing_result.document_position
+
+        patterns = question.get("patterns", [])
+        signals = {}
+
+        task = ExecutableTask(
+            task_id=task_id,
+            question_id=question_id,
+            question_global=question_global,
+            policy_area_id=policy_area_id,
+            dimension_id=dimension_id,
+            chunk_id=chunk_id,
+            patterns=patterns,
+            signals=signals,
+            creation_timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            expected_elements=expected_elements,
+            metadata={
+                "document_position": document_position,
+                "text_length": len(routing_result.text_content),
+                "correlation_id": self.correlation_id,
+            },
+        )
+
+        logger.debug(
+            json.dumps(
+                {
+                    "event": "task_constructed",
+                    "task_id": task_id,
+                    "question_id": question_id,
+                    "chunk_id": chunk_id,
+                    "has_expected_elements": len(expected_elements) > 0,
+                    "has_document_position": document_position is not None,
+                    "correlation_id": self.correlation_id,
+                }
+            )
+        )
+
+        return task
 
     def _compute_integrity_hash(self, tasks: list[Task]) -> str:
         """Compute Blake3 or SHA256 integrity hash of execution plan."""
@@ -488,16 +520,32 @@ class IrrigationSynchronizer:
             return self._build_with_legacy_chunks()
 
     def _build_with_chunk_matrix(self) -> ExecutionPlan:
-        """Build execution plan using validated chunk matrix."""
+        """Build execution plan using validated chunk matrix.
+
+        Orchestrates Phases 2-7 of irrigation synchronization:
+        - Phase 2: Question extraction
+        - Phase 3: Chunk routing (OBJECTIVE 3 INTEGRATION)
+        - Phase 4: Pattern filtering (future)
+        - Phase 5: Signal resolution (future)
+        - Phase 6: Schema validation (future)
+        - Phase 7: Task construction
+
+        Returns:
+            ExecutionPlan with validated tasks
+
+        Raises:
+            ValueError: On routing failures, validation errors
+        """
         logger.info(
             json.dumps(
                 {
-                    "event": "build_execution_plan_start",
+                    "event": "task_construction_start",
                     "correlation_id": self.correlation_id,
                     "question_count": self.question_count,
                     "chunk_count": self.chunk_count,
                     "mode": "chunk_matrix",
-                    "phase": "synchronization_phase_0",
+                    "phase": "synchronization_phase_2",
+                    "timestamp": time.time(),
                 }
             )
         )
@@ -505,66 +553,118 @@ class IrrigationSynchronizer:
         try:
             if self.question_count == 0:
                 synchronization_failures.labels(error_type="empty_questions").inc()
-                raise ValueError("No questions found in questionnaire")
+                raise ValueError(
+                    "No questions extracted from questionnaire. "
+                    "Cannot build tasks with empty question set."
+                )
 
             questions = self._extract_questions()
-            policy_areas = ChunkMatrix.POLICY_AREAS
-            dimensions = ChunkMatrix.DIMENSIONS
 
-            tasks: list[Task] = []
+            if not questions:
+                raise ValueError(
+                    "No questions extracted from questionnaire. "
+                    "Cannot build tasks with empty question set."
+                )
 
-            for question in questions:
-                dimension_id = f"DIM{question['dimension'][1:].zfill(2)}"
+            tasks: list[ExecutableTask] = []
+            routing_successes = 0
+            routing_failures = 0
 
-                if dimension_id not in dimensions:
-                    synchronization_failures.labels(
-                        error_type="invalid_dimension"
-                    ).inc()
-                    raise ValueError(
-                        f"Invalid dimension '{dimension_id}' for question "
-                        f"'{question['question_id']}': must be one of {dimensions}"
-                    )
+            for idx, question in enumerate(questions, start=1):
+                question_id = question.get("question_id", f"UNKNOWN_{idx}")
 
-                for policy_area in policy_areas:
-                    try:
-                        chunk = self.chunk_matrix.get_chunk(policy_area, dimension_id)
+                try:
+                    routing_result = self.validate_chunk_routing(question)
+                    routing_successes += 1
 
-                        chunk_id = f"{chunk.policy_area_id}-{chunk.dimension_id}"
+                    task = self._construct_task(question, routing_result)
+                    tasks.append(task)
 
-                        task_id = f"{question['question_id']}_{policy_area}_{chunk_id}"
-
-                        task = Task(
-                            task_id=task_id,
-                            dimension=question["dimension"],
-                            question_id=question["question_id"],
-                            policy_area=policy_area,
-                            chunk_id=chunk_id,
-                            chunk_index=chunk.id,
-                            question_text=question["question_text"],
+                    if idx % 50 == 0:
+                        logger.info(
+                            json.dumps(
+                                {
+                                    "event": "task_construction_progress",
+                                    "tasks_completed": idx,
+                                    "total_questions": len(questions),
+                                    "progress_pct": round(
+                                        100 * idx / len(questions), 2
+                                    ),
+                                    "correlation_id": self.correlation_id,
+                                }
+                            )
                         )
 
-                        tasks.append(task)
+                except ValueError as e:
+                    routing_failures += 1
 
-                        tasks_constructed.labels(
-                            dimension=question["dimension"], policy_area=policy_area
-                        ).inc()
+                    policy_area_id = question.get("policy_area_id", "UNKNOWN")
+                    dimension_id = question.get("dimension_id", "UNKNOWN")
 
-                    except KeyError as e:
-                        synchronization_failures.labels(
-                            error_type="chunk_lookup_failure"
-                        ).inc()
-                        raise ValueError(
-                            f"Failed to retrieve chunk for policy_area='{policy_area}', "
-                            f"dimension='{dimension_id}', question='{question['question_id']}': {e}"
-                        ) from e
+                    logger.error(
+                        json.dumps(
+                            {
+                                "event": "task_construction_failure",
+                                "error_event": "routing_failure",
+                                "question_id": question_id,
+                                "question_index": idx,
+                                "policy_area_id": policy_area_id,
+                                "dimension_id": dimension_id,
+                                "error_type": type(e).__name__,
+                                "error_message": str(e),
+                                "correlation_id": self.correlation_id,
+                                "timestamp": time.time(),
+                            }
+                        )
+                    )
 
-            integrity_hash = self._compute_integrity_hash(tasks)
+                    raise
 
+            expected_task_count = len(questions)
+            actual_task_count = len(tasks)
+
+            if actual_task_count != expected_task_count:
+                raise ValueError(
+                    f"Task count mismatch: Expected {expected_task_count} tasks "
+                    f"but constructed {actual_task_count}. "
+                    f"Routing successes: {routing_successes}, failures: {routing_failures}"
+                )
+
+            logger.info(
+                json.dumps(
+                    {
+                        "event": "task_construction_complete",
+                        "total_tasks": actual_task_count,
+                        "routing_successes": routing_successes,
+                        "routing_failures": routing_failures,
+                        "success_rate": round(
+                            100 * routing_successes / max(expected_task_count, 1), 2
+                        ),
+                        "correlation_id": self.correlation_id,
+                        "timestamp": time.time(),
+                    }
+                )
+            )
+
+            legacy_tasks = []
+            for task in tasks:
+                legacy_task = Task(
+                    task_id=task.task_id,
+                    dimension=task.dimension_id,
+                    question_id=task.question_id,
+                    policy_area=task.policy_area_id,
+                    chunk_id=task.chunk_id,
+                    chunk_index=0,
+                    question_text="",
+                )
+                legacy_tasks.append(legacy_task)
+
+            integrity_hash = self._compute_integrity_hash(legacy_tasks)
             plan_id = f"plan_{integrity_hash[:16]}"
 
             plan = ExecutionPlan(
                 plan_id=plan_id,
-                tasks=tuple(tasks),
+                tasks=tuple(legacy_tasks),
                 chunk_count=self.chunk_count,
                 question_count=len(questions),
                 integrity_hash=integrity_hash,
@@ -578,7 +678,7 @@ class IrrigationSynchronizer:
                         "event": "build_execution_plan_complete",
                         "correlation_id": self.correlation_id,
                         "plan_id": plan_id,
-                        "task_count": len(tasks),
+                        "task_count": len(legacy_tasks),
                         "chunk_count": self.chunk_count,
                         "question_count": len(questions),
                         "integrity_hash": integrity_hash,

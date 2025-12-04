@@ -671,6 +671,100 @@ class IrrigationSynchronizer:
             (question_type, chunk_type),
         )
 
+    def _validate_expected_elements_types(
+        self,
+        provisional_task_id: str,  # noqa: ARG002
+        question_schema: Any,  # noqa: ANN401
+        chunk_schema: Any,  # noqa: ANN401
+        question_id: str,
+        chunk_id: str,  # noqa: ARG002
+    ) -> None:
+        """Validate expected_elements type compatibility and structure.
+
+        Performs type classification on both schema values by checking if each is
+        None via identity test, then list via isinstance check, then dict via
+        isinstance check, with any other type classified as invalid. Validates
+        type homogeneity, length equality for lists, and key set equality for dicts.
+
+        Args:
+            provisional_task_id: Task ID for error reporting
+            question_schema: expected_elements from question
+            chunk_schema: expected_elements from chunk
+            question_id: Question identifier for error messages
+            chunk_id: Chunk identifier for error messages
+
+        Raises:
+            TypeError: If either schema has invalid type (not list, dict, or None)
+            ValueError: If schemas have heterogeneous types, list length mismatch,
+                       or dict key set mismatch
+        """
+
+        def _classify_type(value: Any) -> str:  # noqa: ANN401
+            if value is None:
+                return "none"
+            elif isinstance(value, list):
+                return "list"
+            elif isinstance(value, dict):
+                return "dict"
+            else:
+                return "invalid"
+
+        question_type = _classify_type(question_schema)
+        chunk_type = _classify_type(chunk_schema)
+
+        if question_type == "invalid":
+            raise TypeError(
+                f"Schema validation failure for question {question_id}: "
+                f"expected_elements from question has invalid type "
+                f"{type(question_schema).__name__}, expected list|dict|None"
+            )
+
+        if chunk_type == "invalid":
+            raise TypeError(
+                f"Schema validation failure for question {question_id}: "
+                f"expected_elements from chunk has invalid type "
+                f"{type(chunk_schema).__name__}, expected list|dict|None"
+            )
+
+        if question_type == "none" and chunk_type == "none":
+            return
+
+        if (
+            question_type != "none"
+            and chunk_type != "none"
+            and question_type != chunk_type
+        ):
+            raise ValueError(
+                f"Schema validation failure: heterogeneous types "
+                f"(question has {question_type}, chunk has {chunk_type})"
+            )
+
+        if question_type == "list" and chunk_type == "list":
+            question_len = len(question_schema)
+            chunk_len = len(chunk_schema)
+            if question_len != chunk_len:
+                raise ValueError(
+                    f"Schema validation failure for question {question_id}: "
+                    f"expected_elements list length mismatch "
+                    f"(question has {question_len}, chunk has {chunk_len})"
+                )
+
+        if question_type == "dict" and chunk_type == "dict":
+            question_keys = set(question_schema.keys())
+            chunk_keys = set(chunk_schema.keys())
+            if question_keys != chunk_keys:
+                missing_in_chunk = question_keys - chunk_keys
+                extra_in_chunk = chunk_keys - question_keys
+                details = []
+                if missing_in_chunk:
+                    details.append(f"missing in chunk: {sorted(missing_in_chunk)}")
+                if extra_in_chunk:
+                    details.append(f"extra in chunk: {sorted(extra_in_chunk)}")
+                raise ValueError(
+                    f"Schema validation failure for question {question_id}: "
+                    f"expected_elements dict key mismatch ({', '.join(details)})"
+                )
+
     def _construct_task(
         self,
         question: dict[str, Any],

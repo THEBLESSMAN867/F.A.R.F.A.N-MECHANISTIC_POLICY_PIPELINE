@@ -180,10 +180,6 @@ class TestConstructTask:
         assert task.metadata["base_slot"] == "D1-Q1"
         assert task.metadata["cluster_id"] == "CL01"
         assert "MQC-001_PA01" in generated_task_ids
-        assert task.context is not None
-        assert isinstance(task.context, MicroQuestionContext)
-        assert task.context.base_slot == "D1-Q1"
-        assert task.context.cluster_id == "CL01"
 
     def test_construct_task_rejects_duplicate_id(self):
         question = {
@@ -270,6 +266,7 @@ class TestValidateCrossTask:
                 signals={},
                 creation_timestamp="2024-01-01T00:00:00Z",
                 expected_elements=[],
+                metadata={},
             )
             plan.append(task)
             generated_ids.add(task.task_id)
@@ -298,6 +295,8 @@ class TestValidateCrossTask:
                 patterns=[],
                 signals={},
                 creation_timestamp="2024-01-01T00:00:00Z",
+                expected_elements=[],
+                metadata={},
             )
             for i in range(1, 4)
         ]
@@ -325,6 +324,8 @@ class TestValidateCrossTask:
                 patterns=[],
                 signals={},
                 creation_timestamp="2024-01-01T00:00:00Z",
+                expected_elements=[],
+                metadata={},
             )
             for i in range(1, 11)
         ]

@@ -810,7 +810,10 @@ class IrrigationSynchronizer:
     ) -> ExecutableTask:
         """Construct ExecutableTask from question and routing result.
 
-        Phase 7 responsibility (partial implementation for Objective 3).
+        Extracts all fields from validated inputs, converts tuples to lists for patterns,
+        builds signals dict keyed by signal_type, generates creation_timestamp, populates
+        metadata with all required keys, validates all mandatory fields are non-None, and
+        catches TypeError from dataclass validation to re-raise as ValueError.
 
         Args:
             question: Question dict from questionnaire
@@ -823,22 +826,25 @@ class IrrigationSynchronizer:
             ExecutableTask ready for execution
 
         Raises:
-            ValueError: If duplicate task_id is detected
+            ValueError: If duplicate task_id is detected or mandatory field validation fails
         """
-        question_id = question["question_id"]
+        question_id = question.get("question_id")
         question_global = question.get("question_global")
 
+        if question_id is None:
+            raise ValueError(
+                "Task construction failure: question_id field missing or None"
+            )
+
         if question_global is None:
-            raise ValueError("question_global is required")
+            raise ValueError(
+                f"Task construction failure for {question_id}: question_global field missing or None"
+            )
 
         if not isinstance(question_global, int):
             raise ValueError(
+                f"Task construction failure for {question_id}: "
                 f"question_global must be an integer, got {type(question_global).__name__}"
-            )
-
-        if not (0 <= question_global <= 999):
-            raise ValueError(
-                f"question_global must be between 0 and 999 inclusive, got {question_global}"
             )
 
         task_id = f"MQC-{question_global:03d}_{routing_result.policy_area_id}"
@@ -851,43 +857,72 @@ class IrrigationSynchronizer:
         chunk_id = routing_result.chunk_id
         policy_area_id = routing_result.policy_area_id
         dimension_id = routing_result.dimension_id
-        expected_elements = routing_result.expected_elements
+        expected_elements_list = list(routing_result.expected_elements)
         document_position = routing_result.document_position
 
-        signals = {}
+        patterns_list = list(applicable_patterns)
 
-        task = ExecutableTask(
-            task_id=task_id,
-            question_id=question_id,
-            question_global=question_global,
-            policy_area_id=policy_area_id,
-            dimension_id=dimension_id,
-            chunk_id=chunk_id,
-            patterns=list(applicable_patterns),
-            signals=signals,
-            creation_timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            expected_elements=expected_elements,
-            metadata={
-                "document_position": document_position,
-                "text_length": len(routing_result.text_content),
-                "correlation_id": self.correlation_id,
-                "resolved_signals": resolved_signals,
-            },
-        )
+        signals_dict: dict[str, Any] = {}
+        for signal in resolved_signals:
+            if isinstance(signal, dict) and "signal_type" in signal:
+                signals_dict[signal["signal_type"]] = signal
+            elif hasattr(signal, "signal_type"):
+                signals_dict[signal.signal_type] = signal
+
+        from datetime import datetime, timezone
+
+        creation_timestamp = datetime.now(timezone.utc).isoformat()
+
+        metadata = {
+            "document_position": document_position,
+            "synchronizer_version": "1.0.0",
+            "correlation_id": self.correlation_id,
+            "original_pattern_count": len(applicable_patterns),
+            "original_signal_count": len(resolved_signals),
+        }
+
+        if task_id is None or not task_id:
+            raise ValueError("Task construction failure: task_id is None or empty")
+        if question_id is None or not question_id:
+            raise ValueError("Task construction failure: question_id is None or empty")
+        if question_global is None:
+            raise ValueError("Task construction failure: question_global is None")
+        if policy_area_id is None or not policy_area_id:
+            raise ValueError(
+                "Task construction failure: policy_area_id is None or empty"
+            )
+        if dimension_id is None or not dimension_id:
+            raise ValueError("Task construction failure: dimension_id is None or empty")
+        if chunk_id is None or not chunk_id:
+            raise ValueError("Task construction failure: chunk_id is None or empty")
+        if creation_timestamp is None or not creation_timestamp:
+            raise ValueError(
+                "Task construction failure: creation_timestamp is None or empty"
+            )
+
+        try:
+            task = ExecutableTask(
+                task_id=task_id,
+                question_id=question_id,
+                question_global=question_global,
+                policy_area_id=policy_area_id,
+                dimension_id=dimension_id,
+                chunk_id=chunk_id,
+                patterns=patterns_list,
+                signals=signals_dict,
+                creation_timestamp=creation_timestamp,
+                expected_elements=expected_elements_list,
+                metadata=metadata,
+            )
+        except TypeError as e:
+            raise ValueError(
+                f"Task construction failed for {task_id}: dataclass validation error - {e}"
+            ) from e
 
         logger.debug(
-            json.dumps(
-                {
-                    "event": "task_constructed",
-                    "task_id": task_id,
-                    "question_id": question_id,
-                    "chunk_id": chunk_id,
-                    "has_expected_elements": len(expected_elements) > 0,
-                    "has_document_position": document_position is not None,
-                    "resolved_signals_count": len(resolved_signals),
-                    "correlation_id": self.correlation_id,
-                }
-            )
+            f"Constructed task: task_id={task_id}, question_id={question_id}, "
+            f"chunk_id={chunk_id}, pattern_count={len(patterns_list)}, "
+            f"signal_count={len(signals_dict)}"
         )
 
         return task

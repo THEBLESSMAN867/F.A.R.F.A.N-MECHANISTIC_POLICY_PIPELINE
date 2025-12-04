@@ -20,7 +20,7 @@ import pytest
 
 from farfan_pipeline.core.orchestrator.task_planner import (
     ExecutableTask,
-    _construct_task,
+    _construct_task_legacy,
     _validate_cross_task,
     _validate_schema,
 )

@@ -1,5 +1,5 @@
 import logging
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from types import MappingProxyType, UnionType
 from typing import Any, Protocol, Union, get_type_hints
@@ -69,25 +69,13 @@ class ExecutableTask:
     policy_area_id: str
     dimension_id: str
     chunk_id: str
-    patterns: tuple[dict[str, Any], ...]
-    signals: MappingProxyType[str, Any]
+    patterns: list[dict[str, Any]]
+    signals: dict[str, Any]
     creation_timestamp: str
-    expected_elements: tuple[dict[str, Any], ...] = field(default_factory=tuple)
-    metadata: MappingProxyType[str, Any] = field(
-        default_factory=lambda: MappingProxyType({})
-    )
-    context: MicroQuestionContext | None = None
+    expected_elements: list[dict[str, Any]]
+    metadata: dict[str, Any]
 
     def __post_init__(self) -> None:
-        if not isinstance(self.patterns, tuple):
-            object.__setattr__(self, "patterns", tuple(self.patterns))
-        if not isinstance(self.signals, MappingProxyType):
-            object.__setattr__(self, "signals", MappingProxyType(dict(self.signals)))
-        if not isinstance(self.expected_elements, tuple):
-            object.__setattr__(self, "expected_elements", tuple(self.expected_elements))
-        if not isinstance(self.metadata, MappingProxyType):
-            object.__setattr__(self, "metadata", MappingProxyType(dict(self.metadata)))
-
         if not self.task_id:
             raise ValueError("task_id cannot be empty")
         if not self.question_id:
@@ -269,108 +257,59 @@ def _construct_task(
 
     generated_task_ids.add(task_id)
 
-    patterns = list(applicable_patterns)
-    signals = {signal.signal_type: signal for signal in resolved_signals}
-    creation_timestamp = datetime.now(timezone.utc).isoformat()
-    expected_elements = routing_result.expected_elements
-
-    patterns_tuple = (
-        tuple(applicable_patterns)
-        if not isinstance(applicable_patterns, tuple)
+    patterns_list = (
+        list(applicable_patterns)
+        if not isinstance(applicable_patterns, list)
         else applicable_patterns
     )
-    signals_dict = dict(
-        zip(
-            (f"signal_{i}" for i in range(len(resolved_signals))),
-            resolved_signals,
-            strict=False,
-        )
+
+    signals_dict = {}
+    for signal in resolved_signals:
+        if isinstance(signal, dict) and "signal_type" in signal:
+            signals_dict[signal["signal_type"]] = signal
+        elif hasattr(signal, "signal_type"):
+            signals_dict[signal.signal_type] = signal
+
+    expected_elements = question.get("expected_elements", [])
+    expected_elements_list = (
+        list(expected_elements) if isinstance(expected_elements, list | tuple) else []
     )
 
-    context = MicroQuestionContext(
-        task_id=task_id,
-        question_id=question.get("question_id", ""),
-        question_global=question_global,
-        policy_area_id=routing_result.policy_area_id,
-        dimension_id=question.get("dimension_id", ""),
-        chunk_id=routing_result.chunk_id,
-        base_slot=question.get("base_slot", ""),
-        cluster_id=question.get("cluster_id", ""),
-        patterns=applicable_patterns,
-        signals=signals,
-        expected_elements=tuple(expected_elements),
-        signal_requirements=question.get("signal_requirements", {}),
-        creation_timestamp=creation_timestamp,
-    )
+    document_position = getattr(routing_result, "document_position", None)
 
-    expected_elements_tuple = (
-        tuple(expected_elements)
-        if isinstance(expected_elements, list)
-        else expected_elements
-    )
-
-    metadata_dict = {
-        "document_position": routing_result.document_position,
-        "synchronizer_version": "2.0.0",
+    metadata = {
+        "document_position": document_position,
+        "synchronizer_version": "1.0.0",
         "correlation_id": correlation_id,
-        "original_pattern_count": len(question.get("patterns", [])),
-        "original_signal_count": len(question.get("signal_requirements", [])),
-        "filtered_pattern_count": len(patterns_tuple),
-        "resolved_signal_count": len(signals_dict),
-        "schema_element_count": len(expected_elements_tuple),
-        "base_slot": question.get("base_slot", ""),
-        "cluster_id": question.get("cluster_id", ""),
+        "original_pattern_count": len(applicable_patterns),
+        "original_signal_count": len(resolved_signals),
     }
 
-    assembled_fields = {
-        "task_id": task_id,
-        "question_id": question.get("question_id", ""),
-        "question_global": question_global,
-        "policy_area_id": routing_result.policy_area_id,
-        "dimension_id": question.get("dimension_id", ""),
-        "chunk_id": routing_result.chunk_id,
-        "patterns": tuple(patterns),
-        "signals": MappingProxyType(signals),
-        "creation_timestamp": creation_timestamp,
-        "expected_elements": tuple(expected_elements),
-        "metadata": MappingProxyType(metadata_dict),
-        "context": context,
-    }
+    creation_timestamp = datetime.now(timezone.utc).isoformat()
 
-    type_hints = get_type_hints(ExecutableTask)
-
-    for dataclass_field in fields(ExecutableTask):
-        field_name = dataclass_field.name
-        field_type = type_hints.get(field_name, dataclass_field.type)
-
-        is_optional = (
-            hasattr(field_type, "__origin__")
-            and field_type.__origin__ is Union
-            and type(None) in field_type.__args__
-        ) or (
-            isinstance(field_type, UnionType)
-            and type(None) in getattr(field_type, "__args__", ())
+    try:
+        task = ExecutableTask(
+            task_id=task_id,
+            question_id=question.get("question_id", ""),
+            question_global=question_global,
+            policy_area_id=routing_result.policy_area_id,
+            dimension_id=question.get("dimension_id", ""),
+            chunk_id=routing_result.chunk_id,
+            patterns=patterns_list,
+            signals=signals_dict,
+            creation_timestamp=creation_timestamp,
+            expected_elements=expected_elements_list,
+            metadata=metadata,
         )
-
-        if not is_optional:
-            field_value = assembled_fields.get(field_name)
-            if field_value is None:
-                raise ValueError(
-                    f"Mandatory field '{field_name}' cannot be None for task {task_id}"
-                )
-
-    task = ExecutableTask(**assembled_fields)
+    except TypeError as e:
+        raise ValueError(
+            f"Task construction failed for {task_id}: dataclass validation error - {e}"
+        ) from e
 
     logger.debug(
-        "Task constructed",
-        extra={
-            "task_id": task.task_id,
-            "question_id": task.question_id,
-            "question_global": task.question_global,
-            "policy_area_id": task.policy_area_id,
-            "chunk_id": task.chunk_id,
-            "correlation_id": correlation_id,
-        },
+        f"Constructed task: task_id={task_id}, question_id={question_id}, "
+        f"chunk_id={routing_result.chunk_id}, pattern_count={len(patterns_list)}, "
+        f"signal_count={len(signals_dict)}"
     )
 
     return task
@@ -419,138 +358,41 @@ def _construct_task_legacy(
 
     creation_timestamp = datetime.now(timezone.utc).isoformat()
 
-    context = MicroQuestionContext(
-        task_id=task_id,
-        question_id=question.get("question_id", ""),
-        question_global=question_global,
-        policy_area_id=policy_area_id,
-        dimension_id=question.get("dimension_id", ""),
-        chunk_id=chunk.get("id", ""),
-        base_slot=question.get("base_slot", ""),
-        cluster_id=question.get("cluster_id", ""),
-        patterns=tuple(patterns),
-        signals=signals,
-        expected_elements=tuple(question.get("expected_elements", [])),
-        signal_requirements=question.get("signal_requirements", {}),
-        creation_timestamp=creation_timestamp,
-    )
-
     expected_elements = question.get("expected_elements", [])
-    expected_elements_tuple = (
-        tuple(expected_elements)
-        if isinstance(expected_elements, list)
-        else expected_elements
+    expected_elements_list = (
+        list(expected_elements) if isinstance(expected_elements, list | tuple) else []
     )
-    patterns_tuple = tuple(patterns) if isinstance(patterns, list) else patterns
+    patterns_list = list(patterns) if isinstance(patterns, list | tuple) else []
 
-    task = ExecutableTask(
-        task_id=task_id,
-        question_id=question.get("question_id", ""),
-        question_global=question_global,
-        policy_area_id=policy_area_id,
-        dimension_id=question.get("dimension_id", ""),
-        chunk_id=chunk.get("id", ""),
-        patterns=patterns_tuple,
-        signals=(
-            MappingProxyType(signals)
-            if not isinstance(signals, MappingProxyType)
-            else signals
-        ),
-        creation_timestamp=creation_timestamp,
-        expected_elements=expected_elements_tuple,
-        metadata=MappingProxyType(
-            {
-                "base_slot": question.get("base_slot", ""),
-                "cluster_id": question.get("cluster_id", ""),
-            }
-        ),
-        context=context,
-    )
+    signals_dict = dict(signals) if isinstance(signals, dict) else {}
+
+    metadata = {
+        "base_slot": question.get("base_slot", ""),
+        "cluster_id": question.get("cluster_id", ""),
+        "document_position": None,
+        "synchronizer_version": "1.0.0",
+        "correlation_id": "",
+        "original_pattern_count": len(patterns_list),
+        "original_signal_count": len(signals_dict),
+    }
+
+    try:
+        task = ExecutableTask(
+            task_id=task_id,
+            question_id=question.get("question_id", ""),
+            question_global=question_global,
+            policy_area_id=policy_area_id,
+            dimension_id=question.get("dimension_id", ""),
+            chunk_id=chunk.get("id", ""),
+            patterns=patterns_list,
+            signals=signals_dict,
+            creation_timestamp=creation_timestamp,
+            expected_elements=expected_elements_list,
+            metadata=metadata,
+        )
+    except TypeError as e:
+        raise ValueError(
+            f"Task construction failed for {task_id}: dataclass validation error - {e}"
+        ) from e
 
     return task
-
-
-def extract_expected_elements(context: MicroQuestionContext) -> list[dict[str, Any]]:
-    return [
-        dict(elem) if isinstance(elem, dict) else elem
-        for elem in context.expected_elements
-    ]
-
-
-def extract_signal_requirements(context: MicroQuestionContext) -> dict[str, Any]:
-    if isinstance(context.signal_requirements, MappingProxyType):
-        return dict(context.signal_requirements)
-    if isinstance(context.signal_requirements, dict):
-        return context.signal_requirements
-    return {}
-
-
-def sort_micro_question_contexts(
-    contexts: list[MicroQuestionContext],
-) -> list[MicroQuestionContext]:
-    return sorted(
-        contexts,
-        key=lambda ctx: (
-            ctx.dimension_id,
-            ctx.policy_area_id,
-            ctx.question_global,
-        ),
-    )
-
-
-def _validate_cross_task(plan: list[ExecutableTask]) -> None:
-    chunk_usage: dict[str, int] = {}
-    policy_area_usage: dict[str, int] = {}
-
-    for task in plan:
-        chunk_id = task.chunk_id
-        chunk_usage[chunk_id] = chunk_usage.get(chunk_id, 0) + 1
-
-        policy_area_id = task.policy_area_id
-        policy_area_usage[policy_area_id] = policy_area_usage.get(policy_area_id, 0) + 1
-
-    for chunk_id, count in chunk_usage.items():
-        if count != EXPECTED_TASKS_PER_CHUNK:
-            logger.warning(
-                f"Chunk usage deviation: chunk {chunk_id} used {count} times "
-                f"(expected {EXPECTED_TASKS_PER_CHUNK})"
-            )
-
-    for policy_area_id, count in policy_area_usage.items():
-        if count != EXPECTED_TASKS_PER_POLICY_AREA:
-            logger.warning(
-                f"Policy area usage deviation: {policy_area_id} used {count} times "
-                f"(expected {EXPECTED_TASKS_PER_POLICY_AREA})"
-            )
-
-
-def build_task_plan(
-    questions: list[dict[str, Any]],
-    routing_results: list[ChunkRoutingResult],
-    pattern_matcher: Any,
-    signal_resolver: Any,
-    correlation_id: str,
-) -> list[ExecutableTask]:
-    task_plan: list[ExecutableTask] = []
-    generated_task_ids: set[str] = set()
-
-    for question in questions:
-        for routing_result in routing_results:
-            if question.get("policy_area_id") == routing_result.policy_area_id:
-                applicable_patterns = pattern_matcher.match(question, routing_result)
-                resolved_signals = signal_resolver.resolve(question, routing_result)
-
-                task = _construct_task(
-                    question=question,
-                    routing_result=routing_result,
-                    applicable_patterns=applicable_patterns,
-                    resolved_signals=resolved_signals,
-                    generated_task_ids=generated_task_ids,
-                    correlation_id=correlation_id,
-                )
-
-                task_plan.append(task)
-
-    _validate_cross_task(task_plan)
-
-    return task_plan

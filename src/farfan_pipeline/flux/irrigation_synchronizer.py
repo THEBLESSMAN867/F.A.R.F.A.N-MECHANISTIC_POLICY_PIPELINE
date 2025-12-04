@@ -141,6 +141,16 @@ class IrrigationSynchronizer:
                 },
             )
 
+            metadata = {
+                "base_slot": getattr(question_ctx, "base_slot", ""),
+                "cluster_id": getattr(question_ctx, "cluster_id", ""),
+                "document_position": None,
+                "synchronizer_version": "1.0.0",
+                "correlation_id": "",
+                "original_pattern_count": len(patterns),
+                "original_signal_count": len(signal_requirements),
+            }
+
             task = ExecutableTask(
                 task_id=f"MQC-{question_global:03d}_{pa_id}",
                 question_id=question_id,
@@ -152,10 +162,7 @@ class IrrigationSynchronizer:
                 signals=signal_requirements,
                 creation_timestamp=datetime.now(timezone.utc).isoformat(),
                 expected_elements=expected_elements,
-                metadata={
-                    "base_slot": getattr(question_ctx, "base_slot", ""),
-                    "cluster_id": getattr(question_ctx, "cluster_id", ""),
-                },
+                metadata=metadata,
             )
 
             executable_tasks.append(task)

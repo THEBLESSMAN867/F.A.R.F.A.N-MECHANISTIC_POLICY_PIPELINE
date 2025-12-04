@@ -247,6 +247,10 @@ class DataService:
                 )
 
             return regions_payload
+
+    @staticmethod
+    def _build_region_catalog() -> dict[str, dict[str, Any]]:
+        """Build catalog of PDET region metadata from official statistics."""
         catalog: dict[str, dict[str, Any]] = {}
         try:
             stats = get_subregion_statistics()
@@ -1020,7 +1024,7 @@ def get_auth_token():
 
 @app.route('/api/v1/constellation_map', methods=['GET'])
 @rate_limit
-@cached(ttl=300)
+@cache_response(timeout=300)
 def get_constellation_map():
     """
     Get data for the constellation map visualization
@@ -1044,7 +1048,7 @@ def get_constellation_map():
 
 @app.route('/api/v1/pdet/regions', methods=['GET'])
 @rate_limit
-@cached(ttl=300)
+@cache_response(timeout=300)
 def get_pdet_regions():
     """
     Get all PDET regions with scores
@@ -1068,7 +1072,7 @@ def get_pdet_regions():
 
 @app.route('/api/v1/pdet/regions/<region_id>', methods=['GET'])
 @rate_limit
-@cached(ttl=300)
+@cache_response(timeout=300)
 def get_region_detail(region_id: str):
     """
     Get detailed information for a specific PDET region
@@ -1097,7 +1101,7 @@ def get_region_detail(region_id: str):
 
 @app.route('/api/v1/municipalities/<municipality_id>', methods=['GET'])
 @rate_limit
-@cached(ttl=300)
+@cache_response(timeout=300)
 def get_municipality_data(municipality_id: str):
     """
     Get municipality analysis data
@@ -1136,7 +1140,7 @@ def get_municipality_data(municipality_id: str):
 
 @app.route('/api/v1/evidence/stream', methods=['GET'])
 @rate_limit
-@cached(ttl=60)
+@cache_response(timeout=60)
 def get_evidence_stream():
     """
     Get evidence stream for ticker display
@@ -1633,7 +1637,7 @@ def generate_all_recommendations():
 
 @app.route('/api/v1/recommendations/rules/info', methods=['GET'])
 @rate_limit
-@cached(ttl=600)
+@cache_response(timeout=600)
 def get_rules_info():
     """
     Get information about loaded recommendation rules
@@ -1708,7 +1712,7 @@ def main() -> None:
     # Run server
     socketio.run(
         app,
-        host='ParameterLoaderV2.get("farfan_core.api.api_server.DataService.get_evidence_stream", "auto_param_L1076_14", 0.0).ParameterLoaderV2.get("farfan_core.api.api_server.DataService.get_evidence_stream", "auto_param_L1076_18", 0.0)',
+        host='0.0.0.0',
         port=int(os.getenv('ATROZ_API_PORT', '5000')),
         debug=os.getenv('ATROZ_DEBUG', 'false').lower() == 'true'
     )

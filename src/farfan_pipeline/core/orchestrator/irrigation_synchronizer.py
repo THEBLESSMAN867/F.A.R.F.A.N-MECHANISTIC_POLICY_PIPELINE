@@ -791,6 +791,7 @@ class IrrigationSynchronizer:
         routing_result: ChunkRoutingResult,
         applicable_patterns: tuple[dict[str, Any], ...],
         resolved_signals: tuple[Any, ...],
+        generated_task_ids: set[str],
     ) -> ExecutableTask:
         """Construct ExecutableTask from question and routing result.
 
@@ -801,14 +802,23 @@ class IrrigationSynchronizer:
             routing_result: Validated routing result from Phase 3
             applicable_patterns: Filtered tuple of patterns applicable to the routed policy area
             resolved_signals: Resolved signals tuple from Phase 5
+            generated_task_ids: Set of task IDs generated in current synchronization run
 
         Returns:
             ExecutableTask ready for execution
+
+        Raises:
+            ValueError: If duplicate task_id is detected
         """
         question_id = question["question_id"]
         question_global = question.get("question_global", 0)
 
         task_id = f"MQC-{question_global:03d}_{routing_result.policy_area_id}"
+
+        if task_id in generated_task_ids:
+            raise ValueError(f"Duplicate task_id detected: {task_id}")
+
+        generated_task_ids.add(task_id)
 
         chunk_id = routing_result.chunk_id
         policy_area_id = routing_result.policy_area_id
@@ -943,6 +953,7 @@ class IrrigationSynchronizer:
             tasks: list[ExecutableTask] = []
             routing_successes = 0
             routing_failures = 0
+            generated_task_ids: set[str] = set()
 
             for idx, question in enumerate(questions, start=1):
                 question_id = question.get("question_id", f"UNKNOWN_{idx}")
@@ -971,7 +982,11 @@ class IrrigationSynchronizer:
                     )
 
                     task = self._construct_task(
-                        question, routing_result, applicable_patterns, resolved_signals
+                        question,
+                        routing_result,
+                        applicable_patterns,
+                        resolved_signals,
+                        generated_task_ids,
                     )
                     tasks.append(task)
 

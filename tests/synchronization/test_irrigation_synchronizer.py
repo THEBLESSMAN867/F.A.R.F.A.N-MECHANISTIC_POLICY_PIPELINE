@@ -1,8 +1,13 @@
 """Unit tests for ChunkMatrix validation and chunk routing."""
 
+import sys
 from datetime import datetime
+from pathlib import Path
 
 import pytest
+
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "src"))
 
 from farfan_pipeline.core.orchestrator.irrigation_synchronizer import (
     ChunkRoutingResult,
@@ -533,3 +538,104 @@ def test_validate_chunk_routing_immutability() -> None:
 
     with pytest.raises(Exception):
         result.chunk_id = "different_id"
+
+
+def test_filter_patterns_with_matching_policy_area() -> None:
+    """_filter_patterns should include only patterns with matching policy_area_id."""
+    doc = create_complete_document()
+    questionnaire = {"blocks": {}}
+    synchronizer = IrrigationSynchronizer(
+        questionnaire=questionnaire, preprocessed_document=doc
+    )
+
+    patterns = [
+        {"id": "PAT-001", "policy_area_id": "PA01", "pattern": "test1"},
+        {"id": "PAT-002", "policy_area_id": "PA02", "pattern": "test2"},
+        {"id": "PAT-003", "policy_area_id": "PA01", "pattern": "test3"},
+        {"id": "PAT-004", "pattern": "test4"},
+    ]
+
+    result = synchronizer._filter_patterns(patterns, "PA01")
+
+    assert isinstance(result, tuple)
+    assert len(result) == 2
+    assert result[0]["id"] == "PAT-001"
+    assert result[1]["id"] == "PAT-003"
+
+
+def test_filter_patterns_excludes_without_policy_area_id() -> None:
+    """_filter_patterns should exclude patterns without policy_area_id attribute."""
+    doc = create_complete_document()
+    questionnaire = {"blocks": {}}
+    synchronizer = IrrigationSynchronizer(
+        questionnaire=questionnaire, preprocessed_document=doc
+    )
+
+    patterns = [
+        {"id": "PAT-001", "pattern": "test1"},
+        {"id": "PAT-002", "pattern": "test2"},
+    ]
+
+    result = synchronizer._filter_patterns(patterns, "PA01")
+
+    assert isinstance(result, tuple)
+    assert len(result) == 0
+
+
+def test_filter_patterns_returns_empty_tuple_when_no_matches() -> None:
+    """_filter_patterns should return empty tuple when no patterns match."""
+    doc = create_complete_document()
+    questionnaire = {"blocks": {}}
+    synchronizer = IrrigationSynchronizer(
+        questionnaire=questionnaire, preprocessed_document=doc
+    )
+
+    patterns = [
+        {"id": "PAT-001", "policy_area_id": "PA02", "pattern": "test1"},
+        {"id": "PAT-002", "policy_area_id": "PA03", "pattern": "test2"},
+    ]
+
+    result = synchronizer._filter_patterns(patterns, "PA01")
+
+    assert isinstance(result, tuple)
+    assert len(result) == 0
+
+
+def test_filter_patterns_immutability() -> None:
+    """_filter_patterns should return an immutable tuple."""
+    doc = create_complete_document()
+    questionnaire = {"blocks": {}}
+    synchronizer = IrrigationSynchronizer(
+        questionnaire=questionnaire, preprocessed_document=doc
+    )
+
+    patterns = [
+        {"id": "PAT-001", "policy_area_id": "PA01", "pattern": "test1"},
+    ]
+
+    result = synchronizer._filter_patterns(patterns, "PA01")
+
+    assert isinstance(result, tuple)
+    with pytest.raises(AttributeError):
+        result.append({"id": "PAT-002", "pattern": "test2"})
+
+
+def test_filter_patterns_strict_equality() -> None:
+    """_filter_patterns should use strict equality for policy_area_id matching."""
+    doc = create_complete_document()
+    questionnaire = {"blocks": {}}
+    synchronizer = IrrigationSynchronizer(
+        questionnaire=questionnaire, preprocessed_document=doc
+    )
+
+    patterns = [
+        {"id": "PAT-001", "policy_area_id": "PA01", "pattern": "test1"},
+        {"id": "PAT-002", "policy_area_id": "PA010", "pattern": "test2"},
+        {"id": "PAT-003", "policy_area_id": "PA1", "pattern": "test3"},
+    ]
+
+    result = synchronizer._filter_patterns(patterns, "PA01")
+
+    assert isinstance(result, tuple)
+    assert len(result) == 1
+    assert result[0]["id"] == "PAT-001"

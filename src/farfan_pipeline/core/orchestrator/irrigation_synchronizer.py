@@ -418,8 +418,73 @@ class IrrigationSynchronizer:
 
         return questions
 
+    def _filter_patterns(
+        self,
+        patterns: list[dict[str, Any]] | tuple[dict[str, Any], ...],
+        policy_area_id: str,
+    ) -> tuple[dict[str, Any], ...]:
+        """Filter patterns by policy_area_id using strict equality.
+
+        Filters patterns to include only those where pattern.policy_area_id == policy_area_id
+        (strict equality). Patterns lacking a policy_area_id attribute are excluded.
+
+        Args:
+            patterns: Iterable of pattern objects (typically dicts with optional policy_area_id)
+            policy_area_id: Policy area ID string (e.g., "PA01") to filter by
+
+        Returns:
+            Immutable tuple of filtered pattern dicts. Returns empty tuple if no patterns match.
+
+        Filtering Rules:
+            - Strict equality: pattern.policy_area_id == policy_area_id
+            - Exclude patterns without policy_area_id attribute
+            - Result is immutable (tuple)
+        """
+        included = []
+        excluded = []
+        included_ids = []
+        excluded_ids = []
+
+        for pattern in patterns:
+            pattern_id = (
+                pattern.get("id", "UNKNOWN") if isinstance(pattern, dict) else "UNKNOWN"
+            )
+
+            if isinstance(pattern, dict) and "policy_area_id" in pattern:
+                if pattern["policy_area_id"] == policy_area_id:
+                    included.append(pattern)
+                    included_ids.append(pattern_id)
+                else:
+                    excluded.append(pattern)
+                    excluded_ids.append(pattern_id)
+            else:
+                excluded.append(pattern)
+                excluded_ids.append(pattern_id)
+
+        total_count = len(included) + len(excluded)
+
+        logger.info(
+            json.dumps(
+                {
+                    "event": "IrrigationSynchronizer._filter_patterns",
+                    "total": total_count,
+                    "included": len(included),
+                    "excluded": len(excluded),
+                    "included_ids": included_ids,
+                    "excluded_ids": excluded_ids,
+                    "policy_area_id": policy_area_id,
+                    "correlation_id": self.correlation_id,
+                }
+            )
+        )
+
+        return tuple(included)
+
     def _construct_task(
-        self, question: dict[str, Any], routing_result: ChunkRoutingResult
+        self,
+        question: dict[str, Any],
+        routing_result: ChunkRoutingResult,
+        applicable_patterns: tuple[dict[str, Any], ...],
     ) -> ExecutableTask:
         """Construct ExecutableTask from question and routing result.
 
@@ -428,6 +493,7 @@ class IrrigationSynchronizer:
         Args:
             question: Question dict from questionnaire
             routing_result: Validated routing result from Phase 3
+            applicable_patterns: Filtered tuple of patterns applicable to the routed policy area
 
         Returns:
             ExecutableTask ready for execution
@@ -443,7 +509,6 @@ class IrrigationSynchronizer:
         expected_elements = routing_result.expected_elements
         document_position = routing_result.document_position
 
-        patterns = question.get("patterns", [])
         signals = {}
 
         task = ExecutableTask(
@@ -453,7 +518,7 @@ class IrrigationSynchronizer:
             policy_area_id=policy_area_id,
             dimension_id=dimension_id,
             chunk_id=chunk_id,
-            patterns=patterns,
+            patterns=list(applicable_patterns),
             signals=signals,
             creation_timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             expected_elements=expected_elements,
@@ -525,7 +590,7 @@ class IrrigationSynchronizer:
         Orchestrates Phases 2-7 of irrigation synchronization:
         - Phase 2: Question extraction
         - Phase 3: Chunk routing (OBJECTIVE 3 INTEGRATION)
-        - Phase 4: Pattern filtering (future)
+        - Phase 4: Pattern filtering (policy_area_id-based filtering)
         - Phase 5: Signal resolution (future)
         - Phase 6: Schema validation (future)
         - Phase 7: Task construction
@@ -577,7 +642,14 @@ class IrrigationSynchronizer:
                     routing_result = self.validate_chunk_routing(question)
                     routing_successes += 1
 
-                    task = self._construct_task(question, routing_result)
+                    patterns_raw = question.get("patterns", [])
+                    applicable_patterns = self._filter_patterns(
+                        patterns_raw, routing_result.policy_area_id
+                    )
+
+                    task = self._construct_task(
+                        question, routing_result, applicable_patterns
+                    )
                     tasks.append(task)
 
                     if idx % 50 == 0:

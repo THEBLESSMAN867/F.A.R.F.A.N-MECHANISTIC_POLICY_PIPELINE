@@ -25,7 +25,7 @@ import logging
 import time
 import uuid
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol
 
 from farfan_pipeline.core.orchestrator.task_planner import ExecutableTask
 from farfan_pipeline.core.types import ChunkData, PreprocessedDocument
@@ -46,6 +46,29 @@ except ImportError:
     PROMETHEUS_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
+
+
+class SignalRegistry(Protocol):
+    """Protocol for signal registry implementations.
+
+    Defines the interface that signal registries must implement for
+    use with IrrigationSynchronizer signal resolution.
+    """
+
+    def get_signals_for_chunk(
+        self, chunk: ChunkData, requirements: list[str]
+    ) -> list[Any]:
+        """Get signals for a chunk matching the given requirements.
+
+        Args:
+            chunk: Target chunk to get signals for
+            requirements: List of required signal types
+
+        Returns:
+            List of signals, each with signal_id, signal_type, and content fields
+        """
+        ...
+
 
 if PROMETHEUS_AVAILABLE:
     synchronization_duration = Histogram(
@@ -888,10 +911,180 @@ class IrrigationSynchronizer:
             )
             raise
 
+    def _resolve_signals_for_question(
+        self,
+        question: dict[str, Any],
+        target_chunk: ChunkData,
+        signal_registry: SignalRegistry,
+    ) -> tuple[Any, ...]:
+        """Resolve signals for a question from registry.
+
+        Performs signal resolution with comprehensive validation:
+        - Normalizes signal_requirements to empty list if missing/None
+        - Calls signal_registry.get_signals_for_chunk with requirements
+        - Validates return type is list (raises TypeError if None)
+        - Validates each signal has required fields (signal_id, signal_type, content)
+        - Detects missing required signals (HARD STOP with ValueError)
+        - Detects and warns about duplicate signal types
+        - Returns immutable tuple of resolved signals
+
+        Args:
+            question: Question dict with signal_requirements field
+            target_chunk: Target ChunkData for signal resolution
+            signal_registry: Registry implementing get_signals_for_chunk(chunk, requirements)
+
+        Returns:
+            Immutable tuple of resolved signals
+
+        Raises:
+            TypeError: If signal_registry returns non-list type
+            ValueError: If signal missing required field or required signals not found
+        """
+        question_id = question.get("question_id", "UNKNOWN")
+        chunk_id = getattr(target_chunk, "chunk_id", "UNKNOWN")
+
+        # Normalize signal_requirements to empty list if missing or None
+        signal_requirements = question.get("signal_requirements")
+        if signal_requirements is None:
+            signal_requirements = []
+        elif not isinstance(signal_requirements, list):
+            # If it's a dict or other type, extract as list if possible
+            if isinstance(signal_requirements, dict):
+                signal_requirements = list(signal_requirements.keys())
+            else:
+                signal_requirements = []
+
+        # Call signal_registry.get_signals_for_chunk
+        resolved_signals = signal_registry.get_signals_for_chunk(
+            target_chunk, signal_requirements
+        )
+
+        # Validate return is list type (raise TypeError if None)
+        if resolved_signals is None:
+            raise TypeError(
+                f"SignalRegistry returned {type(None).__name__} for question {question_id} "
+                f"chunk {chunk_id}, expected list"
+            )
+
+        if not isinstance(resolved_signals, list):
+            raise TypeError(
+                f"SignalRegistry returned {type(resolved_signals).__name__} for question {question_id} "
+                f"chunk {chunk_id}, expected list"
+            )
+
+        # Validate each signal has required fields
+        required_fields = ["signal_id", "signal_type", "content"]
+        for i, signal in enumerate(resolved_signals):
+            for field in required_fields:
+                # Try both attribute and dict access
+                has_field = False
+                try:
+                    if hasattr(signal, field):
+                        getattr(signal, field)
+                        has_field = True
+                except (AttributeError, KeyError):
+                    pass
+
+                if not has_field:
+                    try:
+                        if isinstance(signal, dict) and field in signal:
+                            has_field = True
+                    except (TypeError, KeyError):
+                        pass
+
+                if not has_field:
+                    raise ValueError(
+                        f"Signal at index {i} missing field {field} for question {question_id}"
+                    )
+
+        # Extract signal_types into set
+        signal_types = set()
+        for signal in resolved_signals:
+            # Try attribute access first, then dict access
+            signal_type = None
+            try:
+                if hasattr(signal, "signal_type"):
+                    signal_type = signal.signal_type
+            except AttributeError:
+                pass
+
+            if signal_type is None:
+                try:
+                    if isinstance(signal, dict):
+                        signal_type = signal["signal_type"]
+                except (KeyError, TypeError):
+                    pass
+
+            if signal_type is not None:
+                signal_types.add(signal_type)
+
+        # Compute missing signals
+        requirements_set = set(signal_requirements) if signal_requirements else set()
+        missing_signals = requirements_set - signal_types
+
+        # Raise ValueError if non-empty (HARD STOP)
+        if missing_signals:
+            missing_sorted = sorted(missing_signals)
+            raise ValueError(
+                f"Synchronization Failure for MQC {question_id}: "
+                f"Missing required signals {missing_sorted} for chunk {chunk_id}"
+            )
+
+        # Detect duplicates
+        if len(resolved_signals) > len(signal_types):
+            # Find duplicate types for logging
+            type_counts: dict[Any, int] = {}
+            for signal in resolved_signals:
+                signal_type = None
+                try:
+                    if hasattr(signal, "signal_type"):
+                        signal_type = signal.signal_type
+                except AttributeError:
+                    pass
+
+                if signal_type is None:
+                    try:
+                        if isinstance(signal, dict):
+                            signal_type = signal["signal_type"]
+                    except (KeyError, TypeError):
+                        pass
+
+                if signal_type is not None:
+                    type_counts[signal_type] = type_counts.get(signal_type, 0) + 1
+
+            duplicate_types = [t for t, count in type_counts.items() if count > 1]
+
+            logger.warning(
+                "signal_resolution_duplicates",
+                extra={
+                    "question_id": question_id,
+                    "chunk_id": chunk_id,
+                    "correlation_id": self.correlation_id,
+                    "duplicate_types": duplicate_types,
+                },
+            )
+
+        # Emit success log
+        logger.debug(
+            "signal_resolution_success",
+            extra={
+                "question_id": question_id,
+                "chunk_id": chunk_id,
+                "correlation_id": self.correlation_id,
+                "resolved_count": len(resolved_signals),
+                "required_count": len(signal_requirements),
+                "signal_types": list(signal_types),
+            },
+        )
+
+        # Return tuple for immutability
+        return tuple(resolved_signals)
+
 
 __all__ = [
     "IrrigationSynchronizer",
     "ExecutionPlan",
     "Task",
     "ChunkRoutingResult",
+    "SignalRegistry",
 ]

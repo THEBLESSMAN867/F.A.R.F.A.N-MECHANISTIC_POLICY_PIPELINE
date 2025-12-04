@@ -1,191 +1,8 @@
 #!/usr/bin/env python3
 """AtroZ Dashboard API server with live pipeline integration."""
 
-from __future__ import annotations
-
-import asyncio
-import hashlib
-import json
-import logging
-import math
-import os
-import re
-import unicodedata
-import uuid
-from datetime import datetime, timedelta, timezone
-from functools import wraps
-from pathlib import Path
-from threading import Lock
-from typing import Any, Callable, Iterable, Iterator
-
-import jwt
-from flask import Flask, jsonify, request, send_from_directory
-from flask_cors import CORS
-from flask_socketio import SocketIO, emit
-from werkzeug.exceptions import HTTPException
-
-from farfan_pipeline.api.pdet_colombia_data import get_subregion_statistics
-from farfan_pipeline.api.pipeline_connector import PipelineResult, get_pipeline_connector
-from farfan_pipeline.core.calibration.decorators import calibrated_method
-from farfan_pipeline.core.orchestrator.factory import (
-    create_orchestrator,
-    create_recommendation_engine,
-)
-from farfan_pipeline.core.parameters import ParameterLoaderV2
-
-
-BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
-
-
-class APIConfig:
-    """Operational settings for the AtroZ API server."""
-
-    SECRET_KEY = os.getenv("ATROZ_API_SECRET", "dev-secret-key-change-in-production")
-    JWT_SECRET = os.getenv("ATROZ_JWT_SECRET", "jwt-secret-key-change-in-production")
-    JWT_ALGORITHM = "HS256"
-    JWT_EXPIRATION_HOURS = int(os.getenv("ATROZ_JWT_EXPIRATION_HOURS", "24"))
-
-    CORS_ORIGINS = [
-        origin.strip()
-        for origin in os.getenv("ATROZ_CORS_ORIGINS", "*").split(",")
-        if origin.strip()
-    ]
-
-    RATE_LIMIT_ENABLED = os.getenv("ATROZ_RATE_LIMIT", "true").lower() == "true"
-    RATE_LIMIT_REQUESTS = int(os.getenv("ATROZ_RATE_LIMIT_REQUESTS", "1000"))
-    RATE_LIMIT_WINDOW = int(os.getenv("ATROZ_RATE_LIMIT_WINDOW", "900"))
-
-    CACHE_ENABLED = os.getenv("ATROZ_CACHE_ENABLED", "true").lower() == "true"
-    CACHE_TTL = int(os.getenv("ATROZ_CACHE_TTL", "300"))
-
-    DATA_DIRECTORY = os.getenv("ATROZ_DATA_DIR", "output")
-
-
-app = Flask(
-    __name__,
-    static_folder=str(STATIC_DIR),
-    static_url_path="/static",
-)
-app.config["SECRET_KEY"] = APIConfig.SECRET_KEY
-CORS(app, origins=APIConfig.CORS_ORIGINS, supports_credentials=True)
-socketio = SocketIO(app, cors_allowed_origins=APIConfig.CORS_ORIGINS, async_mode="threading")
-
-
-def _slugify_region_name(name: str) -> str:
-    """Convert region name to URL-safe slug."""
-    normalized = unicodedata.normalize('NFKD', name)
-    ascii_str = normalized.encode('ascii', 'ignore').decode('ascii')
-    slug = re.sub(r'[^\w\s-]', '', ascii_str.lower())
-    slug = re.sub(r'[-\s]+', '-', slug)
-    return slug.strip('-')
-
-
-rate_limit_storage: dict[str, list[float]] = {}
-
-
-def rate_limit(func: Callable) -> Callable:
-    """Rate limiting decorator."""
-    if not APIConfig.RATE_LIMIT_ENABLED:
-        return func
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        client_ip = request.remote_addr or "unknown"
-        now = datetime.now().timestamp()
-        
-        if client_ip not in rate_limit_storage:
-            rate_limit_storage[client_ip] = []
-        
-        rate_limit_storage[client_ip] = [
-            ts for ts in rate_limit_storage[client_ip]
-            if now - ts < APIConfig.RATE_LIMIT_WINDOW
-        ]
-        
-        if len(rate_limit_storage[client_ip]) >= APIConfig.RATE_LIMIT_REQUESTS:
-            return jsonify({"error": "Rate limit exceeded"}), 429
-        
-        rate_limit_storage[client_ip].append(now)
-        return func(*args, **kwargs)
-    
-    return wrapper
-
-
-response_cache: dict[str, tuple[Any, float]] = {}
-
-
-def cache_response(timeout: int = APIConfig.CACHE_TTL) -> Callable:
-    """Cache decorator for API responses."""
-    if not APIConfig.CACHE_ENABLED:
-        return lambda f: f
-
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            cache_key = f"{func.__name__}:{request.path}:{request.query_string.decode()}"
-            now = datetime.now().timestamp()
-            
-            if cache_key in response_cache:
-                cached_response, cached_time = response_cache[cache_key]
-                if now - cached_time < timeout:
-                    return cached_response
-            
-            response = func(*args, **kwargs)
-            response_cache[cache_key] = (response, now)
-            return response
-        
-        return wrapper
-    return decorator
-
-
-def generate_jwt_token(client_id: str) -> str:
-    """Generate JWT authentication token."""
-    expiration = datetime.now(timezone.utc) + timedelta(hours=APIConfig.JWT_EXPIRATION_HOURS)
-    payload = {
-        "client_id": client_id,
-        "exp": expiration,
-        "iat": datetime.now(timezone.utc),
-    }
-    return jwt.encode(payload, APIConfig.JWT_SECRET, algorithm=APIConfig.JWT_ALGORITHM)
-
-
-def require_auth(func: Callable) -> Callable:
-    """Authentication decorator."""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        auth_header = request.headers.get("Authorization")
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return jsonify({"error": "Missing or invalid authorization"}), 401
-        
-        token = auth_header.split(" ")[1]
-        try:
-            jwt.decode(token, APIConfig.JWT_SECRET, algorithms=[APIConfig.JWT_ALGORITHM])
-        except jwt.ExpiredSignatureError:
-            return jsonify({"error": "Token expired"}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({"error": "Invalid token"}), 401
-        
-        return func(*args, **kwargs)
-    
-    return wrapper
-
-
-class DataService:
-    """Manages dashboard state and pipeline integration."""
-
-    def __init__(self) -> None:
-        self.pipeline_connector = get_pipeline_connector()
-        self.data_dir = BASE_DIR / "data" / "dashboard"
-        self.jobs_dir = BASE_DIR / "data" / "jobs"
-        self.state_file = self.data_dir / "state.json"
-        self.data_dir.mkdir(parents=True, exist_ok=True)
         self.jobs_dir.mkdir(parents=True, exist_ok=True)
+        self.dashboard_transformer = DashboardDataService(self.jobs_dir)
         
         self.state_lock = Lock()
         self.dashboard_state = self._load_dashboard_state()
@@ -205,48 +22,18 @@ class DataService:
     def get_pdet_regions(self) -> list[dict[str, Any]]:
         """Retrieve all PDET regions with live pipeline data from dashboard state."""
         with self.state_lock:
-            regions_payload: list[dict[str, Any]] = []
-            for record in self.dashboard_state.get('regions', []):
-                coordinates = record.get('coordinates', {})
-                stats = record.get('stats', {})
-                scores = record.get('scores', {})
-                indicators = record.get('indicators') or {
-                    'alignment': scores.get('overall'),
-                    'implementation': scores.get('governance'),
-                    'impact': scores.get('environmental') or scores.get('social'),
-                }
+            region_records = [dict(record) for record in self.dashboard_state.get('regions', [])]
 
-                regions_payload.append(
-                    {
-                        'id': record.get('id'),
-                        'name': (record.get('name') or '').upper(),
-                        'job_id': record.get('job_id'),
-                        'coordinates': {
-                            'x': float(coordinates.get('x', 50.0)),
-                            'y': float(coordinates.get('y', 50.0)),
-                        },
-                        'metadata': {
-                            'municipalities': stats.get('municipalities', 0),
-                            'population': stats.get('population', 0),
-                            'area': stats.get('area', 0),
-                            'departments': stats.get('departments', []),
-                            'macroBand': record.get('macro_band'),
-                        },
-                        'scores': {
-                            'overall': scores.get('overall'),
-                            'governance': scores.get('governance'),
-                            'social': scores.get('social'),
-                            'economic': scores.get('economic'),
-                            'environmental': scores.get('environmental'),
-                            'lastUpdated': record.get('updated_at'),
-                        },
-                        'clusterScores': record.get('cluster_scores', {}),
-                        'connections': record.get('connections', []),
-                        'indicators': indicators,
-                    }
-                )
+        total_regions = max(len(region_records), 1)
+        summaries: list[dict[str, Any]] = []
+        for index, record in enumerate(region_records):
+            coordinates = record.get('coordinates')
+            if not coordinates:
+                record['coordinates'] = self._compute_region_coordinates(index, total_regions)
+            summary, _ = self.dashboard_transformer.summarize_region(record)
+            summaries.append(summary)
 
-            return regions_payload
+        return summaries
 
     @staticmethod
     def _build_region_catalog() -> dict[str, dict[str, Any]]:
@@ -407,6 +194,7 @@ class DataService:
         timestamp = datetime.now().isoformat()
         municipality = result.metadata.get('municipality', result.document_id)
         payload = report_payload or {}
+        report_path = str(self.jobs_dir / f"{job_id}.json")
 
         region_name = next(
             (
@@ -492,6 +280,7 @@ class DataService:
                     'connections': list(region_stats_ref.get('connections', [])),
                     'updated_at': timestamp,
                     'latest_report': job_id,
+                    'report_path': report_path,
                 }
                 regions.append(region_record)
             else:
@@ -510,6 +299,7 @@ class DataService:
                     region_record['connections'] = list(region_stats_ref.get('connections', []))
                 region_record['macro_band'] = macro_band
                 region_record['updated_at'] = timestamp
+                region_record['report_path'] = report_path
 
             evidence_items = self.dashboard_state.setdefault('evidence', [])
             micro = payload.get('micro_analysis', {})
@@ -833,140 +623,85 @@ class DataService:
         return regions
 
     def get_constellation_map_data(self) -> dict[str, Any]:
-        """
-        Get data for the constellation map visualization.
+        """Build constellation graph based on region and cluster relationships."""
+        with self.state_lock:
+            region_records = [dict(record) for record in self.dashboard_state.get('regions', [])]
 
-        This method will eventually generate a graph of policy areas,
-        clusters, and their connections. For now, it returns a static
-        sample.
-        """
-        # Placeholder data for the constellation map
-        return {
-            "nodes": [
-                {"id": "PA1", "name": "Policy Area 1", "type": "policy_area", "group": 1},
-                {"id": "PA2", "name": "Policy Area 2", "type": "policy_area", "group": 1},
-                {"id": "C1", "name": "Cluster 1", "type": "cluster", "group": 2},
-                {"id": "C2", "name": "Cluster 2", "type": "cluster", "group": 2},
-                {"id": "M1", "name": "Micro-indicator 1.1", "type": "indicator", "group": 3},
-                {"id": "M2", "name": "Micro-indicator 1.2", "type": "indicator", "group": 3},
-            ],
-            "links": [
-                {"source": "PA1", "target": "C1", "value": 0.8},
-                {"source": "PA2", "target": "C1", "value": 0.6},
-                {"source": "C1", "target": "C2", "value": 0.9},
-                {"source": "C2", "target": "M1", "value": 0.4},
-                {"source": "C2", "target": "M2", "value": 0.7},
-            ]
-        }
+        nodes: list[dict[str, Any]] = []
+        links: list[dict[str, Any]] = []
+        cluster_nodes: dict[str, dict[str, Any]] = {}
+
+        for record in region_records:
+            summary, context = self.dashboard_transformer.summarize_region(record)
+            region_id = summary.get('id')
+            if not region_id:
+                continue
+
+            nodes.append(
+                {
+                    'id': region_id,
+                    'name': summary.get('name'),
+                    'type': 'region',
+                    'group': 1,
+                    'score': summary.get('scores', {}).get('overall'),
+                }
+            )
+
+            for cluster in context.get('clusters', []):
+                cluster_id = cluster.get('cluster_id')
+                if not cluster_id:
+                    continue
+                cluster_entry = cluster_nodes.setdefault(
+                    cluster_id,
+                    {
+                        'id': cluster_id,
+                        'name': cluster.get('name'),
+                        'type': 'cluster',
+                        'group': 2,
+                        'score_total': 0.0,
+                        'count': 0,
+                    },
+                )
+                score_percent = cluster.get('score_percent')
+                if score_percent is not None:
+                    cluster_entry['score_total'] += score_percent
+                    cluster_entry['count'] += 1
+
+                links.append(
+                    {
+                        'source': region_id,
+                        'target': cluster_id,
+                        'value': score_percent if score_percent is not None else 0.0,
+                    }
+                )
+
+        for cluster_id, entry in cluster_nodes.items():
+            count = entry.pop('count') or 1
+            score_total = entry.pop('score_total')
+            entry['score'] = round(score_total / count, 2)
+            nodes.append(entry)
+
+        return {'nodes': nodes, 'links': links}
 
     @calibrated_method("farfan_core.api.api_server.DataService.get_region_detail")
     def get_region_detail(self, region_id: str) -> dict[str, Any] | None:
-        """Get detailed information for a specific region"""
-        regions = self.get_pdet_regions()
-        for region in regions:
-            if region['id'] == region_id:
-                # Add detailed analysis
-                region['detailed_analysis'] = {
-                    'cluster_breakdown': self._get_cluster_breakdown(region_id),
-                    'question_matrix': self._get_question_matrix(region_id),
-                    'recommendations': self._get_recommendations(region_id),
-                    'evidence': self._get_evidence_for_region(region_id)
-                }
-                return region
-        return None
+        """Get detailed region payload with macro/meso/micro layers."""
+        with self.state_lock:
+            region_record = None
+            evidence_items: list[dict[str, Any]] = []
+            for record in self.dashboard_state.get('regions', []):
+                if record.get('id') == region_id:
+                    region_record = dict(record)
+                    break
+            if region_record:
+                evidence_items = [dict(item) for item in self.dashboard_state.get('evidence', []) if item.get('region_id') == region_id]
 
-    @calibrated_method("farfan_core.api.api_server.DataService._get_cluster_breakdown")
-    def _get_cluster_breakdown(self, region_id: str) -> list[dict[str, Any]]:
-        """Get cluster analysis for region"""
-        return [
-            {'name': 'GOBERNANZA', 'value': 72, 'trend': ParameterLoaderV2.get("farfan_core.api.api_server.DataService._get_cluster_breakdown", "auto_param_L456_57", 0.05)},
-            {'name': 'SOCIAL', 'value': 68, 'trend': ParameterLoaderV2.get("farfan_core.api.api_server.DataService._get_cluster_breakdown", "auto_param_L457_53", 0.02)},
-            {'name': 'ECONÓMICO', 'value': 81, 'trend': -ParameterLoaderV2.get("farfan_core.api.api_server.DataService._get_cluster_breakdown", "auto_param_L458_57", 0.03)},
-            {'name': 'AMBIENTAL', 'value': 76, 'trend': ParameterLoaderV2.get("farfan_core.api.api_server.DataService._get_cluster_breakdown", "auto_param_L459_56", 0.07)}
-        ]
+        if region_record is None:
+            return None
 
-    @calibrated_method("farfan_core.api.api_server.DataService._get_question_matrix")
-    def _get_question_matrix(self, region_id: str) -> list[dict[str, Any]]:
-        """Get question matrix (44 questions) for region"""
-        import random
-        questions = []
-        for i in range(1, 45):
-            score = random.uniform(ParameterLoaderV2.get("farfan_core.api.api_server.DataService._get_question_matrix", "auto_param_L468_35", 0.4), ParameterLoaderV2.get("farfan_core.api.api_server.DataService._get_question_matrix", "auto_param_L468_40", 1.0))
-            questions.append({
-                'id': i,
-                'text': f'Pregunta {i}',
-                'score': score,
-                'category': f'D{(i-1)//7 + 1}',
-                'evidence': [f'PDT Sección {i//10 + 1}'],
-                'recommendations': [f'Recomendación {i}'] if score < ParameterLoaderV2.get("farfan_core.api.api_server.DataService._get_question_matrix", "auto_param_L475_69", 0.7) else []
-            })
-        return questions
+        summary, context = self.dashboard_transformer.summarize_region(region_record)
+        return self.dashboard_transformer.build_region_detail(region_record, summary, context, evidence_items)
 
-    @calibrated_method("farfan_core.api.api_server.DataService._get_recommendations")
-    def _get_recommendations(self, region_id: str) -> list[dict[str, Any]]:
-        """Get strategic recommendations for region"""
-        return [
-            {
-                'priority': 'ALTA',
-                'text': 'Fortalecer mecanismos de participación ciudadana',
-                'category': 'GOBERNANZA',
-                'impact': 'HIGH'
-            },
-            {
-                'priority': 'ALTA',
-                'text': 'Implementar sistema de monitoreo continuo',
-                'category': 'SEGUIMIENTO',
-                'impact': 'HIGH'
-            },
-            {
-                'priority': 'MEDIA',
-                'text': 'Mejorar articulación interinstitucional',
-                'category': 'INSTITUCIONAL',
-                'impact': 'MEDIUM'
-            }
-        ]
-
-    @calibrated_method("farfan_core.api.api_server.DataService._get_evidence_for_region")
-    def _get_evidence_for_region(self, region_id: str) -> list[dict[str, Any]]:
-        """Get evidence items for region"""
-        return [
-            {
-                'source': 'PDT Sección 3.2',
-                'page': 45,
-                'text': 'Implementación de estrategias municipales',
-                'relevance': ParameterLoaderV2.get("farfan_core.api.api_server.DataService._get_evidence_for_region", "auto_param_L511_29", 0.92)
-            },
-            {
-                'source': 'PDT Capítulo 4',
-                'page': 67,
-                'text': 'Articulación con Decálogo DDHH',
-                'relevance': ParameterLoaderV2.get("farfan_core.api.api_server.DataService._get_evidence_for_region", "auto_param_L517_29", 0.88)
-            }
-        ]
-
-    @calibrated_method("farfan_core.api.api_server.DataService.get_evidence_stream")
-    def get_evidence_stream(self) -> list[dict[str, Any]]:
-        """Get evidence stream for ticker display"""
-        return [
-            {
-                'source': 'PDT Sección 3.2',
-                'page': 45,
-                'text': 'Implementación de estrategias municipales',
-                'timestamp': datetime.now().isoformat()
-            },
-            {
-                'source': 'PDT Capítulo 4',
-                'page': 67,
-                'text': 'Articulación con Decálogo DDHH',
-                'timestamp': datetime.now().isoformat()
-            },
-            {
-                'source': 'Anexo Técnico',
-                'page': 112,
-                'text': 'Indicadores de cumplimiento',
-                'timestamp': datetime.now().isoformat()
-            }
-        ]
 
 # Initialize data service
 data_service = DataService()
@@ -1103,40 +838,100 @@ def get_region_detail(region_id: str):
 @rate_limit
 @cache_response(timeout=300)
 def get_municipality_data(municipality_id: str):
-    """
-    Get municipality analysis data
-
-    Args:
-        municipality_id: Municipality identifier
-
-    Returns:
-        Municipality analysis with scores and recommendations
-    """
+    """Get REAL municipality data from PDET catalog + pipeline results."""
+    from farfan_pipeline.api.pdet_colombia_data import PDET_MUNICIPALITIES, get_municipality_by_name
+    
     try:
-        # Mock data - integrate with orchestrator for real analysis
-        municipality_data = {
-            'id': municipality_id,
-            'name': f'Municipality {municipality_id}',
-            'region_id': 'alto-patia',
-            'analysis': {
-                'radar': {
-                    'dimensions': ['Gobernanza', 'Social', 'Económico', 'Ambiental', 'Institucional', 'Territorial'],
-                    'scores': [72, 68, 81, 76, 70, 74]
-                },
-                'clusters': data_service._get_cluster_breakdown('alto-patia'),
-                'questions': data_service._get_question_matrix('alto-patia')
-            }
-        }
+        municipality_name = municipality_id.replace('-', ' ').title()
+        
+        try:
+            municipality = get_municipality_by_name(municipality_name)
+        except ValueError:
+            return jsonify({'error': f'Municipality "{municipality_name}" not found'}), 404
+        
+        has_analysis = False
+        macro_data = None
+        meso_data = []
+        micro_data = []
+        region_slug = _slugify_region_name(municipality.subregion.value)
 
+        with self.state_lock:
+            region_state = next(
+                (dict(record) for record in self.dashboard_state.get('regions', []) if record.get('id') == region_slug),
+                None,
+            )
+
+        if region_state:
+            has_analysis = True
+
+            summary, context = self.dashboard_transformer.summarize_region(region_state)
+            macro_detail = context.get('macro', {})
+            clusters = context.get('clusters', [])
+            question_matrix = self.dashboard_transformer.extract_question_matrix(context.get('report', {}))
+
+            macro_data = {
+                'score': macro_detail.get('score'),
+                'score_percent': macro_detail.get('score_percent'),
+                'band': macro_detail.get('band') or summary.get('macroBand') or 'SIN DATOS',
+                'coherence': macro_detail.get('coherence'),
+                'systemic_gaps': macro_detail.get('systemic_gaps', []),
+                'alignment': macro_detail.get('alignment'),
+            }
+
+            meso_data = [
+                {
+                    'cluster_id': cluster.get('cluster_id'),
+                    'name': cluster.get('name'),
+                    'score': cluster.get('score'),
+                    'score_percent': cluster.get('score_percent'),
+                    'areas': cluster.get('areas'),
+                    'weakest_area': cluster.get('weakest_area'),
+                    'coherence': cluster.get('coherence'),
+                }
+                for cluster in clusters
+            ]
+
+            micro_data = [
+                {
+                    'question_id': question.get('id'),
+                    'policy_area': question.get('category'),
+                    'dimension': question.get('dimension'),
+                    'score': question.get('score'),
+                    'score_percent': question.get('score_percent'),
+                    'evidence': question.get('evidence'),
+                    'recommendations': question.get('recommendations'),
+                }
+                for question in question_matrix
+            ]
+        
         return jsonify({
             'status': 'success',
-            'data': municipality_data,
+            'municipality': {
+                'id': municipality_id,
+                'name': municipality.name,
+                'department': municipality.department,
+                'dane_code': municipality.dane_code,
+                'population': municipality.population,
+                'area_km2': municipality.area_km2,
+                'subregion': municipality.subregion.value
+            },
+            'has_analysis': has_analysis,
+            'macro': macro_data,
+            'meso': meso_data,
+            'micro': micro_data,
             'timestamp': datetime.now().isoformat()
         })
-
+    
     except Exception as e:
         logger.error(f"Failed to get municipality data: {e}")
         return jsonify({'error': str(e)}), 500
+
+    @calibrated_method("farfan_core.api.api_server.DataService.get_evidence_stream")
+    def get_evidence_stream(self) -> list[dict[str, Any]]:
+        """Return normalized evidence entries for ticker display."""
+        with self.state_lock:
+            evidence_items = [dict(item) for item in self.dashboard_state.get('evidence', [])]
+        return self.dashboard_transformer.normalize_evidence_stream(evidence_items)
 
 @app.route('/api/v1/evidence/stream', methods=['GET'])
 @rate_limit

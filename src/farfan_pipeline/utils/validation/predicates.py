@@ -103,14 +103,16 @@ class ValidationPredicates:
 
     @staticmethod
     def _validate_expected_elements_types(
-        question_schema: str, chunk_schema: str, question_id: str
+        question_schema: list[Any] | dict[str, Any] | None,
+        chunk_schema: list[Any] | dict[str, Any] | None,
+        question_id: str,
     ) -> ValidationResult:
         """
         Validate that question_schema and chunk_schema have valid types.
 
         Args:
-            question_schema: Classified type of question_schema ("None", "list", "dict", "invalid")
-            chunk_schema: Classified type of chunk_schema ("None", "list", "dict", "invalid")
+            question_schema: Schema object (None, list, or dict)
+            chunk_schema: Schema object (None, list, or dict)
             question_id: Question identifier for error context
 
         Returns:
@@ -118,13 +120,26 @@ class ValidationPredicates:
 
         Raises:
             TypeError: If either schema has invalid type (not None, list, or dict)
+            ValueError: If schemas are both lists with different lengths or both dicts with different keys
         """
+        if question_schema is None and chunk_schema is None:
+            return ValidationResult(
+                is_valid=True,
+                severity="INFO",
+                message=f"Question {question_id} has valid schema types",
+                context={
+                    "question_id": question_id,
+                    "question_schema_type": "None",
+                    "chunk_schema_type": "None",
+                },
+            )
+
         errors = []
 
-        if question_schema == "invalid":
+        if question_schema is not None and not isinstance(question_schema, list | dict):
             errors.append("question_schema has invalid type (not None, list, or dict)")
 
-        if chunk_schema == "invalid":
+        if chunk_schema is not None and not isinstance(chunk_schema, list | dict):
             errors.append("chunk_schema has invalid type (not None, list, or dict)")
 
         if errors:
@@ -132,14 +147,47 @@ class ValidationPredicates:
                 f"Question {question_id} has invalid schema types: {'; '.join(errors)}"
             )
 
+        if (
+            isinstance(question_schema, list)
+            and isinstance(chunk_schema, list)
+            and len(question_schema) != len(chunk_schema)
+        ):
+            raise ValueError(
+                f"Question {question_id} schema length mismatch: "
+                f"question_schema has {len(question_schema)} elements, "
+                f"chunk_schema has {len(chunk_schema)} elements"
+            )
+
+        if isinstance(question_schema, dict) and isinstance(chunk_schema, dict):
+            question_keys = set(question_schema.keys())
+            chunk_keys = set(chunk_schema.keys())
+            key_diff = question_keys.symmetric_difference(chunk_keys)
+            if key_diff:
+                sorted_diff = sorted(key_diff)
+                raise ValueError(
+                    f"Question {question_id} schema key mismatch: "
+                    f"symmetric difference in keys: {sorted_diff}"
+                )
+
+        question_type = (
+            "None"
+            if question_schema is None
+            else "list" if isinstance(question_schema, list) else "dict"
+        )
+        chunk_type = (
+            "None"
+            if chunk_schema is None
+            else "list" if isinstance(chunk_schema, list) else "dict"
+        )
+
         return ValidationResult(
             is_valid=True,
             severity="INFO",
             message=f"Question {question_id} has valid schema types",
             context={
                 "question_id": question_id,
-                "question_schema_type": question_schema,
-                "chunk_schema_type": chunk_schema,
+                "question_schema_type": question_type,
+                "chunk_schema_type": chunk_type,
             },
         )
 
@@ -241,7 +289,7 @@ class ValidationPredicates:
         schema_types = (question_type, chunk_type)
 
         ValidationPredicates._validate_expected_elements_types(
-            schema_types[0], schema_types[1], question_id
+            question_schema_raw, chunk_schema_raw, question_id
         )
 
         compatibility_validation = ValidationPredicates._validate_element_compatibility(

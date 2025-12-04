@@ -59,7 +59,7 @@ class MicroQuestionContext:
         )
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class ExecutableTask:
     task_id: str
     question_id: str
@@ -67,12 +67,39 @@ class ExecutableTask:
     policy_area_id: str
     dimension_id: str
     chunk_id: str
-    patterns: list[dict[str, Any]]
-    signals: dict[str, Any]
+    patterns: tuple[dict[str, Any], ...]
+    signals: MappingProxyType[str, Any]
     creation_timestamp: str
-    expected_elements: list[dict[str, Any]] = field(default_factory=list)
-    metadata: dict[str, Any] = field(default_factory=dict)
+    expected_elements: tuple[dict[str, Any], ...] = field(default_factory=tuple)
+    metadata: MappingProxyType[str, Any] = field(default_factory=lambda: MappingProxyType({}))
     context: MicroQuestionContext | None = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.patterns, tuple):
+            object.__setattr__(self, "patterns", tuple(self.patterns))
+        if not isinstance(self.signals, MappingProxyType):
+            object.__setattr__(self, "signals", MappingProxyType(dict(self.signals)))
+        if not isinstance(self.expected_elements, tuple):
+            object.__setattr__(self, "expected_elements", tuple(self.expected_elements))
+        if not isinstance(self.metadata, MappingProxyType):
+            object.__setattr__(self, "metadata", MappingProxyType(dict(self.metadata)))
+        
+        if not self.task_id:
+            raise ValueError("task_id cannot be empty")
+        if not self.question_id:
+            raise ValueError("question_id cannot be empty")
+        if not isinstance(self.question_global, int):
+            raise ValueError(f"question_global must be an integer, got {type(self.question_global).__name__}")
+        if not (0 <= self.question_global <= MAX_QUESTION_GLOBAL):
+            raise ValueError(f"question_global must be in range 0-{MAX_QUESTION_GLOBAL}, got {self.question_global}")
+        if not self.policy_area_id:
+            raise ValueError("policy_area_id cannot be empty")
+        if not self.dimension_id:
+            raise ValueError("dimension_id cannot be empty")
+        if not self.chunk_id:
+            raise ValueError("chunk_id cannot be empty")
+        if not self.creation_timestamp:
+            raise ValueError("creation_timestamp cannot be empty")
 
 
 def _validate_element_compatibility(  # noqa: PLR0912
@@ -236,7 +263,7 @@ def _construct_task(
 
     creation_timestamp = datetime.now(timezone.utc).isoformat()
 
-    patterns_list = list(applicable_patterns)
+    patterns_tuple = tuple(applicable_patterns) if not isinstance(applicable_patterns, tuple) else applicable_patterns
     signals_dict = dict(
         zip(
             (f"signal_{i}" for i in range(len(resolved_signals))),
@@ -261,6 +288,9 @@ def _construct_task(
         creation_timestamp=creation_timestamp,
     )
 
+    expected_elements = question.get("expected_elements", [])
+    expected_elements_tuple = tuple(expected_elements) if isinstance(expected_elements, list) else expected_elements
+
     task = ExecutableTask(
         task_id=task_id,
         question_id=question.get("question_id", ""),
@@ -268,15 +298,15 @@ def _construct_task(
         policy_area_id=routing_result.policy_area_id,
         dimension_id=question.get("dimension_id", ""),
         chunk_id=routing_result.chunk_id,
-        patterns=patterns_list,
-        signals=signals_dict,
+        patterns=patterns_tuple,
+        signals=MappingProxyType(signals_dict),
         creation_timestamp=creation_timestamp,
-        expected_elements=question.get("expected_elements", []),
-        metadata={
+        expected_elements=expected_elements_tuple,
+        metadata=MappingProxyType({
             "base_slot": question.get("base_slot", ""),
             "cluster_id": question.get("cluster_id", ""),
             "correlation_id": correlation_id,
-        },
+        }),
         context=context,
     )
 
@@ -329,6 +359,10 @@ def _construct_task_legacy(
         creation_timestamp=creation_timestamp,
     )
 
+    expected_elements = question.get("expected_elements", [])
+    expected_elements_tuple = tuple(expected_elements) if isinstance(expected_elements, list) else expected_elements
+    patterns_tuple = tuple(patterns) if isinstance(patterns, list) else patterns
+
     task = ExecutableTask(
         task_id=task_id,
         question_id=question.get("question_id", ""),
@@ -336,14 +370,14 @@ def _construct_task_legacy(
         policy_area_id=policy_area_id,
         dimension_id=question.get("dimension_id", ""),
         chunk_id=chunk.get("id", ""),
-        patterns=patterns,
-        signals=signals,
+        patterns=patterns_tuple,
+        signals=MappingProxyType(signals) if not isinstance(signals, MappingProxyType) else signals,
         creation_timestamp=creation_timestamp,
-        expected_elements=question.get("expected_elements", []),
-        metadata={
+        expected_elements=expected_elements_tuple,
+        metadata=MappingProxyType({
             "base_slot": question.get("base_slot", ""),
             "cluster_id": question.get("cluster_id", ""),
-        },
+        }),
         context=context,
     )
 

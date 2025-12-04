@@ -6,8 +6,16 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+
+@dataclass(frozen=True, slots=True)
+class ChunkRoutingResult:
+    policy_area_id: str
+    chunk_id: str
+
+
 EXPECTED_TASKS_PER_CHUNK = 5
 EXPECTED_TASKS_PER_POLICY_AREA = 30
+MAX_QUESTION_GLOBAL = 999
 
 
 def _freeze_immutable(obj: Any) -> Any:  # noqa: ANN401
@@ -185,6 +193,91 @@ def _validate_schema(question: dict[str, Any], chunk: dict[str, Any]) -> None:
 
 
 def _construct_task(
+    question: dict[str, Any],
+    routing_result: ChunkRoutingResult,
+    applicable_patterns: tuple[Any, ...],
+    resolved_signals: tuple[Any, ...],
+    generated_task_ids: set[str],
+    correlation_id: str,
+) -> ExecutableTask:
+    question_id = question.get("question_id", "UNKNOWN")
+    question_global = question.get("question_global")
+
+    if question_global is None:
+        raise ValueError(
+            f"Task construction failure for {question_id}: "
+            "question_global field missing or None"
+        )
+
+    if not isinstance(question_global, int):
+        raise ValueError(
+            f"Task construction failure for {question_id}: "
+            f"question_global must be an integer, got {type(question_global).__name__}"
+        )
+
+    if not (0 <= question_global <= MAX_QUESTION_GLOBAL):
+        raise ValueError(
+            f"Task construction failure for {question_id}: "
+            f"question_global must be in range 0-{MAX_QUESTION_GLOBAL}, got {question_global}"
+        )
+
+    task_id = f"MQC-{question_global:03d}_{routing_result.policy_area_id}"
+
+    if task_id in generated_task_ids:
+        raise ValueError(f"Duplicate task_id detected: {task_id}")
+
+    generated_task_ids.add(task_id)
+
+    creation_timestamp = datetime.now(timezone.utc).isoformat()
+
+    patterns_list = list(applicable_patterns)
+    signals_dict = dict(
+        zip(
+            (f"signal_{i}" for i in range(len(resolved_signals))),
+            resolved_signals,
+            strict=False,
+        )
+    )
+
+    context = MicroQuestionContext(
+        task_id=task_id,
+        question_id=question.get("question_id", ""),
+        question_global=question_global,
+        policy_area_id=routing_result.policy_area_id,
+        dimension_id=question.get("dimension_id", ""),
+        chunk_id=routing_result.chunk_id,
+        base_slot=question.get("base_slot", ""),
+        cluster_id=question.get("cluster_id", ""),
+        patterns=applicable_patterns,
+        signals=signals_dict,
+        expected_elements=tuple(question.get("expected_elements", [])),
+        signal_requirements=question.get("signal_requirements", {}),
+        creation_timestamp=creation_timestamp,
+    )
+
+    task = ExecutableTask(
+        task_id=task_id,
+        question_id=question.get("question_id", ""),
+        question_global=question_global,
+        policy_area_id=routing_result.policy_area_id,
+        dimension_id=question.get("dimension_id", ""),
+        chunk_id=routing_result.chunk_id,
+        patterns=patterns_list,
+        signals=signals_dict,
+        creation_timestamp=creation_timestamp,
+        expected_elements=question.get("expected_elements", []),
+        metadata={
+            "base_slot": question.get("base_slot", ""),
+            "cluster_id": question.get("cluster_id", ""),
+            "correlation_id": correlation_id,
+        },
+        context=context,
+    )
+
+    return task
+
+
+def _construct_task_legacy(
     question: dict[str, Any],
     chunk: dict[str, Any],
     patterns: list[dict[str, Any]],

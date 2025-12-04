@@ -6,9 +6,11 @@ import pytest
 
 from farfan_pipeline.core.orchestrator.task_planner import (
     EXPECTED_TASKS_PER_CHUNK,
+    ChunkRoutingResult,
     ExecutableTask,
     MicroQuestionContext,
     _construct_task,
+    _construct_task_legacy,
     _validate_cross_task,
     _validate_schema,
     extract_expected_elements,
@@ -159,7 +161,7 @@ class TestConstructTask:
         signals = {"signal1": 0.5}
         generated_ids: set[str] = set()
 
-        task = _construct_task(question, chunk, patterns, signals, generated_ids)
+        task = _construct_task_legacy(question, chunk, patterns, signals, generated_ids)
 
         assert task.task_id == "MQC-001_PA01"
         assert task.question_id == "D1-Q1"
@@ -192,7 +194,7 @@ class TestConstructTask:
         generated_ids = {"MQC-001_PA01"}
 
         with pytest.raises(ValueError) as exc_info:
-            _construct_task(question, chunk, patterns, signals, generated_ids)
+            _construct_task_legacy(question, chunk, patterns, signals, generated_ids)
 
         assert "Duplicate task_id detected: MQC-001_PA01" in str(exc_info.value)
 
@@ -207,7 +209,7 @@ class TestConstructTask:
         chunk = {"id": "chunk_002", "expected_elements": []}
         generated_ids: set[str] = set()
 
-        task = _construct_task(question, chunk, [], {}, generated_ids)
+        task = _construct_task_legacy(question, chunk, [], {}, generated_ids)
 
         assert "T" in task.creation_timestamp
         assert task.creation_timestamp.endswith("Z") or "." in task.creation_timestamp
@@ -475,3 +477,218 @@ class TestMicroQuestionContext:
         assert sorted_contexts[2].question_global == 51
         assert sorted_contexts[0].dimension_id == "DIM01"
         assert sorted_contexts[2].dimension_id == "DIM02"
+
+
+class TestConstructTaskNew:
+    def test_construct_task_with_valid_inputs(self):
+        question = {
+            "question_id": "D1-Q1",
+            "question_global": 42,
+            "dimension_id": "DIM01",
+            "base_slot": "D1-Q1",
+            "cluster_id": "CL01",
+            "expected_elements": [{"type": "test", "minimum": 1}],
+            "signal_requirements": {"signal1": 0.3},
+        }
+        routing_result = ChunkRoutingResult(policy_area_id="PA05", chunk_id="chunk_042")
+        applicable_patterns = ({"pattern": "p1"}, {"pattern": "p2"})
+        resolved_signals = (0.8, 0.9, 0.7)
+        generated_task_ids: set[str] = set()
+        correlation_id = "corr-123-abc"
+
+        task = _construct_task(
+            question,
+            routing_result,
+            applicable_patterns,
+            resolved_signals,
+            generated_task_ids,
+            correlation_id,
+        )
+
+        assert task.task_id == "MQC-042_PA05"
+        assert task.question_id == "D1-Q1"
+        assert task.question_global == 42
+        assert task.policy_area_id == "PA05"
+        assert task.dimension_id == "DIM01"
+        assert task.chunk_id == "chunk_042"
+        assert len(task.patterns) == 2
+        assert task.metadata["correlation_id"] == correlation_id
+        assert task.metadata["base_slot"] == "D1-Q1"
+        assert task.metadata["cluster_id"] == "CL01"
+        assert "MQC-042_PA05" in generated_task_ids
+
+    def test_construct_task_missing_question_global(self):
+        question = {
+            "question_id": "D1-Q1",
+            "dimension_id": "DIM01",
+        }
+        routing_result = ChunkRoutingResult(policy_area_id="PA01", chunk_id="chunk_001")
+        generated_task_ids: set[str] = set()
+
+        with pytest.raises(ValueError) as exc_info:
+            _construct_task(
+                question, routing_result, (), (), generated_task_ids, "corr-123"
+            )
+
+        assert "Task construction failure for D1-Q1" in str(exc_info.value)
+        assert "question_global field missing or None" in str(exc_info.value)
+
+    def test_construct_task_missing_question_global_unknown_id(self):
+        question = {
+            "dimension_id": "DIM01",
+        }
+        routing_result = ChunkRoutingResult(policy_area_id="PA01", chunk_id="chunk_001")
+        generated_task_ids: set[str] = set()
+
+        with pytest.raises(ValueError) as exc_info:
+            _construct_task(
+                question, routing_result, (), (), generated_task_ids, "corr-123"
+            )
+
+        assert "Task construction failure for UNKNOWN" in str(exc_info.value)
+        assert "question_global field missing or None" in str(exc_info.value)
+
+    def test_construct_task_question_global_not_integer(self):
+        question = {
+            "question_id": "D1-Q1",
+            "question_global": "42",
+            "dimension_id": "DIM01",
+        }
+        routing_result = ChunkRoutingResult(policy_area_id="PA01", chunk_id="chunk_001")
+        generated_task_ids: set[str] = set()
+
+        with pytest.raises(ValueError) as exc_info:
+            _construct_task(
+                question, routing_result, (), (), generated_task_ids, "corr-123"
+            )
+
+        assert "Task construction failure for D1-Q1" in str(exc_info.value)
+        assert "question_global must be an integer" in str(exc_info.value)
+        assert "got str" in str(exc_info.value)
+
+    def test_construct_task_question_global_below_range(self):
+        question = {
+            "question_id": "D1-Q1",
+            "question_global": -1,
+            "dimension_id": "DIM01",
+        }
+        routing_result = ChunkRoutingResult(policy_area_id="PA01", chunk_id="chunk_001")
+        generated_task_ids: set[str] = set()
+
+        with pytest.raises(ValueError) as exc_info:
+            _construct_task(
+                question, routing_result, (), (), generated_task_ids, "corr-123"
+            )
+
+        assert "Task construction failure for D1-Q1" in str(exc_info.value)
+        assert "question_global must be in range 0-999" in str(exc_info.value)
+        assert "got -1" in str(exc_info.value)
+
+    def test_construct_task_question_global_above_range(self):
+        question = {
+            "question_id": "D1-Q1",
+            "question_global": 1000,
+            "dimension_id": "DIM01",
+        }
+        routing_result = ChunkRoutingResult(policy_area_id="PA01", chunk_id="chunk_001")
+        generated_task_ids: set[str] = set()
+
+        with pytest.raises(ValueError) as exc_info:
+            _construct_task(
+                question, routing_result, (), (), generated_task_ids, "corr-123"
+            )
+
+        assert "Task construction failure for D1-Q1" in str(exc_info.value)
+        assert "question_global must be in range 0-999" in str(exc_info.value)
+        assert "got 1000" in str(exc_info.value)
+
+    def test_construct_task_duplicate_task_id(self):
+        question = {
+            "question_id": "D1-Q1",
+            "question_global": 42,
+            "dimension_id": "DIM01",
+        }
+        routing_result = ChunkRoutingResult(policy_area_id="PA05", chunk_id="chunk_042")
+        generated_task_ids = {"MQC-042_PA05"}
+
+        with pytest.raises(ValueError) as exc_info:
+            _construct_task(
+                question, routing_result, (), (), generated_task_ids, "corr-123"
+            )
+
+        assert "Duplicate task_id detected: MQC-042_PA05" in str(exc_info.value)
+
+    def test_construct_task_reserves_id_before_completion(self):
+        question = {
+            "question_id": "D1-Q1",
+            "question_global": 42,
+            "dimension_id": "DIM01",
+        }
+        routing_result = ChunkRoutingResult(policy_area_id="PA05", chunk_id="chunk_042")
+        generated_task_ids: set[str] = set()
+
+        task = _construct_task(
+            question, routing_result, (), (), generated_task_ids, "corr-123"
+        )
+
+        assert "MQC-042_PA05" in generated_task_ids
+        assert task.task_id == "MQC-042_PA05"
+
+    def test_construct_task_boundary_values(self):
+        question_min = {
+            "question_id": "D1-Q1",
+            "question_global": 0,
+            "dimension_id": "DIM01",
+        }
+        routing_result_min = ChunkRoutingResult(
+            policy_area_id="PA01", chunk_id="chunk_000"
+        )
+        generated_task_ids: set[str] = set()
+
+        task_min = _construct_task(
+            question_min, routing_result_min, (), (), generated_task_ids, "corr-123"
+        )
+
+        assert task_min.task_id == "MQC-000_PA01"
+        assert task_min.question_global == 0
+
+        question_max = {
+            "question_id": "D6-Q50",
+            "question_global": 999,
+            "dimension_id": "DIM06",
+        }
+        routing_result_max = ChunkRoutingResult(
+            policy_area_id="PA10", chunk_id="chunk_999"
+        )
+
+        task_max = _construct_task(
+            question_max, routing_result_max, (), (), generated_task_ids, "corr-456"
+        )
+
+        assert task_max.task_id == "MQC-999_PA10"
+        assert task_max.question_global == 999
+
+    def test_construct_task_formats_task_id_with_leading_zeros(self):
+        test_cases = [
+            (1, "MQC-001_PA01"),
+            (10, "MQC-010_PA01"),
+            (100, "MQC-100_PA01"),
+            (999, "MQC-999_PA01"),
+        ]
+
+        for question_global, expected_id in test_cases:
+            question = {
+                "question_id": f"Q{question_global}",
+                "question_global": question_global,
+                "dimension_id": "DIM01",
+            }
+            routing_result = ChunkRoutingResult(
+                policy_area_id="PA01", chunk_id="chunk_001"
+            )
+            generated_task_ids: set[str] = set()
+
+            task = _construct_task(
+                question, routing_result, (), (), generated_task_ids, "corr-123"
+            )
+
+            assert task.task_id == expected_id

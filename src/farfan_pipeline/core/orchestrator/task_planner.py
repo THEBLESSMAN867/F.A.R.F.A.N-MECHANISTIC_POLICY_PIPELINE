@@ -61,6 +61,97 @@ class ExecutableTask:
     context: MicroQuestionContext | None = None
 
 
+def _validate_element_compatibility(  # noqa: PLR0912
+    provisional_task_id: str,
+    question_schema: list[dict[str, Any]] | dict[str, Any],
+    chunk_schema: list[dict[str, Any]] | dict[str, Any],
+    common_type_class: type,  # noqa: ARG001
+) -> int:
+    validated_count = 0
+
+    if isinstance(question_schema, list) and isinstance(chunk_schema, list):
+        for idx, (q_elem, c_elem) in enumerate(
+            zip(question_schema, chunk_schema, strict=True)
+        ):
+            if q_elem.get("type") is None:
+                raise ValueError(
+                    f"Task {provisional_task_id}: Question element at index {idx} "
+                    f"has missing type field"
+                )
+            if c_elem.get("type") is None:
+                raise ValueError(
+                    f"Task {provisional_task_id}: Chunk element at index {idx} "
+                    f"has missing type field"
+                )
+
+            if q_elem["type"] != c_elem["type"]:
+                raise ValueError(
+                    f"Task {provisional_task_id}: Type mismatch at index {idx}: "
+                    f"question type '{q_elem['type']}' != chunk type '{c_elem['type']}'"
+                )
+
+            q_required = q_elem.get("required", False)
+            c_required = c_elem.get("required", False)
+            if q_required and not c_required:
+                raise ValueError(
+                    f"Task {provisional_task_id}: Required field mismatch at index {idx}: "
+                    f"question requires element but chunk marks it optional"
+                )
+
+            q_minimum = q_elem.get("minimum", 0)
+            c_minimum = c_elem.get("minimum", 0)
+            if c_minimum < q_minimum:
+                raise ValueError(
+                    f"Task {provisional_task_id}: Threshold mismatch at index {idx}: "
+                    f"chunk minimum ({c_minimum}) is lower than question minimum ({q_minimum})"
+                )
+
+            validated_count += 1
+
+    elif isinstance(question_schema, dict) and isinstance(chunk_schema, dict):
+        sorted_keys = sorted(set(question_schema.keys()) & set(chunk_schema.keys()))
+        for key in sorted_keys:
+            q_elem = question_schema[key]
+            c_elem = chunk_schema[key]
+
+            if q_elem.get("type") is None:
+                raise ValueError(
+                    f"Task {provisional_task_id}: Question element '{key}' "
+                    f"has missing type field"
+                )
+            if c_elem.get("type") is None:
+                raise ValueError(
+                    f"Task {provisional_task_id}: Chunk element '{key}' "
+                    f"has missing type field"
+                )
+
+            if q_elem["type"] != c_elem["type"]:
+                raise ValueError(
+                    f"Task {provisional_task_id}: Type mismatch for key '{key}': "
+                    f"question type '{q_elem['type']}' != chunk type '{c_elem['type']}'"
+                )
+
+            q_required = q_elem.get("required", False)
+            c_required = c_elem.get("required", False)
+            if q_required and not c_required:
+                raise ValueError(
+                    f"Task {provisional_task_id}: Required field mismatch for key '{key}': "
+                    f"question requires element but chunk marks it optional"
+                )
+
+            q_minimum = q_elem.get("minimum", 0)
+            c_minimum = c_elem.get("minimum", 0)
+            if c_minimum < q_minimum:
+                raise ValueError(
+                    f"Task {provisional_task_id}: Threshold mismatch for key '{key}': "
+                    f"chunk minimum ({c_minimum}) is lower than question minimum ({q_minimum})"
+                )
+
+            validated_count += 1
+
+    return validated_count
+
+
 def _validate_schema(question: dict[str, Any], chunk: dict[str, Any]) -> None:
     q_elements = question.get("expected_elements", [])
     c_elements = chunk.get("expected_elements", [])

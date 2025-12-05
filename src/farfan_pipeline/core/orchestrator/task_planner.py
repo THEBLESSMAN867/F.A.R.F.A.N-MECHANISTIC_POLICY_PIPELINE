@@ -1,20 +1,17 @@
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from types import MappingProxyType
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
+
+if TYPE_CHECKING:
+    from farfan_pipeline.core.orchestrator.irrigation_synchronizer import (
+        ChunkRoutingResult,
+    )
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass(frozen=True, slots=True)
-class ChunkRoutingResult:
-    policy_area_id: str
-    chunk_id: str
-    expected_elements: list[Any]
-    dimension_id: str = ""
-    document_position: tuple[int, int] | None = None
-
 
 EXPECTED_TASKS_PER_CHUNK = 5
 EXPECTED_TASKS_PER_POLICY_AREA = 30
@@ -279,6 +276,8 @@ def _construct_task(
     document_position = routing_result.document_position
 
     metadata = {
+        "base_slot": question.get("base_slot", ""),
+        "cluster_id": question.get("cluster_id", ""),
         "document_position": document_position,
         "synchronizer_version": "1.0.0",
         "correlation_id": correlation_id,

@@ -4,9 +4,11 @@ from typing import Any
 
 import pytest
 
+from farfan_pipeline.core.orchestrator.irrigation_synchronizer import (
+    ChunkRoutingResult,
+)
 from farfan_pipeline.core.orchestrator.task_planner import (
     EXPECTED_TASKS_PER_CHUNK,
-    ChunkRoutingResult,
     ExecutableTask,
     MicroQuestionContext,
     _construct_task,
@@ -17,6 +19,45 @@ from farfan_pipeline.core.orchestrator.task_planner import (
     extract_signal_requirements,
     sort_micro_question_contexts,
 )
+from farfan_pipeline.core.types import ChunkData
+
+
+def create_test_chunk_routing_result(
+    policy_area_id: str,
+    chunk_id: str,
+    dimension_id: str = "DIM01",
+    text_content: str = "Test chunk content",
+    expected_elements: list[dict[str, Any]] | None = None,
+    document_position: tuple[int, int] | None = None,
+) -> ChunkRoutingResult:
+    """Helper function to create test ChunkRoutingResult with all required fields."""
+    if expected_elements is None:
+        expected_elements = []
+
+    # Extract PA and DIM from the provided IDs for the chunk
+    target_chunk = ChunkData(
+        id=0,
+        text=text_content,
+        chunk_type="diagnostic",
+        sentences=[],
+        tables=[],
+        start_pos=0,
+        end_pos=len(text_content),
+        confidence=0.95,
+        chunk_id=chunk_id,
+        policy_area_id=policy_area_id,
+        dimension_id=dimension_id,
+    )
+
+    return ChunkRoutingResult(
+        target_chunk=target_chunk,
+        chunk_id=chunk_id,
+        policy_area_id=policy_area_id,
+        dimension_id=dimension_id,
+        text_content=text_content,
+        expected_elements=expected_elements,
+        document_position=document_position,
+    )
 
 
 class TestValidateSchema:
@@ -166,7 +207,9 @@ class TestConstructTask:
 
         routing_result = MockRoutingResult()
 
-        task = _construct_task_legacy(question, chunk, patterns, signals, generated_task_ids, routing_result)
+        task = _construct_task_legacy(
+            question, chunk, patterns, signals, generated_task_ids, routing_result
+        )
 
         assert task.task_id == "MQC-001_PA01"
         assert task.question_id == "D1-Q1"
@@ -200,9 +243,13 @@ class TestConstructTask:
         routing_result = MockRoutingResult()
 
         with pytest.raises(ValueError) as exc_info:
-            _construct_task_legacy(question, chunk, patterns, signals, generated_task_ids, routing_result)
+            _construct_task_legacy(
+                question, chunk, patterns, signals, generated_task_ids, routing_result
+            )
 
-        assert "Duplicate task_id detected: MQC-001_PA01 for question D1-Q1" in str(exc_info.value)
+        assert "Duplicate task_id detected: MQC-001_PA01 for question D1-Q1" in str(
+            exc_info.value
+        )
 
     def test_construct_task_timestamp_format(self):
         question = {
@@ -220,7 +267,9 @@ class TestConstructTask:
 
         routing_result = MockRoutingResult()
 
-        task = _construct_task_legacy(question, chunk, [], {}, generated_task_ids, routing_result)
+        task = _construct_task_legacy(
+            question, chunk, [], {}, generated_task_ids, routing_result
+        )
 
         assert "T" in task.creation_timestamp
         assert task.creation_timestamp.endswith("Z") or "." in task.creation_timestamp
@@ -506,7 +555,9 @@ class TestConstructTaskNew:
             "expected_elements": [{"type": "test", "minimum": 1}],
             "signal_requirements": {"signal1": 0.3},
         }
-        routing_result = ChunkRoutingResult(policy_area_id="PA05", chunk_id="chunk_042")
+        routing_result = create_test_chunk_routing_result(
+            policy_area_id="PA05", chunk_id="PA05-DIM01", dimension_id="DIM01"
+        )
         applicable_patterns = ({"pattern": "p1"}, {"pattern": "p2"})
         resolved_signals = (0.8, 0.9, 0.7)
         generated_task_ids: set[str] = set()
@@ -526,7 +577,7 @@ class TestConstructTaskNew:
         assert task.question_global == 42
         assert task.policy_area_id == "PA05"
         assert task.dimension_id == "DIM01"
-        assert task.chunk_id == "chunk_042"
+        assert task.chunk_id == "PA05-DIM01"
         assert len(task.patterns) == 2
         assert task.metadata["correlation_id"] == correlation_id
         assert task.metadata["base_slot"] == "D1-Q1"
@@ -538,7 +589,9 @@ class TestConstructTaskNew:
             "question_id": "D1-Q1",
             "dimension_id": "DIM01",
         }
-        routing_result = ChunkRoutingResult(policy_area_id="PA01", chunk_id="chunk_001")
+        routing_result = create_test_chunk_routing_result(
+            policy_area_id="PA01", chunk_id="PA01-DIM01", dimension_id="DIM01"
+        )
         generated_task_ids: set[str] = set()
 
         with pytest.raises(ValueError) as exc_info:
@@ -553,7 +606,9 @@ class TestConstructTaskNew:
         question = {
             "dimension_id": "DIM01",
         }
-        routing_result = ChunkRoutingResult(policy_area_id="PA01", chunk_id="chunk_001")
+        routing_result = create_test_chunk_routing_result(
+            policy_area_id="PA01", chunk_id="PA01-DIM01", dimension_id="DIM01"
+        )
         generated_task_ids: set[str] = set()
 
         with pytest.raises(ValueError) as exc_info:
@@ -570,7 +625,9 @@ class TestConstructTaskNew:
             "question_global": "42",
             "dimension_id": "DIM01",
         }
-        routing_result = ChunkRoutingResult(policy_area_id="PA01", chunk_id="chunk_001")
+        routing_result = create_test_chunk_routing_result(
+            policy_area_id="PA01", chunk_id="PA01-DIM01", dimension_id="DIM01"
+        )
         generated_task_ids: set[str] = set()
 
         with pytest.raises(ValueError) as exc_info:
@@ -588,7 +645,9 @@ class TestConstructTaskNew:
             "question_global": -1,
             "dimension_id": "DIM01",
         }
-        routing_result = ChunkRoutingResult(policy_area_id="PA01", chunk_id="chunk_001")
+        routing_result = create_test_chunk_routing_result(
+            policy_area_id="PA01", chunk_id="PA01-DIM01", dimension_id="DIM01"
+        )
         generated_task_ids: set[str] = set()
 
         with pytest.raises(ValueError) as exc_info:
@@ -606,7 +665,9 @@ class TestConstructTaskNew:
             "question_global": 1000,
             "dimension_id": "DIM01",
         }
-        routing_result = ChunkRoutingResult(policy_area_id="PA01", chunk_id="chunk_001")
+        routing_result = create_test_chunk_routing_result(
+            policy_area_id="PA01", chunk_id="PA01-DIM01", dimension_id="DIM01"
+        )
         generated_task_ids: set[str] = set()
 
         with pytest.raises(ValueError) as exc_info:
@@ -624,7 +685,9 @@ class TestConstructTaskNew:
             "question_global": 42,
             "dimension_id": "DIM01",
         }
-        routing_result = ChunkRoutingResult(policy_area_id="PA05", chunk_id="chunk_042")
+        routing_result = create_test_chunk_routing_result(
+            policy_area_id="PA05", chunk_id="PA05-DIM01", dimension_id="DIM01"
+        )
         generated_task_ids = {"MQC-042_PA05"}
 
         with pytest.raises(ValueError) as exc_info:
@@ -640,7 +703,9 @@ class TestConstructTaskNew:
             "question_global": 42,
             "dimension_id": "DIM01",
         }
-        routing_result = ChunkRoutingResult(policy_area_id="PA05", chunk_id="chunk_042")
+        routing_result = create_test_chunk_routing_result(
+            policy_area_id="PA05", chunk_id="PA05-DIM01", dimension_id="DIM01"
+        )
         generated_task_ids: set[str] = set()
 
         task = _construct_task(
@@ -656,8 +721,8 @@ class TestConstructTaskNew:
             "question_global": 0,
             "dimension_id": "DIM01",
         }
-        routing_result_min = ChunkRoutingResult(
-            policy_area_id="PA01", chunk_id="chunk_000"
+        routing_result_min = create_test_chunk_routing_result(
+            policy_area_id="PA01", chunk_id="PA01-DIM01", dimension_id="DIM01"
         )
         generated_task_ids: set[str] = set()
 
@@ -673,8 +738,8 @@ class TestConstructTaskNew:
             "question_global": 999,
             "dimension_id": "DIM06",
         }
-        routing_result_max = ChunkRoutingResult(
-            policy_area_id="PA10", chunk_id="chunk_999"
+        routing_result_max = create_test_chunk_routing_result(
+            policy_area_id="PA10", chunk_id="PA10-DIM06", dimension_id="DIM06"
         )
 
         task_max = _construct_task(
@@ -698,8 +763,8 @@ class TestConstructTaskNew:
                 "question_global": question_global,
                 "dimension_id": "DIM01",
             }
-            routing_result = ChunkRoutingResult(
-                policy_area_id="PA01", chunk_id="chunk_001"
+            routing_result = create_test_chunk_routing_result(
+                policy_area_id="PA01", chunk_id="PA01-DIM01", dimension_id="DIM01"
             )
             generated_task_ids: set[str] = set()
 

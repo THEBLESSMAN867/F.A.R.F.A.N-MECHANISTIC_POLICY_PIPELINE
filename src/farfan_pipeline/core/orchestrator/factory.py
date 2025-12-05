@@ -396,8 +396,8 @@ def _build_enriched_packs(
                     continue
                 
                 enriched_pack = create_enriched_signal_pack(
-                    base_pack=base_pack,
-                    questionnaire=questionnaire,
+                    base_pack,
+                    questionnaire,
                 )
                 enriched_packs[policy_area_id] = enriched_pack
                 

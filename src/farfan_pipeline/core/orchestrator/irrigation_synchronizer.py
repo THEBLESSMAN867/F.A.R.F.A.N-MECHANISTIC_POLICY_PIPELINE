@@ -24,7 +24,6 @@ import json
 import logging
 import time
 import uuid
-from collections import Counter
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -310,102 +309,6 @@ class IrrigationSynchronizer:
 
         return count
 
-    def _resolve_signals_for_question(
-        self,
-        question: dict[str, Any],
-        target_chunk: ChunkData,
-        signal_registry: SignalRegistry | None,
-    ) -> tuple[Any, ...]:
-        """Phase 5: Resolve signals for question and chunk.
-
-        Queries the signal registry for all signals required by the question,
-        validates that all required signals are present, and returns an
-        immutable tuple of Signal objects.
-
-        Args:
-            question: Question dict with signal_requirements
-            target_chunk: Target chunk from Phase 3 routing
-            signal_registry: Registry for signal resolution
-
-        Returns:
-            Immutable tuple of Signal objects
-
-        Raises:
-            ValueError: When signal_registry is None or required signals are missing
-        """
-        if signal_registry is None:
-            raise ValueError("SignalRegistry is required for Phase 5 signal resolution")
-
-        question_id = question.get("question_id", "UNKNOWN")
-        signal_requirements = question.get("signal_requirements", {})
-
-        if not isinstance(signal_requirements, dict):
-            signal_requirements = {}
-
-        required_types = (
-            set(signal_requirements.keys()) if signal_requirements else set()
-        )
-
-        if not required_types:
-            logger.debug(
-                json.dumps(
-                    {
-                        "event": "signal_resolution_skipped",
-                        "question_id": question_id,
-                        "reason": "no_signal_requirements",
-                        "correlation_id": self.correlation_id,
-                    }
-                )
-            )
-            return ()
-
-        try:
-            from farfan_pipeline.core.orchestrator.signal_resolution import (
-                Chunk,
-                _resolve_signals,
-            )
-            from farfan_pipeline.core.orchestrator.signal_resolution import (
-                Question as SignalQuestion,
-            )
-
-            chunk_for_resolution = Chunk(
-                chunk_id=target_chunk.chunk_id
-                or f"{target_chunk.policy_area_id}-{target_chunk.dimension_id}",
-                text=target_chunk.text,
-            )
-
-            question_for_resolution = SignalQuestion(
-                question_id=question_id,
-                signal_requirements=required_types,
-            )
-
-            resolved_signals = _resolve_signals(
-                chunk=chunk_for_resolution,
-                question=question_for_resolution,
-                signal_registry=signal_registry,
-            )
-
-            logger.debug(
-                json.dumps(
-                    {
-                        "event": "signal_resolution_success",
-                        "question_id": question_id,
-                        "chunk_id": chunk_for_resolution.chunk_id,
-                        "required_count": len(required_types),
-                        "resolved_count": len(resolved_signals),
-                        "correlation_id": self.correlation_id,
-                    }
-                )
-            )
-
-            return resolved_signals
-
-        except ImportError as e:
-            raise ValueError(
-                f"Signal resolution dependencies not available: {e}"
-            ) from e
-
-    def validate_chunk_routing(self, question: dict[str, Any]) -> ChunkRoutingResult:
         """Phase 3: Validate chunk routing and extract metadata.
 
         Verifies that a chunk exists in the matrix for the question's routing keys,
@@ -768,14 +671,6 @@ class IrrigationSynchronizer:
                     f"[correlation_id={correlation_id}]"
                 )
 
-            self._validate_element_compatibility(
-                question_schema,
-                chunk_schema,
-                question_id,
-                chunk_id,
-                correlation_id,
-            )
-
         if question_type == "dict" and chunk_type == "dict":
             question_keys = set(question_schema.keys())
             chunk_keys = set(chunk_schema.keys())
@@ -808,112 +703,6 @@ class IrrigationSynchronizer:
                     }
                 )
             )
-
-    def _validate_element_compatibility(
-        self,
-        question_elements: list[dict[str, Any]],
-        chunk_elements: list[dict[str, Any]],
-        question_id: str,
-        chunk_id: str,
-        correlation_id: str,
-    ) -> int:
-        """Phase 6.3: Validate semantic compatibility of expected_elements.
-
-        Performs element-by-element semantic validation with type field equality,
-        asymmetric required field implication (q_required implies c_required),
-        and minimum field threshold ordering (c_min >= q_min).
-
-        Args:
-            question_elements: List of expected element dicts from question
-            chunk_elements: List of expected element dicts from chunk
-            question_id: Question identifier for error messages
-            chunk_id: Chunk identifier for error messages
-            correlation_id: Correlation ID for distributed tracing
-
-        Returns:
-            Count of validated elements
-
-        Raises:
-            ValueError: If type field mismatch, required field implication violated,
-                       or minimum threshold ordering violated
-        """
-        if len(question_elements) != len(chunk_elements):
-            raise ValueError(
-                f"Element count mismatch for question {question_id}: "
-                f"question has {len(question_elements)} elements, "
-                f"chunk has {len(chunk_elements)} elements "
-                f"[correlation_id={correlation_id}]"
-            )
-
-        validated_count = 0
-
-        for idx, (q_elem, c_elem) in enumerate(
-            zip(question_elements, chunk_elements, strict=True)
-        ):
-            if not isinstance(q_elem, dict):
-                raise ValueError(
-                    f"Element at index {idx} in question {question_id} is not a dict "
-                    f"[correlation_id={correlation_id}]"
-                )
-
-            if not isinstance(c_elem, dict):
-                raise ValueError(
-                    f"Element at index {idx} in chunk {chunk_id} is not a dict "
-                    f"[correlation_id={correlation_id}]"
-                )
-
-            q_type = q_elem.get("type")
-            c_type = c_elem.get("type")
-
-            if q_type != c_type:
-                raise ValueError(
-                    f"Type field mismatch at index {idx} for question {question_id}: "
-                    f"question type='{q_type}', chunk type='{c_type}' "
-                    f"[correlation_id={correlation_id}]"
-                )
-
-            q_required = q_elem.get("required", False)
-            c_required = c_elem.get("required", False)
-
-            if q_required and not c_required:
-                raise ValueError(
-                    f"Required field implication violated at index {idx} for question {question_id}: "
-                    f"question requires element type '{q_type}' but chunk does not "
-                    f"[correlation_id={correlation_id}]"
-                )
-
-            q_min = q_elem.get("minimum")
-            c_min = c_elem.get("minimum")
-
-            if q_min is not None and c_min is not None and c_min < q_min:
-                raise ValueError(
-                    f"Minimum threshold ordering violated at index {idx} for question {question_id}: "
-                    f"chunk minimum ({c_min}) < question minimum ({q_min}) for type '{q_type}' "
-                    f"[correlation_id={correlation_id}]"
-                )
-
-            if q_min is not None and c_min is None:
-                raise ValueError(
-                    f"Minimum field asymmetry at index {idx} for question {question_id}: "
-                    f"question specifies minimum={q_min} but chunk has no minimum for type '{q_type}' "
-                    f"[correlation_id={correlation_id}]"
-                )
-
-            validated_count += 1
-
-        logger.debug(
-            json.dumps(
-                {
-                    "event": "element_compatibility_validation_success",
-                    "question_id": question_id,
-                    "chunk_id": chunk_id,
-                    "validated_count": validated_count,
-                    "correlation_id": correlation_id,
-                }
-            )
-        )
-
-        return validated_count
 
     def _construct_task(
         self,
@@ -1043,53 +832,6 @@ class IrrigationSynchronizer:
 
         return task
 
-    def _assemble_execution_plan(
-        self,
-        executable_tasks: list[ExecutableTask],
-        questions: list[dict[str, Any]],
-        correlation_id: str,  # noqa: ARG002
-    ) -> list[ExecutableTask]:
-        """Validate execution plan assembly and return validated tasks.
-
-        Validates that task count matches question count and that no duplicate
-        task identifiers exist. Acts purely as a validation gate without
-        transformation logic.
-
-        Args:
-            executable_tasks: List of constructed ExecutableTask objects
-            questions: List of question dictionaries
-            correlation_id: Correlation ID for tracing
-
-        Returns:
-            Validated executable_tasks list unchanged
-
-        Raises:
-            ValueError: If task count doesn't match question count or duplicates exist
-        """
-        question_count = len(questions)
-        task_count = len(executable_tasks)
-
-        if task_count != question_count:
-            raise ValueError(
-                f"Execution plan assembly failure: expected {question_count} tasks "
-                f"but constructed {task_count}; task construction loop corrupted"
-            )
-
-        task_ids = [t.task_id for t in executable_tasks]
-        unique_count = len(set(task_ids))
-
-        if unique_count != len(task_ids):
-            counter = Counter(task_ids)
-            duplicates = [task_id for task_id, count in counter.items() if count > 1]
-            duplicate_count = len(task_ids) - unique_count
-
-            raise ValueError(
-                f"Execution plan assembly failure: found {duplicate_count} duplicate "
-                f"task identifiers; duplicates are {sorted(duplicates)}"
-            )
-
-        return executable_tasks
-
     def _compute_integrity_hash(self, tasks: list[Task]) -> str:
         """Compute Blake3 or SHA256 integrity hash of execution plan."""
         task_data = json.dumps(
@@ -1197,6 +939,13 @@ class IrrigationSynchronizer:
                         patterns_raw, routing_result.policy_area_id
                     )
 
+                        # Phase 5 validation: Ensure signal_registry initialized
+                        if self.signal_registry is None:
+                            raise ValueError(
+                                f"SignalRegistry required for Phase 5 signal resolution "
+                                f"but not initialized for question {question_id}"
+                            )
+
                     resolved_signals = self._resolve_signals_for_question(
                         question,
                         routing_result.target_chunk,
@@ -1264,8 +1013,6 @@ class IrrigationSynchronizer:
                     f"but constructed {actual_task_count}. "
                     f"Routing successes: {routing_successes}, failures: {routing_failures}"
                 )
-
-            self._assemble_execution_plan(tasks, questions, self.correlation_id)
 
             logger.info(
                 json.dumps(

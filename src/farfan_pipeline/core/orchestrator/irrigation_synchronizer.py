@@ -24,6 +24,7 @@ import json
 import logging
 import time
 import uuid
+from collections import Counter
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -990,13 +991,10 @@ class IrrigationSynchronizer:
 
         metadata = {
             "document_position": document_position,
-            "synchronizer_version": "2.0.0",
+            "synchronizer_version": "1.0.0",
             "correlation_id": self.correlation_id,
             "original_pattern_count": len(applicable_patterns),
             "original_signal_count": len(resolved_signals),
-            "filtered_pattern_count": len(patterns_list),
-            "resolved_signal_count": len(signals_dict),
-            "schema_element_count": len(expected_elements_list),
         }
 
         if task_id is None or not task_id:
@@ -1045,34 +1043,52 @@ class IrrigationSynchronizer:
 
         return task
 
-    def _assemble_execution_plan(self, executable_tasks: list[ExecutableTask]) -> None:
-        """Phase 8.1.1: Validate execution plan for duplicate task identifiers.
+    def _assemble_execution_plan(
+        self,
+        executable_tasks: list[ExecutableTask],
+        questions: list[dict[str, Any]],
+        correlation_id: str,  # noqa: ARG002
+    ) -> list[ExecutableTask]:
+        """Validate execution plan assembly and return validated tasks.
 
-        Extracts all task IDs, detects duplicates using set-based comparison,
-        and raises ValueError with deterministic error reporting when duplicates
-        are found. Serves as defense-in-depth detection of questionnaire data
-        corruption or potential concurrency issues.
+        Validates that task count matches question count and that no duplicate
+        task identifiers exist. Acts purely as a validation gate without
+        transformation logic.
 
         Args:
-            executable_tasks: List of ExecutableTask objects to validate
+            executable_tasks: List of constructed ExecutableTask objects
+            questions: List of question dictionaries
+            correlation_id: Correlation ID for tracing
+
+        Returns:
+            Validated executable_tasks list unchanged
 
         Raises:
-            ValueError: When duplicate task identifiers are detected, with message
-                       containing count and sorted list of duplicates
+            ValueError: If task count doesn't match question count or duplicates exist
         """
-        from collections import Counter
+        question_count = len(questions)
+        task_count = len(executable_tasks)
+
+        if task_count != question_count:
+            raise ValueError(
+                f"Execution plan assembly failure: expected {question_count} tasks "
+                f"but constructed {task_count}; task construction loop corrupted"
+            )
 
         task_ids = [t.task_id for t in executable_tasks]
         unique_count = len(set(task_ids))
 
-        if unique_count < len(task_ids):
-            duplicate_list = sorted(
-                [task_id for task_id, count in Counter(task_ids).items() if count > 1]
-            )
+        if unique_count != len(task_ids):
+            counter = Counter(task_ids)
+            duplicates = [task_id for task_id, count in counter.items() if count > 1]
+            duplicate_count = len(task_ids) - unique_count
+
             raise ValueError(
-                f"Execution plan assembly failure: found {len(task_ids) - unique_count} "
-                f"duplicate task identifiers; duplicates are {duplicate_list}"
+                f"Execution plan assembly failure: found {duplicate_count} duplicate "
+                f"task identifiers; duplicates are {sorted(duplicates)}"
             )
+
+        return executable_tasks
 
     def _compute_integrity_hash(self, tasks: list[Task]) -> str:
         """Compute Blake3 or SHA256 integrity hash of execution plan."""
@@ -1249,7 +1265,7 @@ class IrrigationSynchronizer:
                     f"Routing successes: {routing_successes}, failures: {routing_failures}"
                 )
 
-            self._assemble_execution_plan(tasks)
+            self._assemble_execution_plan(tasks, questions, self.correlation_id)
 
             logger.info(
                 json.dumps(

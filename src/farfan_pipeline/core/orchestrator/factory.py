@@ -450,7 +450,6 @@ def _build_method_executor(strict: bool) -> MethodExecutor:
         # Build method executor
         method_executor = MethodExecutor(
             method_registry=method_registry,
-            arg_router=arg_router,
         )
         
         # Validate construction

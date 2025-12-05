@@ -928,6 +928,35 @@ class IrrigationSynchronizer:
 
         return task
 
+    def _assemble_execution_plan(self, executable_tasks: list[ExecutableTask]) -> None:
+        """Phase 8.1.1: Validate execution plan for duplicate task identifiers.
+
+        Extracts all task IDs, detects duplicates using set-based comparison,
+        and raises ValueError with deterministic error reporting when duplicates
+        are found. Serves as defense-in-depth detection of questionnaire data
+        corruption or potential concurrency issues.
+
+        Args:
+            executable_tasks: List of ExecutableTask objects to validate
+
+        Raises:
+            ValueError: When duplicate task identifiers are detected, with message
+                       containing count and sorted list of duplicates
+        """
+        from collections import Counter
+
+        task_ids = [t.task_id for t in executable_tasks]
+        unique_count = len(set(task_ids))
+
+        if unique_count < len(task_ids):
+            duplicate_list = sorted(
+                [task_id for task_id, count in Counter(task_ids).items() if count > 1]
+            )
+            raise ValueError(
+                f"Execution plan assembly failure: found {len(task_ids) - unique_count} "
+                f"duplicate task identifiers; duplicates are {duplicate_list}"
+            )
+
     def _compute_integrity_hash(self, tasks: list[Task]) -> str:
         """Compute Blake3 or SHA256 integrity hash of execution plan."""
         task_data = json.dumps(
@@ -1102,6 +1131,8 @@ class IrrigationSynchronizer:
                     f"but constructed {actual_task_count}. "
                     f"Routing successes: {routing_successes}, failures: {routing_failures}"
                 )
+
+            self._assemble_execution_plan(tasks)
 
             logger.info(
                 json.dumps(

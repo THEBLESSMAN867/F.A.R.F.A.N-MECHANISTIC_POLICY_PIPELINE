@@ -320,7 +320,8 @@ def _load_and_validate_questionnaire(
 ) -> CanonicalQuestionnaire:
     """Load and validate canonical questionnaire."""
     try:
-        questionnaire = load_questionnaire(path)
+        questionnaire_path = Path(path) if path is not None else None
+        questionnaire = load_questionnaire(questionnaire_path)
         
         # Validate structure
         if not hasattr(questionnaire, 'questions'):

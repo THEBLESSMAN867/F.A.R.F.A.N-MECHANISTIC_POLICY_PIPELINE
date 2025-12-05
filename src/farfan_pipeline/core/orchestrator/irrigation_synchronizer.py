@@ -1569,6 +1569,74 @@ class IrrigationSynchronizer:
             )
             raise
 
+    def _validate_cross_task_cardinality(
+        self,
+        execution_plan: ExecutionPlan,
+        questions: list[dict[str, Any]],
+        chunk_matrix: ChunkMatrix,  # noqa: ARG002
+    ) -> None:
+        """Validate cross-task chunk reference cardinality.
+
+        Extracts unique chunk_ids from execution plan tasks, computes expected
+        reference count by filtering questions that match chunk routing keys,
+        compares against actual task reference count, and emits warning-level
+        logs when counts differ. Does not raise exceptions since usage skew
+        may reflect legitimate sparse questionnaire coverage.
+
+        Args:
+            execution_plan: ExecutionPlan with constructed tasks
+            questions: List of question dictionaries from questionnaire
+            chunk_matrix: ChunkMatrix for chunk metadata lookup
+
+        Returns:
+            None (validation emits structured logs only)
+        """
+        unique_chunk_ids = {task.chunk_id for task in execution_plan.tasks}
+
+        for chunk_id in unique_chunk_ids:
+            try:
+                policy_area_id, dimension_id = chunk_id.split("-")
+            except ValueError:
+                logger.warning(
+                    json.dumps(
+                        {
+                            "event": "cross_task_cardinality_validation_warning",
+                            "chunk_id": chunk_id,
+                            "error": "Invalid chunk_id format, expected 'PA-DIM' pattern",
+                            "correlation_id": self.correlation_id,
+                        }
+                    )
+                )
+                continue
+
+            expected_count = sum(
+                1
+                for q in questions
+                if q.get("policy_area_id") == policy_area_id
+                and q.get("dimension_id") == dimension_id
+            )
+
+            actual_count = sum(
+                1 for task in execution_plan.tasks if task.chunk_id == chunk_id
+            )
+
+            if actual_count != expected_count:
+                logger.warning(
+                    json.dumps(
+                        {
+                            "event": "cross_task_cardinality_mismatch",
+                            "chunk_id": chunk_id,
+                            "policy_area_id": policy_area_id,
+                            "dimension_id": dimension_id,
+                            "expected_count": expected_count,
+                            "actual_count": actual_count,
+                            "skew": actual_count - expected_count,
+                            "message": "Task reference count differs from expected; may indicate sparse coverage",
+                            "correlation_id": self.correlation_id,
+                        }
+                    )
+                )
+
     def _resolve_signals_for_question(
         self,
         question: dict[str, Any],

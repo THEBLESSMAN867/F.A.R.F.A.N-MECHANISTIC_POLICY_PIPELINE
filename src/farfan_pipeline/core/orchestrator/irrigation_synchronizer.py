@@ -57,8 +57,6 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-SHA256_HEX_DIGEST_LENGTH = 64
-
 
 class SignalRegistry(Protocol):
     """Protocol for signal registry implementations.
@@ -843,18 +841,14 @@ class IrrigationSynchronizer:
     ) -> tuple[list[ExecutableTask], str]:
         """Phase 8: Assemble execution plan with validation and deterministic ordering.
 
-        Performs four-phase assembly process:
+        Performs three-phase assembly process:
         - Phase 8.1: Pre-assembly validation (duplicate detection, count validation)
         - Phase 8.2: Deterministic task ordering (lexicographic by task_id)
-        - Phase 8.3: Plan identifier computation (SHA256 of deterministic JSON)
-        - Phase 8.4: Plan identifier validation (format and length checks)
+        - Phase 8.3: Plan identifier computation via SHA256 hash
 
         Validates that task count matches question count and that no duplicate
-        task identifiers exist. Then sorts tasks lexicographically by task_id to ensure
-        deterministic plan identifier generation across runs. Computes plan_id by
-        encoding deterministic JSON serialization (sort_keys=True, compact separators)
-        to UTF-8 bytes, computing SHA256 hash, and validating result matches expected
-        64-character lowercase hexadecimal format.
+        task identifiers exist. Then sorts tasks lexicographically by task_id and
+        computes deterministic plan identifier via SHA256 hash of task serialization.
 
         Args:
             executable_tasks: List of constructed ExecutableTask objects
@@ -862,15 +856,12 @@ class IrrigationSynchronizer:
             correlation_id: Correlation ID for tracing
 
         Returns:
-            Tuple of (sorted list of ExecutableTask objects, plan_id string)
+            Tuple of (sorted tasks, plan_id)
 
         Raises:
-            ValueError: If task count doesn't match question count, duplicates exist,
-                       or plan_id validation fails
+            ValueError: If task count doesn't match question count or duplicates exist
             RuntimeError: When sorting operation corrupts task list length
         """
-        from collections import Counter
-
         question_count = len(questions)
         task_count = len(executable_tasks)
 
@@ -934,8 +925,8 @@ class IrrigationSynchronizer:
 
         return sorted_tasks, plan_id
 
-    def _compute_integrity_hash(self, tasks: list[Task]) -> str:
-        """Compute Blake3 or SHA256 integrity hash of execution plan."""
+    def _compute_plan_hash(self, tasks: list[Task]) -> str:
+        """Compute Blake3 or SHA256 hash for plan_id generation."""
         task_data = json.dumps(
             [
                 {
@@ -954,6 +945,31 @@ class IrrigationSynchronizer:
             return blake3.blake3(task_data).hexdigest()
         else:
             return hashlib.sha256(task_data).hexdigest()
+
+    def _compute_integrity_hash(
+        self, plan_id: str, generation_timestamp: str, synchronizer_version: str
+    ) -> str:
+        """Compute SHA256 integrity hash from plan metadata.
+
+        Args:
+            plan_id: Plan identifier
+            generation_timestamp: ISO 8601 timestamp of plan generation
+            synchronizer_version: Synchronizer version string
+
+        Returns:
+            64-character hexadecimal SHA256 hash string
+        """
+        metadata_dict = {
+            "plan_id": plan_id,
+            "generation_timestamp": generation_timestamp,
+            "synchronizer_version": synchronizer_version,
+        }
+        json_str = json.dumps(
+            metadata_dict, sort_keys=True, separators=(",", ":"), default=str
+        )
+        json_bytes = json_str.encode("utf-8")
+        hash_digest = hashlib.sha256(json_bytes).hexdigest()
+        return hash_digest
 
     @synchronization_duration.time()
     def build_execution_plan(self) -> ExecutionPlan:
@@ -1149,7 +1165,12 @@ class IrrigationSynchronizer:
                 )
                 legacy_tasks.append(legacy_task)
 
-            integrity_hash = self._compute_integrity_hash(legacy_tasks)
+            generation_timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            synchronizer_version = "1.0.0"
+
+            integrity_hash = self._compute_integrity_hash(
+                plan_id, generation_timestamp, synchronizer_version
+            )
 
             plan = ExecutionPlan(
                 plan_id=plan_id,
@@ -1157,7 +1178,7 @@ class IrrigationSynchronizer:
                 chunk_count=self.chunk_count,
                 question_count=len(questions),
                 integrity_hash=integrity_hash,
-                created_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                created_at=generation_timestamp,
                 correlation_id=self.correlation_id,
             )
 
@@ -1297,7 +1318,12 @@ class IrrigationSynchronizer:
                     "compromised or monkey-patched"
                 )
 
-            integrity_hash = self._compute_integrity_hash(sorted_tasks)
+            generation_timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            synchronizer_version = "1.0.0"
+
+            integrity_hash = self._compute_integrity_hash(
+                plan_id, generation_timestamp, synchronizer_version
+            )
 
             plan = ExecutionPlan(
                 plan_id=plan_id,
@@ -1305,7 +1331,7 @@ class IrrigationSynchronizer:
                 chunk_count=self.chunk_count,
                 question_count=len(questions),
                 integrity_hash=integrity_hash,
-                created_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                created_at=generation_timestamp,
                 correlation_id=self.correlation_id,
             )
 
